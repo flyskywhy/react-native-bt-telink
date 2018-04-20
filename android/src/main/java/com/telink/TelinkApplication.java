@@ -37,13 +37,16 @@ import com.telink.util.EventListener;
 import com.telink.util.Strings;
 
 import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
-public class TelinkApplication extends Application {
+public class TelinkApplication /*extends Application*/ {
 
+    private StringBuilder logInfo;
     private static TelinkApplication mThis;
 
     protected final EventBus<String> mEventBus = new EventBus<>();
-    protected Context mContext;
+    protected Application mContext;
     protected boolean serviceStarted;
     protected boolean serviceConnected;
     protected final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -62,11 +65,11 @@ public class TelinkApplication extends Application {
     protected DeviceInfo mCurrentConnect;
     private BroadcastReceiver mLightReceiver;
 
-    public static TelinkApplication getInstance() {
-        if (mThis == null)
-            mThis = new TelinkApplication();
-        return mThis;
-    }
+    // public static TelinkApplication getInstance() {
+    //     if (mThis == null)
+    //         mThis = new TelinkApplication();
+    //     return mThis;
+    // }
 
     /**
      * 当前连接的设备
@@ -77,19 +80,33 @@ public class TelinkApplication extends Application {
         return mCurrentConnect;
     }
 
-    @Override
-    public void onCreate() {
+    // @Override
+    // public void onCreate() {
+    //     mThis = this;
+    //     this.mContext = this;
+    //     super.onCreate();
+    //     TelinkLog.d("TelinkApplication Created.");
+    // }
+    /**
+     * Constructor for react-native.
+     * @param context Application which handles service events
+     */
+    TelinkApplication(Application context) {
+        logInfo = new StringBuilder("log:");
         mThis = this;
-        this.mContext = this;
-        super.onCreate();
+        this.mContext = context;
         TelinkLog.d("TelinkApplication Created.");
+        // mAdapter = BluetoothAdapter.getDefaultAdapter();
+        // mState = STATE_NONE;
+        // mModule = module;
     }
 
     public void doInit() {
-        this.doInit(this);
+        // this.doInit(this);
+        this.doInit(this.mContext);
     }
 
-    public void doInit(Context context) {
+    public void doInit(Application context) {
         this.doInit(context, null);
     }
 
@@ -99,7 +116,7 @@ public class TelinkApplication extends Application {
      * @param context 上下文
      * @param clazz   要启动的LightService
      */
-    public void doInit(Context context, Class<? extends LightService> clazz) {
+    public void doInit(Application context, Class<? extends LightService> clazz) {
         this.mContext = context;
         LocalBroadcastManager.getInstance(this.mContext).registerReceiver(makeLightReceiver(), makeLightFilter());
         if (clazz != null)
@@ -242,7 +259,7 @@ public class TelinkApplication extends Application {
         this.serviceStarted = true;
 
         Intent service = new Intent(this.mContext, clazz);
-        this.bindService(service, this.mServiceConnection,
+        this.mContext.bindService(service, this.mServiceConnection,
                 Context.BIND_AUTO_CREATE);
     }
 
@@ -257,7 +274,7 @@ public class TelinkApplication extends Application {
         this.serviceStarted = false;
 
         if (this.serviceConnected) {
-            this.unbindService(this.mServiceConnection);
+            this.mContext.unbindService(this.mServiceConnection);
         }
     }
 
@@ -334,7 +351,7 @@ public class TelinkApplication extends Application {
         if (Strings.isEmpty(eventType))
             return;
 
-        NotificationEvent event = NotificationEvent.newInstance(this, eventType, notifyInfo);
+        NotificationEvent event = NotificationEvent.newInstance(this.mContext, eventType, notifyInfo);
         event.setThreadMode(Event.ThreadMode.Background);
         this.dispatchEvent(event);
     }
@@ -353,7 +370,19 @@ public class TelinkApplication extends Application {
         NotificationParser.register(parser);
     }
 
-    public void saveLog(String action) {
-    }
+//    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.S");
 
+    public void saveLog(String action) {
+//        SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+//        Date date = sdf.parse(dateInString);
+
+        String time = format.format(Calendar.getInstance().getTimeInMillis());
+        logInfo.append("\n\t").append(time).append(":\t").append(action);
+        /*if (Looper.myLooper() == Looper.getMainLooper()) {
+            showToast(action);
+        }*/
+
+        TelinkLog.w("SaveLog: " + action);
+    }
 }
