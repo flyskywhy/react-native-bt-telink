@@ -169,9 +169,10 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     @Override
     public void onHostDestroy() {
         if (D) Log.d(TAG, "Host destroy");
-        if (mTelinkApplication != null) {
-            this.doDestroy();
-        }
+        // APP 切到后台时也会调用此处，导致切回前台 Resume 时无法再正常使用本组件，因此使不在此处调用 doDestroy
+        // if (mTelinkApplication != null) {
+        //     this.doDestroy();
+        // }
     }
 
     @Override
