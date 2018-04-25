@@ -355,12 +355,12 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
 
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.macAddress = node.getString("macAddress");
-        deviceInfo.deviceName = node.getString("deviceName");
-        deviceInfo.meshName = node.getString("meshName");
+        // deviceInfo.deviceName = node.getString("deviceName");
+        // deviceInfo.meshName = node.getString("meshName");
         deviceInfo.meshAddress = node.getInt("meshAddress");
-        deviceInfo.meshUUID = node.getInt("meshUUID");
-        deviceInfo.productUUID = node.getInt("productUUID");
-        deviceInfo.status = node.getInt("status");
+        // deviceInfo.meshUUID = node.getInt("meshUUID");
+        // deviceInfo.productUUID = node.getInt("productUUID");
+        // deviceInfo.status = node.getInt("status");
 
         LeUpdateParameters params = Parameters.createUpdateParameters();
         params.setOldMeshName(cfg.getString("oldName"));
