@@ -29,6 +29,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
@@ -100,6 +101,9 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     private ReactApplicationContext mReactContext;
     protected Context mContext;
     private Handler mHandler = new Handler(Looper.getMainLooper());
+
+    // Patch
+    private String mPatchConfigNodeOldName;
 
     // Promises
     private Promise mConfigNodePromise;
@@ -349,8 +353,51 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         TelinkLightService.Instance().sendCommandNoResponse(opcode, meshAddress, params);
     }
 
+    // @ReactMethod
+    // private void configNodes(ReadableArray nodes, ReadableMap cfg, Promise promise) {
+    //     int count = nodes.size();
+    //     DeviceInfo[] deviceInfos = new DeviceInfo[count];
+    //     for (int i = 0; i < count; i++) {
+    //         ReadableMap node = nodes.getMap(i);
+    //         DeviceInfo deviceInfo = new DeviceInfo();
+    //         deviceInfo.macAddress = node.getString("macAddress");
+    //         // deviceInfo.deviceName = node.getString("deviceName");
+    //         // deviceInfo.meshName = node.getString("meshName");
+    //         deviceInfo.meshAddress = node.getInt("meshAddress");
+    //         // deviceInfo.meshUUID = node.getInt("meshUUID");
+    //         // deviceInfo.productUUID = node.getInt("productUUID");
+    //         // deviceInfo.status = node.getInt("status");
+    //         deviceInfos[i] = deviceInfo;
+    //     }
+
+    //     LeUpdateParameters params = Parameters.createUpdateParameters();
+    //     params.setOldMeshName(cfg.getString("oldName"));
+    //     params.setOldPassword(cfg.getString("oldPwd"));
+    //     params.setNewMeshName(cfg.getString("newName"));
+    //     params.setNewPassword(cfg.getString("newPwd"));
+    //     params.setUpdateDeviceList(deviceInfos);
+    //     TelinkLightService.Instance().updateMesh(params);
+    // }
+
+    // private void onUpdateMeshCompleted(DeviceInfo deviceInfo) {
+    //     if (D) Log.d(TAG, "onUpdateMeshCompleted");
+    //     WritableMap params = Arguments.createMap();
+    //     params.putString("macAddress", deviceInfo.macAddress);
+    //     params.putString("deviceName", deviceInfo.deviceName);
+    //     params.putString("meshName", deviceInfo.meshName);
+    //     params.putInt("meshAddress", deviceInfo.meshAddress);
+    //     params.putInt("meshUUID", deviceInfo.meshUUID);
+    //     params.putInt("productUUID", deviceInfo.productUUID);
+    //     params.putInt("status", deviceInfo.status);
+    //     sendEvent(DEVICE_STATUS_UPDATE_MESH_COMPLETED, params);
+    // }
+
+// 上面注释掉的 configNodes 和 onUpdateMeshCompleted 是用于批量更新 JS 层传来的 mesh 数组的，
+// 但实际调试发现只能更新第一个 mesh ， 因此还是让 JS 层间隔一段时间调用下面的 configNode 更合适
+
     @ReactMethod
     private void configNode(ReadableMap node, ReadableMap cfg, Promise promise) {
+        mPatchConfigNodeOldName = cfg.getString("oldName");
         mConfigNodePromise = promise;
 
         DeviceInfo deviceInfo = new DeviceInfo();
@@ -368,7 +415,6 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         params.setNewMeshName(cfg.getString("newName"));
         params.setNewPassword(cfg.getString("newPwd"));
         params.setUpdateDeviceList(deviceInfo);
-//        TelinkLightService.Instance().idleMode(true);
         TelinkLightService.Instance().updateMesh(params);
     }
 
@@ -378,6 +424,16 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
             mConfigNodePromise.resolve(true);
         }
         mConfigNodePromise = null;
+    }
+
+    private void onUpdateMeshFailure(DeviceInfo deviceInfo) {
+        if (deviceInfo.meshName.equals(mPatchConfigNodeOldName)) {  // 开始进行一系列 updateMesh 后，第一个 Mesh 总会同时返回成功和失败的两个 Event 从而导致 JS 层代码逻辑无所适从，所以此处需要该补丁
+            if (D) Log.d(TAG, "onUpdateMeshFailure");
+            if (mConfigNodePromise != null) {
+                mConfigNodePromise.reject(new Exception("onUpdateMeshFailure"));
+            }
+            mConfigNodePromise = null;
+        }
     }
 
     private void onUpdateMeshFailure() {
@@ -419,8 +475,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
                 onUpdateMeshCompleted();
                 break;
             case LightAdapter.STATUS_UPDATE_MESH_FAILURE:
-                onUpdateMeshFailure();
-                TelinkLog.w("DeviceBatchScanningActivity#STATUS_UPDATE_MESH_FAILURE");
+                onUpdateMeshFailure(deviceInfo);
                 break;
             case LightAdapter.STATUS_ERROR_N:
                 onNError(event);
@@ -496,11 +551,9 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     private void onMeshEventUpdateCompleted(MeshEvent event) {
-        onUpdateMeshCompleted();
     }
 
     private void onMeshEventError(MeshEvent event) {
-        onUpdateMeshFailure();
     }
 
     /**

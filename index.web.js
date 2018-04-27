@@ -4,6 +4,7 @@ class TelinkBt {
     static NODE_STATUS_OFF = 0;
     static NODE_STATUS_ON = 1;
     static NODE_STATUS_OFFLINE = 2;
+    static DELAY_MS_AFTER_UPDATE_MESH_COMPLETED = 1;
 
     static doInit() {}
 
