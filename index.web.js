@@ -1,6 +1,10 @@
 class TelinkBt {
     static MESH_ADDRESS_MIN = 0x0001;
     static MESH_ADDRESS_MAX = 0x00FF;
+    static BRIGHTNESS_MIN = 1;
+    static BRIGHTNESS_MAX = 127;
+    static TEMPERATUR_MIN = 1;
+    static TEMPERATUR_MAX = 127;
     static NODE_STATUS_OFF = 0;
     static NODE_STATUS_ON = 1;
     static NODE_STATUS_OFFLINE = 2;

@@ -328,7 +328,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     @ReactMethod
     private void changeBrightness(int meshAddress, int value) {
         byte opcode = (byte) 0xD2;
-        byte[] params = new byte[]{(byte) (value + 5)};
+        byte[] params = new byte[]{(byte) value};
 
         TelinkLightService.Instance().sendCommandNoResponse(opcode, meshAddress, params);
     }
