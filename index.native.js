@@ -1,6 +1,8 @@
 const {
     NativeModules,
     DeviceEventEmitter,
+    NativeEventEmitter,
+    Platform
 } = require('react-native');
 const NativeModule = NativeModules.TelinkBt;
 
@@ -25,11 +27,23 @@ class TelinkBt {
     }
 
     static addListener(eventName, handler) {
-        DeviceEventEmitter.addListener(eventName, handler);
+        if (Platform.OS === 'ios') {
+            const TelinkBtEmitter = new NativeEventEmitter(NativeModule);
+
+            TelinkBtEmitter.addListener(eventName, handler);
+        } else {
+            DeviceEventEmitter.addListener(eventName, handler);
+        }
     }
 
     static removeListener(eventName, handler) {
-        DeviceEventEmitter.removeListener(eventName, handler);
+        if (Platform.OS === 'ios') {
+            const TelinkBtEmitter = new NativeEventEmitter(NativeModule);
+
+            TelinkBtEmitter.removeListener(eventName, handler);
+        } else {
+            DeviceEventEmitter.removeListener(eventName, handler);
+        }
     }
 
     static notModeAutoConnectMesh() {
