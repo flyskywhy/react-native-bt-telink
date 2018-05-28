@@ -334,7 +334,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
-    private void changeTemperatur(int meshAddress, int value) {
+    private void changeColorTemp(int meshAddress, int value) {
         byte opcode = (byte) 0xE2;
         byte[] params = new byte[]{0x05, (byte) value};
 

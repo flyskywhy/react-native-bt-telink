@@ -11,8 +11,8 @@ class TelinkBt {
     static MESH_ADDRESS_MAX = 0x00FF;
     static BRIGHTNESS_MIN = 1;
     static BRIGHTNESS_MAX = 127;
-    static TEMPERATUR_MIN = 1;
-    static TEMPERATUR_MAX = 127;
+    static COLOR_TEMP_MIN = 1;
+    static COLOR_TEMP_MAX = 127;
     static NODE_STATUS_OFF = 0;
     static NODE_STATUS_ON = 1;
     static NODE_STATUS_OFFLINE = 2;
@@ -96,11 +96,11 @@ class TelinkBt {
         NativeModule.changeBrightness(meshAddress, value);
     }
 
-    static changeTemperatur({
+    static changeColorTemp({
         meshAddress,
         value
     }) {
-        NativeModule.changeTemperatur(meshAddress, value);
+        NativeModule.changeColorTemp(meshAddress, value);
     }
 
     static changeColor({
