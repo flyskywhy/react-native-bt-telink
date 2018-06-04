@@ -224,6 +224,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         mReactContext.addActivityEventListener(this);
         mReactContext.addLifecycleEventListener(this);
         registerBluetoothStateReceiver();
+        sendEvent(DEVICE_STATUS_LOGOUT);
     }
 
     @ReactMethod
@@ -291,6 +292,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         }
 
         TelinkLightService.Instance().autoConnect(connectParams);
+        sendEvent(DEVICE_STATUS_LOGIN);
     }
 
     @ReactMethod
@@ -584,9 +586,11 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
                 break;
             case LeScanEvent.LE_SCAN_TIMEOUT:
                 sendEvent(LE_SCAN_TIMEOUT);
+                sendEvent(DEVICE_STATUS_LOGOUT);
                 break;
             case LeScanEvent.LE_SCAN_COMPLETED:
                 sendEvent(LE_SCAN_COMPLETED);
+                sendEvent(DEVICE_STATUS_LOGOUT);
                 break;
             case MeshEvent.OFFLINE:
                 this.onMeshOffline((MeshEvent) event);
