@@ -238,7 +238,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
-    protected void doResume() {
+    public void doResume() {
         //检查是否支持蓝牙设备
         if (!LeBluetooth.getInstance().isSupport(mContext)) {
             Toast.makeText(mContext, "ble not support", Toast.LENGTH_SHORT).show();
@@ -278,7 +278,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
-    private void autoConnect(String userMeshName, String userMeshPwd, String otaMac) {
+    public void autoConnect(String userMeshName, String userMeshPwd, String otaMac) {
         LeAutoConnectParameters connectParams = Parameters.createAutoConnectParameters();
         connectParams.setMeshName(userMeshName);
         connectParams.setPassword(userMeshPwd);
@@ -296,7 +296,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
-    private void autoRefreshNotify(int repeatCount, int Interval) {
+    public void autoRefreshNotify(int repeatCount, int Interval) {
         LeRefreshNotifyParameters refreshNotifyParams = Parameters.createRefreshNotifyParameters();
         refreshNotifyParams.setRefreshRepeatCount(repeatCount);
         refreshNotifyParams.setRefreshInterval(Interval);
@@ -305,12 +305,12 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
-    private void idleMode(boolean disconnect) {
+    public void idleMode(boolean disconnect) {
         TelinkLightService.Instance().idleMode(disconnect);
     }
 
     @ReactMethod
-    private void startScan(String meshName, String outOfMeshName, int timeoutSeconds, boolean isSingleNode) {
+    public void startScan(String meshName, String outOfMeshName, int timeoutSeconds, boolean isSingleNode) {
         LeScanParameters params = LeScanParameters.create();
         params.setMeshName(meshName);
         params.setOutOfMeshName(outOfMeshName);
@@ -325,7 +325,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
-    private void changePower(int meshAddress, int value) {
+    public void changePower(int meshAddress, int value) {
         byte opcode = (byte) 0xD0;
         byte[] params = new byte[]{(byte) value, 0x00, 0x00};
 
@@ -333,7 +333,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
-    private void changeBrightness(int meshAddress, int value) {
+    public void changeBrightness(int meshAddress, int value) {
         byte opcode = (byte) 0xD2;
         byte[] params = new byte[]{(byte) value};
 
@@ -341,7 +341,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
-    private void changeColorTemp(int meshAddress, int value) {
+    public void changeColorTemp(int meshAddress, int value) {
         byte opcode = (byte) 0xE2;
         byte[] params = new byte[]{0x05, (byte) value};
 
@@ -349,7 +349,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
-    private void changeColor(int meshAddress, int value) {
+    public void changeColor(int meshAddress, int value) {
         byte red = (byte) (value >> 16 & 0xFF);
         byte green = (byte) (value >> 8 & 0xFF);
         byte blue = (byte) (value & 0xFF);
@@ -361,7 +361,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     // @ReactMethod
-    // private void configNodes(ReadableArray nodes, ReadableMap cfg, Promise promise) {
+    // public void configNodes(ReadableArray nodes, ReadableMap cfg, Promise promise) {
     //     int count = nodes.size();
     //     DeviceInfo[] deviceInfos = new DeviceInfo[count];
     //     for (int i = 0; i < count; i++) {
@@ -403,7 +403,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
 // 但实际调试发现只能更新第一个 mesh ， 因此还是让 JS 层间隔一段时间调用下面的 configNode 更合适
 
     @ReactMethod
-    private void configNode(ReadableMap node, ReadableMap cfg, Promise promise) {
+    public void configNode(ReadableMap node, ReadableMap cfg, Promise promise) {
         mPatchConfigNodeOldName = cfg.getString("oldName");
         mConfigNodePromise = promise;
 
