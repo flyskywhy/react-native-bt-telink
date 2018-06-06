@@ -274,7 +274,11 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
 
     @ReactMethod
     public void notModeAutoConnectMesh(Promise promise) {
-        promise.resolve(TelinkLightService.Instance().getMode() != LightAdapter.MODE_AUTO_CONNECT_MESH);
+        if (TelinkLightService.Instance().getMode() != LightAdapter.MODE_AUTO_CONNECT_MESH) {
+            promise.resolve(true);
+        } else {
+            promise.reject(new Exception("Already in mode AutoConnectMesh"));
+        }
     }
 
     @ReactMethod
@@ -321,7 +325,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
 
     @ReactMethod
     public void isPassthrough(Promise promise) {
-        promise.resolve(false);
+        promise.reject(new Exception("this node cannot not passthrough"));
     }
 
     @ReactMethod
