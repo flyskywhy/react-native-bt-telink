@@ -320,6 +320,11 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
+    public void isPassthrough(Promise promise) {
+        promise.resolve(false);
+    }
+
+    @ReactMethod
     private void changePower(int meshAddress, int value) {
         byte opcode = (byte) 0xD0;
         byte[] params = new byte[]{(byte) value, 0x00, 0x00};

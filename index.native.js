@@ -85,6 +85,12 @@ class TelinkBt {
         return NativeModule.startScan(meshName, outOfMeshName, timeoutSeconds, isSingleNode);
     }
 
+    static isPassthrough({
+        type,
+    }) {
+        return NativeModule.isPassthrough();
+    }
+
     static changePower({
         meshAddress,
         value
