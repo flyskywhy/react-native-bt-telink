@@ -259,6 +259,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
             mHandler.removeCallbacksAndMessages(null);
             mReactContext.unregisterReceiver(mBluetoothStateReceiver);
             mTelinkApplication.doDestroy();
+            mTelinkApplication = null;
         }
     }
 
