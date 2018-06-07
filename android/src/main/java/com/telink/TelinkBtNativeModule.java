@@ -265,37 +265,12 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
 
     @ReactMethod
     public void doResume() {
+        Log.d(TAG, "onResume");
         //检查是否支持蓝牙设备
         if (!LeBluetooth.getInstance().isSupport(mContext)) {
             Toast.makeText(mContext, "ble not support", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // if (!LeBluetooth.getInstance().isEnabled()) {
-        //     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        //     builder.setMessage("开启蓝牙，体验智能灯!");
-        //     builder.setNeutralButton("cancel", new DialogInterface.OnClickListener() {
-        //         @Override
-        //         public void onClick(DialogInterface dialog, int which) {
-        //             finish();
-        //         }
-        //     });
-        //     builder.setNegativeButton("enable", new DialogInterface.OnClickListener() {
-        //         @Override
-        //         public void onClick(DialogInterface dialog, int which) {
-        //             LeBluetooth.getInstance().enable(getApplicationContext());
-        //         }
-        //     });
-        //     builder.show();
-        // }
-
-        // DeviceInfo deviceInfo = this.mApplication.getConnectDevice();
-
-        // if (deviceInfo != null) {
-        //     this.connectMeshAddress = this.mApplication.getConnectDevice().meshAddress & 0xFF;
-        // }
-
-        Log.d(TAG, "onResume");
     }
 
     @ReactMethod
@@ -552,8 +527,6 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     private void onServiceDisconnected(ServiceEvent event) {
         sendEvent(SERVICE_DISCONNECTED);
     }
-
-    // AlertDialog.Builder mTimeoutBuilder;
 
     private void onMeshOffline(MeshEvent event) {
         onUpdateMeshFailure();
