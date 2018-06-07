@@ -432,7 +432,8 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     private void onUpdateMeshCompleted() {
         if (D) Log.d(TAG, "onUpdateMeshCompleted");
         if (mConfigNodePromise != null) {
-            mConfigNodePromise.resolve(true);
+            WritableMap params = Arguments.createMap();
+            mConfigNodePromise.resolve(params);
         }
         mConfigNodePromise = null;
     }
