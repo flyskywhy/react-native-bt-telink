@@ -49,12 +49,6 @@ class TelinkBt {
         isSingleNode,
     }) {}
 
-    static isPassthrough({
-        type,
-    }) {
-        return false;
-    }
-
     static changePower({
         meshAddress,
         value

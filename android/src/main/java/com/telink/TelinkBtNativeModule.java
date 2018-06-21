@@ -325,11 +325,6 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
-    public void isPassthrough(Promise promise) {
-        promise.reject(new Exception("this node cannot not passthrough"));
-    }
-
-    @ReactMethod
     public void changePower(int meshAddress, int value) {
         byte opcode = (byte) 0xD0;
         byte[] params = new byte[]{(byte) value, 0x00, 0x00};
