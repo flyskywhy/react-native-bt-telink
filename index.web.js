@@ -73,6 +73,16 @@ class TelinkBt {
         node,
         cfg,
     }) {}
+
+    static getTotalOfGroupIndex({
+        meshAddress,
+    }) {}
+
+    static setNodeGroupAddr({
+        meshAddress,
+        groupIndex,
+        groupAddress,
+    }) {}
 }
 
 module.exports = TelinkBt;
