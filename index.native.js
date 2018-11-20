@@ -9,6 +9,8 @@ const NativeModule = NativeModules.TelinkBt;
 class TelinkBt {
     static MESH_ADDRESS_MIN = 0x0001;
     static MESH_ADDRESS_MAX = 0x00FF;
+    static GROUP_ADDRESS_MIN = 0x8001;
+    static GROUP_ADDRESS_MAX = 0x80FF;
     static BRIGHTNESS_MIN = 1;
     static BRIGHTNESS_MAX = 127;
     static COLOR_TEMP_MIN = 1;
