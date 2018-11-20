@@ -49,6 +49,12 @@ class TelinkBt {
         isSingleNode,
     }) {}
 
+    static testMeshOpcode({
+        opcode,
+        meshAddress,
+        valueArray
+    }) {}
+
     static changePower({
         meshAddress,
         value

@@ -324,6 +324,22 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         TelinkLightService.Instance().startScan(params);
     }
 
+
+    public static byte[] readableArray2ByteArray(ReadableArray arr) {
+        int size = arr.size();
+        byte[] byteArr = new byte[size];
+        for(int i = 0; i < arr.size(); i++) {
+            byteArr[i] = (byte)arr.getInt(i);
+        }
+
+        return byteArr;
+    }
+
+    @ReactMethod
+    public void testMeshOpcode(int opcode, int meshAddress, ReadableArray value) {
+        TelinkLightService.Instance().sendCommandNoResponse((byte) opcode, meshAddress, readableArray2ByteArray(value));
+    }
+
     @ReactMethod
     public void changePower(int meshAddress, int value) {
         byte opcode = (byte) 0xD0;

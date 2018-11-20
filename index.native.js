@@ -85,6 +85,14 @@ class TelinkBt {
         return NativeModule.startScan(meshName, outOfMeshName, timeoutSeconds, isSingleNode);
     }
 
+    static testMeshOpcode({
+        opcode,
+        meshAddress,
+        valueArray
+    }) {
+        NativeModule.testMeshOpcode(opcode, meshAddress, valueArray);
+    }
+
     static changePower({
         meshAddress,
         value
