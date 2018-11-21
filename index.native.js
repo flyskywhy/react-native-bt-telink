@@ -124,6 +124,8 @@ class TelinkBt {
         NativeModule.changeColor(meshAddress, value);
     }
 
+    static getTypeFromUuid = uuid => uuid;
+
     static configNode({
         node,
         cfg,
