@@ -49,6 +49,7 @@ import com.telink.bluetooth.light.LeScanParameters;
 import com.telink.bluetooth.light.LeUpdateParameters;
 import com.telink.bluetooth.light.LightAdapter;
 import com.telink.bluetooth.light.OnlineStatusNotificationParser;
+import com.telink.bluetooth.light.GetGroupNotificationParser;
 import com.telink.bluetooth.light.Parameters;
 import com.telink.util.Event;
 import com.telink.util.EventListener;
@@ -107,6 +108,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
 
     // Promises
     private Promise mConfigNodePromise;
+    private Promise mSetNodeGroupAddrPromise;
 
     final BroadcastReceiver mBluetoothStateReceiver = new BroadcastReceiver() {
         @Override
@@ -221,6 +223,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         // 监听各种事件
         mTelinkApplication.addEventListener(DeviceEvent.STATUS_CHANGED, this);
         mTelinkApplication.addEventListener(NotificationEvent.ONLINE_STATUS, this);
+        mTelinkApplication.addEventListener(NotificationEvent.GET_GROUP, this);
         mTelinkApplication.addEventListener(NotificationEvent.GET_DEVICE_STATE, this);
         mTelinkApplication.addEventListener(ServiceEvent.SERVICE_CONNECTED, this);
         mTelinkApplication.addEventListener(LeScanEvent.LE_SCAN, this);
@@ -559,6 +562,36 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         // }
     }
 
+    @ReactMethod
+    public void setNodeGroupAddr(boolean toDel, int meshAddress, int groupAddress, Promise promise) {
+        byte opcode = (byte) 0xD7;
+        byte[] params = new byte[]{(byte) (toDel ? 0x00 : 0x01), (byte) (groupAddress & 0xFF),
+                (byte) (groupAddress >> 8 & 0xFF)};
+
+        mSetNodeGroupAddrPromise = promise;
+        TelinkLightService.Instance().sendCommandNoResponse(opcode, meshAddress, params);
+    }
+
+    private synchronized void onGetGroupNotify(NotificationEvent event) {
+        TelinkLog.i("MainActivity#onGetGroupNotify#Thread ID : " + Thread.currentThread().getId());
+        List<Integer> notificationInfoList;
+        notificationInfoList = (List<Integer>) event.parse();
+
+        if (notificationInfoList == null) {
+            mSetNodeGroupAddrPromise.reject(new Exception("GetGroup return null"));
+            return;
+        }
+
+        if (mSetNodeGroupAddrPromise != null) {
+            WritableArray params = Arguments.createArray();
+            for (Integer notificationInfo : notificationInfoList) {
+                params.pushInt(notificationInfo);
+            }
+            mSetNodeGroupAddrPromise.resolve(params);
+        }
+        mSetNodeGroupAddrPromise = null;
+    }
+
     private void onLeScan(LeScanEvent event) {
         DeviceInfo deviceInfo = event.getArgs();
         WritableMap params = Arguments.createMap();
@@ -588,6 +621,9 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         switch (event.getType()) {
             case NotificationEvent.ONLINE_STATUS:
                 this.onOnlineStatusNotify((NotificationEvent) event);
+                break;
+            case NotificationEvent.GET_GROUP:
+                this.onGetGroupNotify((NotificationEvent) event);
                 break;
             case DeviceEvent.STATUS_CHANGED:
                 this.onDeviceStatusChanged((DeviceEvent) event);

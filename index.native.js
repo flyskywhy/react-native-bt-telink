@@ -22,6 +22,7 @@ class TelinkBt {
 
     static needRefreshMeshNodesClaimed = true;
     static needRefreshMeshNodesBeforeConfig = true;
+    static del4GroupStillSendOriginGroupAddress = true;
 
     static doInit() {
         NativeModule.doInit();
@@ -135,10 +136,18 @@ class TelinkBt {
     }) {}
 
     static setNodeGroupAddr({
+        toDel,
         meshAddress,
-        groupIndex,
         groupAddress,
-    }) {}
+    }) {
+        return new Promise((resolve, reject) => {
+            let timer = setTimeout(reject, 10000);
+            NativeModule.setNodeGroupAddr(toDel, meshAddress, groupAddress).then(groupAddresses => {
+                clearTimeout(timer);
+                resolve(groupAddresses);
+            }, reject)
+        })
+    }
 }
 
 module.exports = TelinkBt;
