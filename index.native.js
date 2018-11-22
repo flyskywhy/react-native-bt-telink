@@ -143,7 +143,7 @@ class TelinkBt {
         groupAddress,
     }) {
         return new Promise((resolve, reject) => {
-            let timer = setTimeout(reject, 10000);
+            let timer = setTimeout(() => reject({errCode: 'setNodeGroupAddr time out'}), 10000);
             NativeModule.setNodeGroupAddr(toDel, meshAddress, groupAddress).then(groupAddresses => {
                 clearTimeout(timer);
                 resolve(groupAddresses);
