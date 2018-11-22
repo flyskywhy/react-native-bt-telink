@@ -14,6 +14,7 @@ class TelinkBt {
 
     static needRefreshMeshNodesClaimed = true;
     static needRefreshMeshNodesBeforeConfig = true;
+    static del4GroupStillSendOriginGroupAddress = true;
 
     static doInit() {}
 
