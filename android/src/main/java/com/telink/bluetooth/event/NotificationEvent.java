@@ -56,6 +56,17 @@ public class NotificationEvent extends DataEvent<NotificationInfo> {
      */
     public static final String GET_MESH_OTA_PROGRESS = "com.telink.bluetooth.light.GET_MESH_OTA_PROGRESS";
 
+
+    /**
+     * 获取当前mesh内所有设备的deviceId， mac地址
+     */
+    public static final String GET_MESH_DEVICE_LIST = "com.telink.bluetooth.light.GET_MESH_DEVICE_LIST";
+
+
+    /**
+     * mesh加灯完成标志
+     */
+    public static final String UPDATE_MESH_COMPLETE = "com.telink.bluetooth.light.GET_UPDATE_MESH_COMPLETE";
     /**
      * GET_DEVICE_STATE 返回数据的第一个字节
      * 获取版本号
@@ -74,7 +85,11 @@ public class NotificationEvent extends DataEvent<NotificationInfo> {
      */
     public final static byte DATA_GET_OTA_STATE = 0x05;
 
-
+    /**
+     * 设置设备OTA模式， gatt OTA / meshOTA
+     * 第一个字节返回0x00， 则表示支持
+     */
+    public final static byte DATA_SET_OTA_MODE_NOTIFY = 0x06;
     /**
      * READ_ST_IDLE = 0,    // 没有处于mesh ota状态
      * READ_ST_SLAVE = 1,       // 处于正在接收mesh ota firmware的状态，并且会保存该firmware数据
@@ -85,6 +100,7 @@ public class NotificationEvent extends DataEvent<NotificationInfo> {
     public final static byte OTA_STATE_SLAVE = 1;
     public final static byte OTA_STATE_MASTER = 2;
     public final static byte OTA_STATE_ONLY_RELAY = 3;
+    public final static byte OTA_STATE_COMPLETE = 4;
 
 
     private static final Map<Byte, String> EVENT_MAPPING = new HashMap<>();
@@ -97,7 +113,11 @@ public class NotificationEvent extends DataEvent<NotificationInfo> {
         register(Opcode.BLE_GATT_OP_CTRL_C1, GET_SCENE);
         register(Opcode.BLE_GATT_OP_CTRL_C8, GET_DEVICE_STATE);
 
+        register(Opcode.BLE_GATT_OP_CTRL_CA, UPDATE_MESH_COMPLETE);
+
         register(Opcode.BLE_GATT_OP_CTRL_EB, USER_ALL_NOTIFY);
+
+        register(Opcode.BLE_GATT_OP_CTRL_E1, GET_MESH_DEVICE_LIST);
     }
 
     /**

@@ -23,6 +23,8 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Peripheral extends BluetoothGattCallback {
 
@@ -50,7 +52,7 @@ public class Peripheral extends BluetoothGattCallback {
     protected final Runnable mCommandDelayRunnable = new CommandDelayRunnable();
 
     private final Object mStateLock = new Object();
-    private final Object mProcessLock = new Object();
+//    private final Object mProcessLock = new Object();
 
     protected BluetoothDevice device;
     protected BluetoothGatt gatt;
@@ -62,13 +64,14 @@ public class Peripheral extends BluetoothGattCallback {
     protected int type;
     protected List<BluetoothGattService> mServices;
 
-    protected Boolean processing = false;
+    protected AtomicBoolean processing = new AtomicBoolean(false);
 
     protected boolean monitorRssi;
     protected int updateIntervalMill = 5 * 1000;
     protected int commandTimeoutMill = 10 * 1000;
     protected long lastTime;
-    private int mConnState = CONN_STATE_IDLE;
+    //    private int mConnState = CONN_STATE_IDLE;
+    private AtomicInteger mConnState = new AtomicInteger(CONN_STATE_IDLE);
 
     public Peripheral(BluetoothDevice device, byte[] scanRecord, int rssi) {
 
@@ -127,37 +130,35 @@ public class Peripheral extends BluetoothGattCallback {
     }
 
     public boolean isConnected() {
-        synchronized (this.mStateLock) {
+        /*synchronized (this.mStateLock) {
             return this.mConnState == CONN_STATE_CONNECTED;
-        }
+        }*/
+        return this.mConnState.get() == CONN_STATE_CONNECTED;
     }
 
     public void connect(Context context) {
 
-        synchronized (this.mStateLock) {
-            this.lastTime = 0;
-            if (this.mConnState == CONN_STATE_IDLE) {
-                TelinkLog.d("Peripheral#connect " + this.getDeviceName() + " -- "
+        this.lastTime = 0;
+        if (this.mConnState.get() == CONN_STATE_IDLE) {
+            TelinkLog.d("Peripheral#connect " + this.getDeviceName() + " -- "
+                    + this.getMacAddress());
+            this.mConnState.set(CONN_STATE_CONNECTING);
+            this.gatt = this.device.connectGatt(context, false, this);
+            if (this.gatt == null) {
+                this.disconnect();
+                this.mConnState.set(CONN_STATE_IDLE);
+                TelinkLog.d("Peripheral# gatt NULL onDisconnect:" + this.getDeviceName() + " -- "
                         + this.getMacAddress());
-                this.mConnState = CONN_STATE_CONNECTING;
-                this.gatt = this.device.connectGatt(context, false, this);
-                if (this.gatt == null) {
-                    this.disconnect();
-                    this.mConnState = CONN_STATE_IDLE;
-                    TelinkLog.d("Peripheral# gatt NULL onDisconnect:" + this.getDeviceName() + " -- "
-                            + this.getMacAddress());
-                    this.onDisconnect();
-                }
+                this.onDisconnect();
             }
         }
+
     }
 
     public void disconnect() {
 
-        synchronized (this.mStateLock) {
-            if (this.mConnState != CONN_STATE_CONNECTING && this.mConnState != CONN_STATE_CONNECTED)
-                return;
-        }
+        if (this.mConnState.get() != CONN_STATE_CONNECTING && this.mConnState.get() != CONN_STATE_CONNECTED)
+            return;
 
         TelinkLog.d("disconnect " + this.getDeviceName() + " -- "
                 + this.getMacAddress());
@@ -166,23 +167,23 @@ public class Peripheral extends BluetoothGattCallback {
 
         synchronized (this.mStateLock) {
             if (this.gatt != null) {
-                int connState = this.mConnState;
+                int connState = this.mConnState.get();
                 if (connState == CONN_STATE_CONNECTED) {
                     this.gatt.disconnect();
-                    this.mConnState = CONN_STATE_DISCONNECTING;
+                    this.mConnState.set(CONN_STATE_DISCONNECTING);
                 } else {
                     this.gatt.disconnect();
                     this.gatt.close();
-                    this.mConnState = CONN_STATE_CLOSED;
+                    this.mConnState.set(CONN_STATE_CLOSED);
                 }
             } else {
-                this.mConnState = CONN_STATE_IDLE;
+                this.mConnState.set(CONN_STATE_IDLE);
             }
         }
     }
 
     private void clear() {
-        this.processing = false;
+        this.processing.set(false);
         this.stopMonitoringRssi();
         this.cancelCommandTimeoutTask();
         this.mInputCommandQueue.clear();
@@ -193,10 +194,8 @@ public class Peripheral extends BluetoothGattCallback {
 
     public boolean sendCommand(Command.Callback callback, Command command) {
 
-        synchronized (this.mStateLock) {
-            if (this.mConnState != CONN_STATE_CONNECTED)
-                return false;
-        }
+        if (this.mConnState.get() != CONN_STATE_CONNECTED)
+            return false;
 
         CommandContext commandContext = new CommandContext(callback, command);
         this.postCommand(commandContext);
@@ -273,11 +272,11 @@ public class Peripheral extends BluetoothGattCallback {
         }
 
         this.mInputCommandQueue.add(commandContext);
-        synchronized (this.mProcessLock) {
-            if (!this.processing) {
-                this.processCommand();
-            }
+//        synchronized (this.mProcessLock) {
+        if (!this.processing.get()) {
+            this.processCommand();
         }
+//        }
     }
 
     private void processCommand() {
@@ -302,10 +301,10 @@ public class Peripheral extends BluetoothGattCallback {
                 this.mOutputCommandQueue.add(commandContext);
             }
 
-            synchronized (this.mProcessLock) {
-                if (!this.processing)
-                    this.processing = true;
-            }
+//            synchronized (this.mProcessLock) {
+            if (!this.processing.get())
+                this.processing.set(true);
+//            }
         }
 
         int delay = commandContext.command.delay;
@@ -362,10 +361,10 @@ public class Peripheral extends BluetoothGattCallback {
 
         TelinkLog.d("commandCompleted");
 
-        synchronized (this.mProcessLock) {
-            if (this.processing)
-                this.processing = false;
-        }
+//        synchronized (this.mProcessLock) {
+        if (this.processing.get())
+            this.processing.set(false);
+//        }
 
         this.processCommand();
     }
@@ -681,9 +680,7 @@ public class Peripheral extends BluetoothGattCallback {
 
         if (newState == BluetoothGatt.STATE_CONNECTED) {
 
-            synchronized (this.mStateLock) {
-                this.mConnState = CONN_STATE_CONNECTED;
-            }
+            this.mConnState.set(CONN_STATE_CONNECTED);
 
             if (this.gatt == null || !this.gatt.discoverServices()) {
                 TelinkLog.d("remote service discovery has been stopped status = "
@@ -702,11 +699,11 @@ public class Peripheral extends BluetoothGattCallback {
 
                 if (this.gatt != null) {
                     this.gatt.close();
-                    this.mConnState = CONN_STATE_CLOSED;
+                    this.mConnState.set(CONN_STATE_CLOSED);
                 }
 
                 this.clear();
-                this.mConnState = CONN_STATE_IDLE;
+                this.mConnState.set(CONN_STATE_IDLE);
                 TelinkLog.d("Peripheral#onConnectionStateChange#onDisconnect");
                 this.onDisconnect();
             }

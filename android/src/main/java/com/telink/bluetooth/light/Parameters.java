@@ -27,11 +27,16 @@ public class Parameters {
 
     public static final String PARAM_AUTO_ENABLE_NOTIFICATION = "com.telink.bluetooth.light.PARAM_AUTO_ENABLE_NOTIFICATION";
     public static final String PARAM_AUTO_CONNECT_MAC = "com.telink.bluetooth.light.PARAM_AUTO_CONNECT_MAC";
+    public static final String PARAM_SCAN_MAC = "com.telink.bluetooth.light.PARAM_SCAN_MAC";
 
+    public static final String PARAM_SCAN_TYPE_FILTER = "com.telink.bluetooth.light.PARAM_SCAN_TYPE_FILTER";
+
+    public static final int DEFAULT_SCAN_TYPE = -1;
     private final Map<String, Object> mParams = new HashMap<>();
 
     public Parameters() {
         this.set(PARAM_OUT_OF_MESH, "out_of_mesh");
+        this.set(PARAM_SCAN_TYPE_FILTER, DEFAULT_SCAN_TYPE);
     }
 
     public static Parameters newInstance() {

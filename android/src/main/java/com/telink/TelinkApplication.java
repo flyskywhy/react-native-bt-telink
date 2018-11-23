@@ -17,11 +17,13 @@ import android.widget.Toast;
 
 import com.telink.bluetooth.TelinkLog;
 import com.telink.bluetooth.event.DeviceEvent;
+import com.telink.bluetooth.event.ErrorReportEvent;
 import com.telink.bluetooth.event.LeScanEvent;
 import com.telink.bluetooth.event.MeshEvent;
 import com.telink.bluetooth.event.NotificationEvent;
 import com.telink.bluetooth.event.ServiceEvent;
 import com.telink.bluetooth.light.DeviceInfo;
+import com.telink.bluetooth.light.ErrorReportInfo;
 import com.telink.bluetooth.light.GetAlarmNotificationParser;
 import com.telink.bluetooth.light.GetGroupNotificationParser;
 import com.telink.bluetooth.light.GetSceneNotificationParser;
@@ -173,6 +175,10 @@ public class TelinkApplication /*extends Application*/ {
                         case LightService.ACTION_ERROR:
                             onError(intent);
                             break;
+
+                        case LightService.ACTION_ERROR_REPORT:
+                            onErrorReport(intent);
+                            break;
                     }
                 }
             };
@@ -190,6 +196,7 @@ public class TelinkApplication /*extends Application*/ {
         filter.addAction(LightService.ACTION_UPDATE_MESH_COMPLETED);
         filter.addAction(LightService.ACTION_OFFLINE);
         filter.addAction(LightService.ACTION_ERROR);
+        filter.addAction(LightService.ACTION_ERROR_REPORT);
         return filter;
     }
 
@@ -336,6 +343,11 @@ public class TelinkApplication /*extends Application*/ {
     protected void onError(Intent intent) {
         int errorCode = intent.getIntExtra(LightService.EXTRA_ERROR_CODE, -1);
         this.dispatchEvent(MeshEvent.newInstance(this, MeshEvent.ERROR, errorCode));
+    }
+
+    protected void onErrorReport(Intent intent) {
+        ErrorReportInfo errorReportInfo = intent.getParcelableExtra(LightService.EXTRA_ERROR_REPORT_INFO);
+        this.dispatchEvent(ErrorReportEvent.newInstance(this, ErrorReportEvent.ERROR_REPORT, errorReportInfo));
     }
 
     protected void onNotify(Intent intent) {

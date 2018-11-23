@@ -12,6 +12,7 @@ import android.content.Context;
 import com.telink.bluetooth.Peripheral;
 import com.telink.util.Strings;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,7 +156,7 @@ public class LightPeripheral extends Peripheral {
 
     public String getCharacteristicValueAsString(UUID characteristicUUID) {
         byte[] value = this.getCharacteristicValue(characteristicUUID);
-        return value != null ? new String(value) : null;
+        return value != null ? new String(value).trim() : null;
     }
 
     public String getFirmwareRevision() {

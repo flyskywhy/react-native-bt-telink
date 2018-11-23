@@ -220,7 +220,7 @@ public final class Manufacture {
                 (byte) 0xDA, (byte) 0xDB, (byte) 0xDC, (byte) 0xDD, (byte) 0xDE,
                 (byte) 0xDF};
 
-        private int vendorId = 0x1102;
+        private int vendorId = 0x0211; // 0x1102 big end
         private UUID serviceUUID = UuidInformation.TELINK_SERVICE.getValue();
         private UUID pairUUID = UuidInformation.TELINK_CHARACTERISTIC_PAIR.getValue();
         private UUID commandUUID = UuidInformation.TELINK_CHARACTERISTIC_COMMAND.getValue();

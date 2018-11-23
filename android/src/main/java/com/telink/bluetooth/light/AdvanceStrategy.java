@@ -5,6 +5,8 @@ import android.util.Log;
 
 /**
  * 命令写入FIFO策略
+ * <p>
+ * 连续发送7条指令，
  */
 public abstract class AdvanceStrategy {
 
@@ -194,14 +196,27 @@ public abstract class AdvanceStrategy {
             }
 
             if (now && this.mCallback != null) {
-                Log.d(TAG, "Sample Opcode : " + Integer.toHexString(opcode) + " delay:" + delay);
+                Log.d(TAG, "Sample Opcode : " + Integer.toHexString(opcode & 0xFF) + " delay:" + delay);
 
+                long during = currentTime - this.lastCmdTime;
+                if (during < 0) {
+                    delay = COMMAND_DELAY;
+                    this.lastCmdTime += COMMAND_DELAY;
+                } else if (during < COMMAND_DELAY) {
+                    if (delay < (COMMAND_DELAY - during)) {
+                        delay = (int) (COMMAND_DELAY - during);
+                    }
+                    this.lastCmdTime = currentTime + delay;
+                } else {
+                    this.lastCmdTime = currentTime + delay;
+                }
+/*
                 long period = currentTime - this.lastCmdTime;
                 if (period > 0 && period < COMMAND_DELAY) {
                     if (delay < (COMMAND_DELAY - period))
                         delay = (int) (COMMAND_DELAY - period);
                 }
-                lastCmdTime = System.currentTimeMillis();
+                lastCmdTime = System.currentTimeMillis() + delay;*/
                 //所有采样到的命令立即交给回调接口处理
                 return this.mCallback.onCommandSampled(opcode, address, params, tag, delay);
             }

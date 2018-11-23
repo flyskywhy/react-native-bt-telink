@@ -4,6 +4,7 @@
  */
 package com.telink.bluetooth;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -50,7 +51,7 @@ public final class LeBluetooth {
     private LeScanCallback mCallback;
     private BluetoothAdapter mAdapter;
     private Context mContext;
-
+    private boolean mSupportLoScan = false;
     /********************************************************************************
      * Construct
      *******************************************************************************/
@@ -88,6 +89,9 @@ public final class LeBluetooth {
         }
     }
 
+    public void setSupportLoScan(boolean support){
+        this.mSupportLoScan = support;
+    }
     /**
      * 设置回调函数
      *
@@ -206,7 +210,7 @@ public final class LeBluetooth {
     }
 
     public boolean isSupportLollipop() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && mSupportLoScan;
 //        return false;
     }
 

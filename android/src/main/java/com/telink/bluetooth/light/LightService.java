@@ -32,11 +32,14 @@ public abstract class LightService extends Service implements
     public static final String ACTION_UPDATE_MESH_COMPLETED = "com.telink.bluetooth.light.ACTION_UPDATE_MESH_COMPLETED";
     public static final String ACTION_OFFLINE = "com.telink.bluetooth.light.ACTION_OFFLINE";
     public static final String ACTION_ERROR = "com.telink.bluetooth.light.ACTION_ERROR";
+    public static final String ACTION_ERROR_REPORT = "com.telink.bluetooth.light.ACTION_ERROR_REPORT";
 
     public static final String EXTRA_MODE = "com.telink.bluetooth.light.EXTRA_MODE";
     public static final String EXTRA_DEVICE = "com.telink.bluetooth.light.EXTRA_DEVICE";
     public static final String EXTRA_NOTIFY = "com.telink.bluetooth.light.EXTRA_NOTIFY";
     public static final String EXTRA_ERROR_CODE = "com.telink.bluetooth.light.EXTRA_ERROR_CODE";
+
+    public static final String EXTRA_ERROR_REPORT_INFO = "com.telink.bluetooth.light.EXTRA_ERROR_REPORT_INFO";
 
     protected LightAdapter mAdapter;
     protected IBinder mBinder;
@@ -133,6 +136,12 @@ public abstract class LightService extends Service implements
             return;
 
         this.mAdapter.autoConnect(params, this);
+    }
+
+    public void setAutoConnectMac(String mac) {
+        if (this.mAdapter == null)
+            return;
+        this.mAdapter.setAutoConnectMac(mac);
     }
 
     /**
@@ -357,6 +366,10 @@ public abstract class LightService extends Service implements
         return this.mAdapter != null && this.mAdapter.login(meshName, password);
     }
 
+    public boolean resetByMesh(String meshName, String password) {
+        return this.mAdapter != null && this.mAdapter.resetByMesh(meshName, password, null);
+    }
+
     /**
      * 开始ota
      * <p>OTA必要的流程,1.扫描到设备 2.连接设备并获取firmware版本作比较 3.开始ota
@@ -512,9 +525,30 @@ public abstract class LightService extends Service implements
     }
 
     @Override
+    public void onErrorReport(int stateCode, int errorCode, int deviceId) {
+        Intent intent = new Intent();
+        intent.setAction(ACTION_ERROR_REPORT);
+        ErrorReportInfo errorReportInfo = new ErrorReportInfo();
+        errorReportInfo.stateCode = stateCode;
+        errorReportInfo.errorCode = errorCode;
+        errorReportInfo.deviceId = deviceId;
+        intent.putExtra(EXTRA_ERROR_REPORT_INFO, errorReportInfo);
+
+        LocalBroadcastManager.getInstance(LightService.this)
+                .sendBroadcast(intent);
+    }
+
+    @Override
     public boolean onCommandSampled(byte opcode, int address, byte[] params, Object tag, int delay) {
         if (this.mAdapter == null)
             return false;
         return this.mAdapter.sendCommandNoResponse(opcode, address, params, tag, delay);
+    }
+
+
+    public boolean sendVendorCommand(byte opcode, int vendorId, int address, byte[] params) {
+        if (this.mAdapter == null)
+            return false;
+        return this.mAdapter.sendVendorCommand(opcode, vendorId, address, params);
     }
 }

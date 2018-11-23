@@ -65,4 +65,27 @@ public final class LeScanParameters extends Parameters {
         return this;
     }
 
+    /**
+     * 扫描的设备mac
+     *
+     * @param mac 目标地址
+     * @return this
+     */
+    public LeScanParameters setScanMac(String mac) {
+        this.set(PARAM_SCAN_MAC, mac);
+        return this;
+    }
+
+
+    /**
+     * 扫描设备类型过滤
+     *
+     * @param type 目标类型
+     * @return
+     */
+    public LeScanParameters setScanTypeFilter(int type) {
+        this.set(PARAM_SCAN_TYPE_FILTER, type);
+        return this;
+    }
+
 }

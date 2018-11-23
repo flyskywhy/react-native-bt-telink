@@ -4,6 +4,7 @@
  */
 package com.telink.bluetooth.light;
 
+import com.telink.bluetooth.TelinkLog;
 import com.telink.util.NumberUtils;
 
 /**
@@ -27,7 +28,8 @@ public final class GetAlarmNotificationParser extends NotificationParser<GetAlar
     public AlarmInfo parse(NotificationInfo notifyInfo) {
 
         byte[] params = notifyInfo.params;
-        int offset = 8;
+
+        /*int offset = 8;
         int total = params[offset] & 0xFF;
 
         if (total == 0)
@@ -37,7 +39,14 @@ public final class GetAlarmNotificationParser extends NotificationParser<GetAlar
         int index = params[offset++] & 0xFF;
         byte data = (byte) (params[offset] & 0xFF);
         offset = 3;
-        int sceneId = params[offset] & 0xFF;
+        int sceneId = params[offset] & 0xFF;*/
+
+        int total = params[params.length - 1] & 0xFF;
+        if (total == 0) return null;
+        int offset = 1;
+        int index = params[offset++];
+        byte data = (byte) (params[offset] & 0xFF);
+        int sceneId = params[params.length - 2];
 
         int action = NumberUtils.byteToInt(data, 0, 3);
         int type = NumberUtils.byteToInt(data, 4, 6);

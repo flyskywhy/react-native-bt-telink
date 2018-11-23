@@ -63,16 +63,16 @@ public final class DefaultAdvertiseDataFilter implements AdvertiseDataFilter<Lig
 
                 if (rspData == 2) {
 
-                    int vendorId = (scanRecord[position++] << 8) + scanRecord[position++];
+                    int vendorId = ((scanRecord[position++] & 0xFF) ) + ((scanRecord[position++] & 0xFF )<< 8);
 
                     if (vendorId != Manufacture.getDefault().getVendorId())
                         return null;
 
-                    int meshUUID = scanRecord[position++] + (scanRecord[position++] << 8);
+                    int meshUUID = (scanRecord[position++] & 0xFF) + ((scanRecord[position++] & 0xFF) << 8);
                     position += 4;
-                    int productUUID = scanRecord[position++] + (scanRecord[position++] << 8);
+                    int productUUID = (scanRecord[position++] & 0xFF) + ((scanRecord[position++] & 0xFF) << 8);
                     int status = scanRecord[position++] & 0xFF;
-                    int meshAddress = scanRecord[position++] + (scanRecord[position] << 8);
+                    int meshAddress = (scanRecord[position++] & 0xFF) + ((scanRecord[position] & 0xFF) << 8);
 
                     LightPeripheral light = new LightPeripheral(device, scanRecord, rssi, meshName, meshAddress);
                     light.putAdvProperty(LightPeripheral.ADV_MESH_NAME, meshName);

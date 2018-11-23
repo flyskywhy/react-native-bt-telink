@@ -63,7 +63,9 @@ public enum Opcode {
     BLE_GATT_OP_CTRL_EF((byte) 0xEF, "load scene opcode"),
     BLE_GATT_OP_CTRL_C0((byte) 0xC0, "get scene opcode"),
     BLE_GATT_OP_CTRL_C1((byte) 0xC1, "scene response"),
-    BLE_GATT_OP_CTRL_C8((byte) 0xC8, "get version"),; // @modifier ke
+    BLE_GATT_OP_CTRL_C8((byte) 0xC8, "get device state"), // @modifier ke
+
+    BLE_GATT_OP_CTRL_CA((byte) 0xCA, "update device"),; // @modifier ke
 
     private final byte value;
     private final String info;
