@@ -14,7 +14,11 @@ class TelinkBt {
 
     static needRefreshMeshNodesClaimed = true;
     static needRefreshMeshNodesBeforeConfig = true;
+    static canConfigEvenDisconnected = true;
+    static needClaimedBeforeConnect = true;
     static del4GroupStillSendOriginGroupAddress = true;
+    static notDefaultAllGroupByGROUP_ADDRESS_MIN = true;
+    static isSetNodeGroupAddrReturnAddresses = true;
 
     static doInit() {}
 

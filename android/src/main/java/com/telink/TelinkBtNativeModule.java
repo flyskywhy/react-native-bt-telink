@@ -300,7 +300,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         }
 
         TelinkLightService.Instance().autoConnect(connectParams);
-        sendEvent(DEVICE_STATUS_LOGIN);
+        // sendEvent(DEVICE_STATUS_LOGIN);
     }
 
     @ReactMethod

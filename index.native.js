@@ -21,8 +21,16 @@ class TelinkBt {
     static DELAY_MS_AFTER_UPDATE_MESH_COMPLETED = 1;
 
     static needRefreshMeshNodesClaimed = true;
+
+    // 否则会因为 android/src/main/java/com/telink/bluetooth/light/LightAdapter.java
+    // 的 updateMesh() 的 this.mScannedLights 没有数据而导致不进行 setNewdress() 操作
     static needRefreshMeshNodesBeforeConfig = true;
+
+    static canConfigEvenDisconnected = true;
+    static needClaimedBeforeConnect = true;
     static del4GroupStillSendOriginGroupAddress = true;
+    static notDefaultAllGroupByGROUP_ADDRESS_MIN = true;
+    static isSetNodeGroupAddrReturnAddresses = true;
 
     static doInit() {
         NativeModule.doInit();
