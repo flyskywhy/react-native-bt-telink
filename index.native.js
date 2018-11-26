@@ -20,6 +20,8 @@ class TelinkBt {
     static NODE_STATUS_OFFLINE = 2;
     static DELAY_MS_AFTER_UPDATE_MESH_COMPLETED = 1;
 
+    static passthroughMode = undefined; // 通过串口或者说自定义发送数据来控制蓝牙 节点
+
     static needRefreshMeshNodesClaimed = true;
 
     // 否则会因为 android/src/main/java/com/telink/bluetooth/light/LightAdapter.java
@@ -106,9 +108,26 @@ class TelinkBt {
 
     static changePower({
         meshAddress,
-        value
+        value,
+        type,
     }) {
-        NativeModule.changePower(meshAddress, value);
+        let changed = false;
+
+        if (this.passthroughMode) {
+            for (let mode in this.passthroughMode) {
+                if (this.passthroughMode[mode].includes(type)) {
+                    if (mode === 'silan') {
+                        NativeModule.testMeshOpcode(0xF0, meshAddress, [value]);;
+                        changed = true;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (!changed) {
+            NativeModule.changePower(meshAddress, value);
+        }
     }
 
     static changeBrightness({
