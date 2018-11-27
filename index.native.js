@@ -5,12 +5,17 @@ const {
     Platform
 } = require('react-native');
 const NativeModule = NativeModules.TelinkBt;
+const tinycolor = require("tinycolor2");
 
 class TelinkBt {
     static MESH_ADDRESS_MIN = 0x0001;
     static MESH_ADDRESS_MAX = 0x00FF;
     static GROUP_ADDRESS_MIN = 0x8001;
     static GROUP_ADDRESS_MAX = 0x80FF;
+    static HUE_MIN = 0;
+    static HUE_MAX = 360;
+    static SATURATION_MIN = 0;
+    static SATURATION_MAX = 100;
     static BRIGHTNESS_MIN = 1;
     static BRIGHTNESS_MAX = 127;
     static COLOR_TEMP_MIN = 1;
@@ -117,7 +122,7 @@ class TelinkBt {
             for (let mode in this.passthroughMode) {
                 if (this.passthroughMode[mode].includes(type)) {
                     if (mode === 'silan') {
-                        NativeModule.sendCommand(0xF0, meshAddress, [value]);;
+                        NativeModule.sendCommand(0xF0, meshAddress, [value]);
                         changed = true;
                     }
                     break;
@@ -146,9 +151,33 @@ class TelinkBt {
 
     static changeColor({
         meshAddress,
-        value
+        hue = 0,
+        saturation = 0,
+        value,
+        type,
     }) {
-        NativeModule.changeColor(meshAddress, value);
+        let color = tinycolor.fromRatio({
+            h: hue / this.HUE_MAX,
+            s: saturation / this.SATURATION_MAX,
+            v: value / this.BRIGHTNESS_MAX,
+        }).toRgb();
+        let changed = false;
+
+        if (this.passthroughMode) {
+            for (let mode in this.passthroughMode) {
+                if (this.passthroughMode[mode].includes(type)) {
+                    if (mode === 'silan') {
+                        NativeModule.sendCommand(0xF3, meshAddress, [color.r, color.g, color.b]);
+                        changed = true;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (!changed) {
+            NativeModule.sendCommand(0xE2, meshAddress, [0x04, color.r, color.g, color.b]);
+        }
     }
 
     static getTypeFromUuid = uuid => uuid;

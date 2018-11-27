@@ -3,6 +3,10 @@ class TelinkBt {
     static MESH_ADDRESS_MAX = 0x00FF;
     static GROUP_ADDRESS_MIN = 0x8001;
     static GROUP_ADDRESS_MAX = 0x80FF;
+    static HUE_MIN = 0;
+    static HUE_MAX = 360;
+    static SATURATION_MIN = 0;
+    static SATURATION_MAX = 100;
     static BRIGHTNESS_MIN = 1;
     static BRIGHTNESS_MAX = 127;
     static COLOR_TEMP_MIN = 1;
