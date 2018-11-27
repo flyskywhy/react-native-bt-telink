@@ -180,6 +180,83 @@ class TelinkBt {
         }
     }
 
+    static changeScene({
+        meshAddress,
+        scene,
+        hue = 0,
+        saturation = 0,
+        value,
+        colorIds = [1, 2, 3, 4, 5],
+        type,
+    }) {
+        let changed = false;
+
+        if (this.passthroughMode) {
+            let color = tinycolor.fromRatio({
+                h: hue / this.HUE_MAX,
+                s: saturation / this.SATURATION_MAX,
+                v: value / this.BRIGHTNESS_MAX,
+            }).toRgb();
+            for (let mode in this.passthroughMode) {
+                if (this.passthroughMode[mode].includes(type)) {
+                    if (mode === 'silan') {
+                        switch (scene) {
+                            case 0:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene]);
+                                changed = true;
+                                break;
+                            case 1:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, color.r, color.g, color.b, 2]);
+                                changed = true;
+                                break;
+                            case 2:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, color.r, color.g, color.b]);
+                                changed = true;
+                                break;
+                            case 3:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, color.r, color.g, color.b]);
+                                changed = true;
+                                break;
+                            case 4:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, color.r, color.g, color.b]);
+                                changed = true;
+                                break;
+                            case 5:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene]);
+                                changed = true;
+                                break;
+                            case 6:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, color.r, color.g, color.b]);
+                                changed = true;
+                                break;
+                            case 7:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, ...colorIds]);
+                                changed = true;
+                                break;
+                            case 8:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, ...colorIds]);
+                                changed = true;
+                                break;
+                            case 9:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, ...colorIds]);
+                                changed = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    if (changed) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!changed) {
+            NativeModule.sendCommand(0xEF, meshAddress, [scene]);
+        }
+    }
+
     static getTypeFromUuid = uuid => uuid;
 
     static configNode({
