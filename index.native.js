@@ -103,7 +103,7 @@ class TelinkBt {
         meshAddress,
         valueArray
     }) {
-        NativeModule.testMeshOpcode(opcode, meshAddress, valueArray);
+        NativeModule.sendCommand(opcode, meshAddress, valueArray);
     }
 
     static changePower({
@@ -117,7 +117,7 @@ class TelinkBt {
             for (let mode in this.passthroughMode) {
                 if (this.passthroughMode[mode].includes(type)) {
                     if (mode === 'silan') {
-                        NativeModule.testMeshOpcode(0xF0, meshAddress, [value]);;
+                        NativeModule.sendCommand(0xF0, meshAddress, [value]);;
                         changed = true;
                     }
                     break;

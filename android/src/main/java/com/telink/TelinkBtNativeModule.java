@@ -339,7 +339,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
-    public void testMeshOpcode(int opcode, int meshAddress, ReadableArray value) {
+    public void sendCommand(int opcode, int meshAddress, ReadableArray value) {
         TelinkLightService.Instance().sendCommandNoResponse((byte) opcode, meshAddress, readableArray2ByteArray(value));
     }
 

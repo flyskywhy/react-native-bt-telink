@@ -56,7 +56,7 @@ class TelinkBt {
         isSingleNode,
     }) {}
 
-    static testMeshOpcode({
+    static sendCommand({
         opcode,
         meshAddress,
         valueArray
