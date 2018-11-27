@@ -83,7 +83,20 @@ class TelinkBt {
 
     static changeColor({
         meshAddress,
-        value
+        hue = 0,
+        saturation = 0,
+        value,
+        type,
+    }) {}
+
+    static changeScene({
+        meshAddress,
+        scene,
+        hue = 0,
+        saturation = 0,
+        value,
+        colorIds = [1, 2, 3, 4, 5],
+        type,
     }) {}
 
     static getTypeFromUuid = uuid => uuid;

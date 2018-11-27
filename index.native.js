@@ -167,7 +167,7 @@ class TelinkBt {
             for (let mode in this.passthroughMode) {
                 if (this.passthroughMode[mode].includes(type)) {
                     if (mode === 'silan') {
-                        NativeModule.sendCommand(0xF3, meshAddress, [color.r, color.g, color.b]);
+                        NativeModule.sendCommand(0xF2, meshAddress, [color.r, color.g, color.b]);
                         changed = true;
                     }
                     break;
