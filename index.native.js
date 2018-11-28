@@ -137,9 +137,33 @@ class TelinkBt {
 
     static changeBrightness({
         meshAddress,
-        value
+        hue = 0,
+        saturation = 0,
+        value,
+        type,
     }) {
-        NativeModule.changeBrightness(meshAddress, value);
+        let color = tinycolor.fromRatio({
+            h: hue / this.HUE_MAX,
+            s: saturation / this.SATURATION_MAX,
+            v: value / this.BRIGHTNESS_MAX,
+        }).toRgb();
+        let changed = false;
+
+        if (this.passthroughMode) {
+            for (let mode in this.passthroughMode) {
+                if (this.passthroughMode[mode].includes(type)) {
+                    if (mode === 'silan') {
+                        NativeModule.sendCommand(0xF2, meshAddress, [color.r, color.g, color.b]);
+                        changed = true;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (!changed) {
+            NativeModule.changeBrightness(meshAddress, value);
+        }
     }
 
     static changeColorTemp({
