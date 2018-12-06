@@ -27,7 +27,13 @@ class TelinkBt {
 
     static passthroughMode = undefined; // 通过串口或者说自定义发送数据来控制蓝牙 节点
 
-    static needRefreshMeshNodesClaimed = true;
+    // 由于 telink 提供了踢出为出厂状态的 0xE3 命令，因此在 hasOnlineStatusNotify 确保
+    // 在线能运行 0xE3 的情况下，就不需要 needRefreshMeshNodesClaimed 来在移除前进行扫描了，
+    // 带来可能的问题是 hasOnlineStatusNotify 有几秒的延迟，所以如果移除的一瞬间突然断开灯
+    // 的电源的话，可能该灯会被假移除，不过这种可能性比较小，而且用户也可以按说明书强制恢复灯为
+    // 出厂状态，所以好处远远大于坏处
+    static hasOnlineStatusNotify = true;
+    // static needRefreshMeshNodesClaimed = true;
 
     // 否则会因为 android/src/main/java/com/telink/bluetooth/light/LightAdapter.java
     // 的 updateMesh() 的 this.mScannedLights 没有数据而导致不进行 setNewdress() 操作
@@ -35,6 +41,7 @@ class TelinkBt {
 
     static canConfigEvenDisconnected = true;
     static needClaimedBeforeConnect = true;
+
     static del4GroupStillSendOriginGroupAddress = true;
 
     // 开始以为 telink 没有默认群发地址，所以认领时需要同时加分组，后来发现用 0xFFFF 地址就可群发，
@@ -288,11 +295,26 @@ class TelinkBt {
 
     static getTypeFromUuid = uuid => uuid;
 
+    static out_of_mesh = 0;
+    static telink_mesh1 = 1;
+
     static configNode({
         node,
         cfg,
+        isToClaim,
     }) {
-        return NativeModule.configNode(node, cfg);
+        return new Promise((resolve, reject) => {
+            if (isToClaim) {
+                NativeModule.configNode(node, cfg).then(payload => {
+                    resolve(payload);
+                }, err => {
+                    reject(err);
+                });
+            } else {
+                NativeModule.sendCommand(0xE3, node.meshAddress, [this.telink_mesh1])
+                setTimeout(resolve, 100); // 这里延时 100 是随意定的，也许还能优化，但速度也足够快了，考虑到同时移除大量灯时要保证信号的稳定性，也许也不用优化了
+            }
+        });
     }
 
     static getTotalOfGroupIndex({
