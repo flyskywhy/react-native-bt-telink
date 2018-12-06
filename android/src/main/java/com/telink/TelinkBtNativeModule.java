@@ -225,6 +225,11 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         mTelinkApplication.addEventListener(NotificationEvent.ONLINE_STATUS, this);
         mTelinkApplication.addEventListener(NotificationEvent.GET_GROUP, this);
         mTelinkApplication.addEventListener(NotificationEvent.GET_DEVICE_STATE, this);
+        mTelinkApplication.addEventListener(NotificationEvent.GET_ALARM, this);
+        mTelinkApplication.addEventListener(NotificationEvent.GET_SCENE, this);
+        mTelinkApplication.addEventListener(NotificationEvent.GET_TIME, this);
+        mTelinkApplication.addEventListener(NotificationEvent.USER_ALL_NOTIFY, this);
+        mTelinkApplication.addEventListener(NotificationEvent.GET_MESH_OTA_PROGRESS, this);
         mTelinkApplication.addEventListener(ServiceEvent.SERVICE_CONNECTED, this);
         mTelinkApplication.addEventListener(LeScanEvent.LE_SCAN, this);
         mTelinkApplication.addEventListener(LeScanEvent.LE_SCAN_TIMEOUT, this);
