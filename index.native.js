@@ -36,7 +36,12 @@ class TelinkBt {
     static canConfigEvenDisconnected = true;
     static needClaimedBeforeConnect = true;
     static del4GroupStillSendOriginGroupAddress = true;
-    static notDefaultAllGroupByGROUP_ADDRESS_MIN = true;
+
+    // 开始以为 telink 没有默认群发地址，所以认领时需要同时加分组，后来发现用 0xFFFF 地址就可群发，
+    // 所以下面只开启 defaultAllGroupAddress 而不开启 notDefaultAllGroupByGROUP_ADDRESS_MIN 即可
+    // static notDefaultAllGroupByGROUP_ADDRESS_MIN = true;
+    static defaultAllGroupAddress = 0xFFFF;
+
     static isSetNodeGroupAddrReturnAddresses = true;
 
     static doInit() {
