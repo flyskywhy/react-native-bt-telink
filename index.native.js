@@ -223,6 +223,7 @@ class TelinkBt {
         saturation = 0,
         value,
         colorIds = [1, 2, 3, 4, 5],
+        speed = 3,
         type,
     }) {
         let changed = false;
@@ -242,39 +243,39 @@ class TelinkBt {
                                 changed = true;
                                 break;
                             case 1:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, color.r, color.g, color.b, 2]);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color.r, color.g, color.b]);
                                 changed = true;
                                 break;
                             case 2:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, color.r, color.g, color.b]);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color.r, color.g, color.b]);
                                 changed = true;
                                 break;
                             case 3:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, color.r, color.g, color.b]);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color.r, color.g, color.b]);
                                 changed = true;
                                 break;
                             case 4:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, color.r, color.g, color.b]);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color.r, color.g, color.b]);
                                 changed = true;
                                 break;
                             case 5:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene]);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
                                 changed = true;
                                 break;
                             case 6:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, color.r, color.g, color.b]);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color.r, color.g, color.b]);
                                 changed = true;
                                 break;
                             case 7:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, ...colorIds]);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
                                 changed = true;
                                 break;
                             case 8:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, ...colorIds]);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
                                 changed = true;
                                 break;
                             case 9:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, ...colorIds]);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
                                 changed = true;
                                 break;
                             default:
