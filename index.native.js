@@ -278,6 +278,54 @@ class TelinkBt {
                                 NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
                                 changed = true;
                                 break;
+                            case 10:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
+                                changed = true;
+                                break;
+                            case 11:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
+                                changed = true;
+                                break;
+                            case 12:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
+                                changed = true;
+                                break;
+                            case 13:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
+                                changed = true;
+                                break;
+                            case 14:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
+                                changed = true;
+                                break;
+                            case 15:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
+                                changed = true;
+                                break;
+                            case 16:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
+                                changed = true;
+                                break;
+                            case 17:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
+                                changed = true;
+                                break;
+                            case 18:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
+                                changed = true;
+                                break;
+                            case 19:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
+                                changed = true;
+                                break;
+                            case 20:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed]);
+                                changed = true;
+                                break;
+                            case 21:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene]);
+                                changed = true;
+                                break;
                             default:
                                 break;
                         }
