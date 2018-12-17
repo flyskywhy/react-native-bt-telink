@@ -127,6 +127,7 @@ class TelinkBt {
         meshAddress,
         value,
         type,
+        delaySec = 0,
     }) {
         let changed = false;
 
@@ -134,7 +135,11 @@ class TelinkBt {
             for (let mode in this.passthroughMode) {
                 if (this.passthroughMode[mode].includes(type)) {
                     if (mode === 'silan') {
-                        NativeModule.sendCommand(0xF0, meshAddress, [value]);
+                        if (delaySec) {
+                            NativeModule.sendCommand(0xF0, meshAddress, [value, 1, delaySec & 0xFF, delaySec >> 8 & 0xFF, delaySec >> 16 & 0xFF, delaySec >> 24 & 0xFF ]);
+                        } else {
+                            NativeModule.sendCommand(0xF0, meshAddress, [value]);
+                        }
                         changed = true;
                     }
                     break;
