@@ -23,7 +23,18 @@ class TelinkBt {
     static NODE_STATUS_OFF = 0;
     static NODE_STATUS_ON = 1;
     static NODE_STATUS_OFFLINE = 2;
+    static RELAY_TIMES_MAX = 16;
     static DELAY_MS_AFTER_UPDATE_MESH_COMPLETED = 1;
+    static ALARM_CREATE = 0;
+    static ALARM_REMOVE = 1;
+    static ALARM_UPDATE = 2;
+    static ALARM_ENABLE = 3;
+    static ALARM_DISABLE = 4;
+    static ALARM_ACTION_TURN_OFF = 0;
+    static ALARM_ACTION_TURN_ON = 1;
+    static ALARM_ACTION_SCENE = 2;
+    static ALARM_TYPE_DAY = 0;
+    static ALARM_TYPE_WEEK = 1;
 
     static passthroughMode = undefined; // 通过串口或者说自定义发送数据来控制蓝牙 节点
 
@@ -395,6 +406,62 @@ class TelinkBt {
             NativeModule.setNodeGroupAddr(toDel, meshAddress, groupAddress).then(groupAddresses => {
                 clearTimeout(timer);
                 resolve(groupAddresses);
+            }, reject)
+        })
+    }
+
+    static setTime({
+        meshAddress,
+        year,
+        month,
+        day,
+        hour,
+        minute,
+        second = 0,
+    }) {
+        NativeModule.sendCommand(0xE4, meshAddress, [year >> 8 & 0xFF, year & 0xFF, month + 1, day, hour, minute, second]);
+    }
+
+    static getTime({
+        meshAddress,
+        relayTimes,
+    }) {
+        return new Promise((resolve, reject) => {
+            let timer = setTimeout(() => reject({errCode: 'getTime time out'}), 10000);
+            NativeModule.getTime(meshAddress, relayTimes).then(payload => {
+                clearTimeout(timer);
+                resolve(payload);
+            }, reject)
+        })
+    }
+
+    static setAlarm({
+        meshAddress,
+        crud,
+        alarmId,
+        status,
+        action,
+        type,
+        month = 1, // telink 固件中时间月份是 1~12 而非 Java 或 JS 中标准的 0~11
+        dayOrweek,
+        hour,
+        minute,
+        second = 0,
+        sceneId = 0,
+    }) {
+        NativeModule.sendCommand(0xE5, meshAddress, [crud, alarmId, status << 7 | type << 4 | action, month, dayOrweek, hour, minute, second, sceneId]);
+    }
+
+    static getAlarm({
+        meshAddress,
+        relayTimes,
+        alarmId,
+    }) {
+        return new Promise((resolve, reject) => {
+            let timer = setTimeout(() => reject({errCode: 'getAlarm time out'}), 10000);
+            NativeModule.getAlarm(meshAddress, relayTimes, alarmId).then(payload => {
+                clearTimeout(timer);
+                resolve(payload);
             }, reject)
         })
     }

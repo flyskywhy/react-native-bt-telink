@@ -2,6 +2,7 @@ package com.telink;
 
 import javax.annotation.Nullable;
 
+import java.util.Calendar;
 import java.util.List;
 
 import android.app.Activity;
@@ -43,6 +44,7 @@ import com.telink.bluetooth.event.MeshEvent;
 import com.telink.bluetooth.event.NotificationEvent;
 import com.telink.bluetooth.event.ServiceEvent;
 import com.telink.bluetooth.light.DeviceInfo;
+import com.telink.bluetooth.light.GetAlarmNotificationParser;
 import com.telink.bluetooth.light.LeAutoConnectParameters;
 import com.telink.bluetooth.light.LeRefreshNotifyParameters;
 import com.telink.bluetooth.light.LeScanParameters;
@@ -109,6 +111,8 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     // Promises
     private Promise mConfigNodePromise;
     private Promise mSetNodeGroupAddrPromise;
+    private Promise mGetTimePromise;
+    private Promise mGetAlarmPromise;
 
     final BroadcastReceiver mBluetoothStateReceiver = new BroadcastReceiver() {
         @Override
@@ -597,6 +601,67 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         mSetNodeGroupAddrPromise = null;
     }
 
+    @ReactMethod
+    public void getTime(int meshAddress, int relayTimes, Promise promise) {
+        byte opcode = (byte) 0xE8;
+        byte[] params = new byte[]{(byte) relayTimes};
+
+        mGetTimePromise = promise;
+        TelinkLightService.Instance().sendCommandNoResponse(opcode, meshAddress, params);
+    }
+
+    private synchronized void onGetTimeNotify(NotificationEvent event) {
+        Calendar notificationInfo;
+        notificationInfo = (Calendar) event.parse();
+
+        if (notificationInfo == null) {
+            mGetTimePromise.reject(new Exception("GetTime return null"));
+            return;
+        }
+
+        if (mGetTimePromise != null) {
+            WritableMap params = Arguments.createMap();
+            params.putString("time", notificationInfo.getTime().toString());
+            mGetTimePromise.resolve(params);
+        }
+        mGetTimePromise = null;
+    }
+
+    @ReactMethod
+    public void getAlarm(int meshAddress, int relayTimes, int alarmId, Promise promise) {
+        byte opcode = (byte) 0xE6;
+        byte[] params = new byte[]{(byte) relayTimes, (byte) alarmId};
+
+        mGetAlarmPromise = promise;
+        TelinkLightService.Instance().sendCommandNoResponse(opcode, meshAddress, params);
+    }
+
+    private synchronized void onGetAlarmNotify(NotificationEvent event) {
+        GetAlarmNotificationParser.AlarmInfo notificationInfo;
+        notificationInfo = (GetAlarmNotificationParser.AlarmInfo) event.parse();
+
+        if (notificationInfo == null) {
+            mGetAlarmPromise.reject(new Exception("GetAlarm return null"));
+            return;
+        }
+
+        if (mGetAlarmPromise != null) {
+            WritableMap params = Arguments.createMap();
+            params.putInt("alarmId", notificationInfo.index);
+            params.putInt("action", notificationInfo.action.getValue());
+            params.putInt("type", notificationInfo.type.getValue());
+            params.putInt("status", notificationInfo.status.getValue());
+            params.putInt("month", notificationInfo.getMonth());
+            params.putInt("dayOrWeek", notificationInfo.getDayOrWeek());
+            params.putInt("hour", notificationInfo.getHour());
+            params.putInt("minute", notificationInfo.getMinute());
+            params.putInt("second", notificationInfo.getSecond());
+            params.putInt("sceneId", notificationInfo.sceneId);
+            mGetAlarmPromise.resolve(params);
+        }
+        mGetAlarmPromise = null;
+    }
+
     private void onLeScan(LeScanEvent event) {
         DeviceInfo deviceInfo = event.getArgs();
         WritableMap params = Arguments.createMap();
@@ -629,6 +694,12 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
                 break;
             case NotificationEvent.GET_GROUP:
                 this.onGetGroupNotify((NotificationEvent) event);
+                break;
+            case NotificationEvent.GET_TIME:
+                this.onGetTimeNotify((NotificationEvent) event);
+                break;
+            case NotificationEvent.GET_ALARM:
+                this.onGetAlarmNotify((NotificationEvent) event);
                 break;
             case DeviceEvent.STATUS_CHANGED:
                 this.onDeviceStatusChanged((DeviceEvent) event);

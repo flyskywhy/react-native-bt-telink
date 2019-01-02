@@ -14,7 +14,18 @@ class TelinkBt {
     static NODE_STATUS_OFF = 0;
     static NODE_STATUS_ON = 1;
     static NODE_STATUS_OFFLINE = 2;
+    static RELAY_TIMES_MAX = 16;
     static DELAY_MS_AFTER_UPDATE_MESH_COMPLETED = 1;
+    static ALARM_CREATE = 0;
+    static ALARM_REMOVE = 1;
+    static ALARM_UPDATE = 2;
+    static ALARM_ENABLE = 3;
+    static ALARM_DISABLE = 4;
+    static ALARM_ACTION_TURN_OFF = 0;
+    static ALARM_ACTION_TURN_ON = 1;
+    static ALARM_ACTION_SCENE = 2;
+    static ALARM_TYPE_DAY = 0;
+    static ALARM_TYPE_WEEK = 1;
 
     static needRefreshMeshNodesClaimed = true;
     static needRefreshMeshNodesBeforeConfig = true;
@@ -114,6 +125,42 @@ class TelinkBt {
         meshAddress,
         groupIndex,
         groupAddress,
+    }) {}
+
+    static setTime({
+        meshAddress,
+        year,
+        month,
+        day,
+        hour,
+        minute,
+        second = 0,
+    }) {}
+
+    static getTime({
+        meshAddress,
+        relayTimes,
+    }) {}
+
+    static setAlarm({
+        meshAddress,
+        crud,
+        alarmId,
+        status,
+        action,
+        type,
+        month = 1,
+        dayOrweek,
+        hour,
+        minute,
+        second = 0,
+        sceneId = 0,
+    }) {}
+
+    static getAlarm({
+        meshAddress,
+        relayTimes,
+        alarmId,
     }) {}
 }
 
