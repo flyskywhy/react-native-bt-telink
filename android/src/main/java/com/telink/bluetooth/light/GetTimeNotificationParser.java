@@ -30,7 +30,7 @@ public final class GetTimeNotificationParser extends NotificationParser<Calendar
         int offset = 0;
 
         int year = ((params[offset++] & 0xFF) << 8) + (params[offset++] & 0xFF);
-        int month = params[offset++] & 0xFF;
+        int month = (params[offset++] & 0xFF) - 1;
         int day = params[offset++] & 0xFF;
         int hour = params[offset++] & 0xFF;
         int minute = params[offset++] & 0xFF;
