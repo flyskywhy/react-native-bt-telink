@@ -29,7 +29,7 @@ public final class GetTimeNotificationParser extends NotificationParser<Calendar
         byte[] params = notifyInfo.params;
         int offset = 0;
 
-        int year = (params[offset++] & 0xFF << 8) + (params[offset++] & 0xFF);
+        int year = ((params[offset++] & 0xFF) << 8) + (params[offset++] & 0xFF);
         int month = params[offset++] & 0xFF;
         int day = params[offset++] & 0xFF;
         int hour = params[offset++] & 0xFF;
