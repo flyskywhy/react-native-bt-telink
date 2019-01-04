@@ -286,6 +286,13 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     }
 
     @ReactMethod
+    public void enableBluetooth() {
+        if (mBluetoothAdapter != null && !mBluetoothAdapter.isEnabled()) {
+            mBluetoothAdapter.enable();
+        }
+    }
+
+    @ReactMethod
     public void notModeAutoConnectMesh(Promise promise) {
         if (TelinkLightService.Instance().getMode() != LightAdapter.MODE_AUTO_CONNECT_MESH) {
             promise.resolve(true);

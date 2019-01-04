@@ -91,6 +91,10 @@ class TelinkBt {
         }
     }
 
+    static enableBluetooth() {
+        NativeModule.enableBluetooth();
+    }
+
     static notModeAutoConnectMesh() {
         return NativeModule.notModeAutoConnectMesh();
     }
