@@ -9,7 +9,8 @@ const tinycolor = require("tinycolor2");
 
 class TelinkBt {
     static MESH_ADDRESS_MIN = 0x0001;
-    static MESH_ADDRESS_MAX = 0x00FF;
+    // static MESH_ADDRESS_MAX = 0x00FF;
+    static MESH_ADDRESS_MAX = 0x0000 + 20; // 1100 字节的二维码最多分享 20 个蓝牙设备
     static GROUP_ADDRESS_MIN = 0x8001;
     static GROUP_ADDRESS_MAX = 0x80FF;
     static HUE_MIN = 0;
