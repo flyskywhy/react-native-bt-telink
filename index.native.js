@@ -139,6 +139,12 @@ class TelinkBt {
         NativeModule.sendCommand(opcode, meshAddress, valueArray);
     }
 
+    static remind({
+        meshAddress,
+    }) {
+        NativeModule.sendCommand(0xF2, meshAddress, []);
+    }
+
     static changePower({
         meshAddress,
         value,
@@ -269,8 +275,7 @@ class TelinkBt {
                     if (mode === 'silan') {
                         switch (scene) {
                             case 0:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene]);
-                                NativeModule.sendCommand(0xF2, meshAddress, [color3.r, color3.g, color3.b]);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, 3, color3.r, color3.g, color3.b]);
                                 changed = true;
                                 break;
                             case 1:
