@@ -212,7 +212,7 @@ public final class Manufacture {
         private String version = "1.0";
         private String info = "TELINK SEMICONDUCTOR (Shanghai) CO, LTD is a fabless IC design company";
 
-        private String factoryName = "telink_mesh1";
+        private String factoryName = "sysin_mesh";
         private String factoryPassword = "123";
         private byte[] factoryLtk = new byte[]{
                 (byte) 0xC0, (byte) 0xC1, (byte) 0xC2, (byte) 0xC3, (byte) 0xC4,

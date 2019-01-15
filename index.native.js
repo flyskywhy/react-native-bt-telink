@@ -380,6 +380,13 @@ class TelinkBt {
 
     static getTypeFromUuid = uuid => uuid;
 
+    // 0xE3 是将一个节点踢出 mesh 功能：
+    // * 恢复出厂设置
+    // * 根据 Params[0] 配置 mesh_name
+    // ** Params[0]: 没有这个参数或者该参数为 0  ，灯的 mesh_name 将被设置为 'out_of_mesh'；
+    // ** 如果参数被设置为 1 ，灯的 mesh_name 将被设置为如下值
+    //       android/src/main/java/com/telink/bluetooth/light/Manufacture.java 中的 factoryName
+    //       ios/TelinkBtSDK/BTConst.h 中的 BTDevInfo_UserNameDef
     static out_of_mesh = 0;
     static telink_mesh1 = 1;
 

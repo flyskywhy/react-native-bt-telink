@@ -10,7 +10,7 @@
 #define TelinkBlue_BTConst_h
 
 #define BTDevInfo_Name @"Telink tLight"
-#define BTDevInfo_UserNameDef @"telink_mesh1"
+#define BTDevInfo_UserNameDef @"sysin_mesh"
 #define BTDevInfo_UserPasswordDef @"123"
 #define BTDevInfo_UID  0x1102
 
