@@ -25,7 +25,8 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"serviceConnected", @"serviceDisconnected", @"notificationOnlineStatus", @"deviceStatusLogin", @"deviceStatusLogout", @"deviceStatusErrorAndroidN", @"leScan", @"leScanCompleted", @"leScanTimeout", @"meshOffline"];
+//    return @[@"serviceConnected", @"serviceDisconnected", @"notificationOnlineStatus", @"deviceStatusLogin", @"deviceStatusLogout", @"deviceStatusErrorAndroidN", @"leScan", @"leScanCompleted", @"leScanTimeout", @"meshOffline"];
+    return @[@"bluetoothEnabled", @"bluetoothDisabled", @"serviceConnected", @"serviceDisconnected", @"notificationOnlineStatus", @"notificationGetDeviceState", @"deviceStatusConnecting", @"deviceStatusConnected", @"deviceStatusLogining", @"deviceStatusLogin",@"deviceStatusLogout",@"deviceStatusErrorAndroidN",@"deviceStatusUpdateMeshCompleted",@"deviceStatusUpdatingMesh",@"deviceStatusUpdateMeshFailure",@"deviceStatusUpdateAllMeshCompleted",@"deviceStatusGetLtkCompleted",@"deviceStatusGetLtkFailure",@"deviceStatusMeshOffline",@"deviceStatusMeshScanCompleted",@"deviceStatusMeshScanTimeout",@"deviceStatusOtaCompleted",@"deviceStatusOtaFailure",@"deviceStatusOtaProgress",@"deviceStatusGetFirmwareCompleted",@"deviceStatusGetFirmwareFailure",@"deviceStatusDeleteCompleted",@"deviceStatusDeleteFailure",@"leScan",@"leScanCompleted",@"leScanTimeout",@"meshOffline"];
 }
 
 RCT_EXPORT_METHOD(doInit) {
