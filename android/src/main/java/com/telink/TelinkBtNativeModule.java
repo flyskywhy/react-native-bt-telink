@@ -5,15 +5,19 @@ import javax.annotation.Nullable;
 import java.util.Calendar;
 import java.util.List;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -62,6 +66,9 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
 
     // Debugging
     private static final boolean D = true;
+
+    private static final int ACCESS_COARSE_LOCATION_RESULT_CODE = 4;
+    private static final int BLUETOOTH_RESULT_CODE = 5;
 
     // Event names
     public static final String BT_ENABLED = "bluetoothEnabled";
@@ -282,6 +289,33 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         if (!LeBluetooth.getInstance().isSupport(mContext)) {
             Toast.makeText(mContext, "ble not support", Toast.LENGTH_SHORT).show();
             return;
+        }
+        checkPermissions();
+    }
+
+    private void checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(getCurrentActivity(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getCurrentActivity(),
+                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                        ACCESS_COARSE_LOCATION_RESULT_CODE);
+            }
+            else if (ContextCompat.checkSelfPermission(getCurrentActivity(),
+                    Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getCurrentActivity(),
+                        new String[]{Manifest.permission.BLUETOOTH},
+                        BLUETOOTH_RESULT_CODE);
+            // }
+            // else if (ContextCompat.checkSelfPermission(getCurrentActivity(),
+            //         Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            //     ActivityCompat.requestPermissions(getCurrentActivity(),
+            //             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+            //             STORAGE_RESULT_CODE);
+            }
+            else {
+                Log.d(TAG, "checkPermissions ok");
+            }
         }
     }
 
