@@ -26,6 +26,7 @@ class TelinkBt {
     static NODE_STATUS_OFFLINE = 2;
     static RELAY_TIMES_MAX = 16;
     static DELAY_MS_AFTER_UPDATE_MESH_COMPLETED = 1;
+    static DELAY_MS_COMMAND = 320;
     static ALARM_CREATE = 0;
     static ALARM_REMOVE = 1;
     static ALARM_UPDATE = 2;
