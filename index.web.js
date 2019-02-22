@@ -169,6 +169,10 @@ class TelinkBt {
         relayTimes,
         alarmId,
     }) {}
+
+    static cascadeLightStringGroup({
+        meshAddress,
+    }) {}
 }
 
 module.exports = TelinkBt;

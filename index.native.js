@@ -483,6 +483,23 @@ class TelinkBt {
             }, reject)
         })
     }
+
+    static cascadeLightStringGroup({ // 用于将一个组中的几个灯串级联模拟成一个灯串
+        meshAddress,
+        cascadeSeq = 1, // 向固件表明当前节点（一般为灯串）所处级联顺序，从 1 开始计数；如为 0 则代表退出级联模式
+        groupNodes = 4, // 参与级联的灯串总数，也即 group.length
+        groupBulbs = 96 * 4, // 参与级联总灯珠个数
+        bulbOffset = 0, // 当前灯串首个灯珠地址偏移量，从 0 开始计数
+    }) {
+        NativeModule.sendCommand(0xF6, meshAddress, [
+            cascadeSeq,
+            groupNodes,
+            groupBulbs >>> 8 & 0xFF,
+            groupBulbs & 0xFF,
+            bulbOffset >>> 8 & 0xFF,
+            bulbOffset & 0xFF,
+        ]);
+    }
 }
 
 module.exports = TelinkBt;
