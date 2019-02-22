@@ -579,6 +579,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
             map.putInt("meshAddress", notificationInfo.meshAddress);
             map.putInt("brightness", notificationInfo.brightness);
             map.putInt("status", notificationInfo.connectionStatus.getValue());
+            map.putInt("reserve", notificationInfo.reserve);
             params.pushMap(map);
         }
         sendEvent(NOTIFICATION_ONLINE_STATUS, params);
