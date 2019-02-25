@@ -1330,7 +1330,7 @@ static NSUInteger getNotifytime;
     //if _clickDate is equal 0,it means the first time to executor command
     NSTimeInterval count = 0;
     
-    if (cmd[7]==0xd0||cmd[7]==0xd2||cmd[7]==0xe2) {
+    if (cmd[7]==0xd0||cmd[7]==0xd2||cmd[7]==0xe2||cmd[7]==0xf0) {
         self.containCYDelay = YES;
         self.btCMDType = BTCommandCaiYang;
         if ((current - _clickDate)<kCMDInterval) {
@@ -1476,7 +1476,7 @@ static NSUInteger getNotifytime;
  */
 //
 -(void)turnOnCertainLightWithAddress:(uint32_t )u_DevAddress{
-    uint8_t cmd[13]={0x11,0x71,0x11,0x00,0x00,0x66,0x00,0xd0,0x11,0x02,0x01,0x01,0x00};
+    uint8_t cmd[13]={0x11,0x71,0x11,0x00,0x00,0x66,0x00,0xf0,0x11,0x02,0x01,0x01,0x00};
     cmd[5]=(u_DevAddress>>8) & 0xff;
     cmd[6]=u_DevAddress & 0xff;
     cmd[2]=cmd[2]+addIndex;
@@ -1494,7 +1494,7 @@ static NSUInteger getNotifytime;
  
  */
 -(void)turnOffCertainLightWithAddress:(uint32_t )u_DevAddress{
-    uint8_t cmd[13]={0x11,0x11,0x11,0x00,0x00,0x66,0x00,0xd0,0x11,0x02,0x00,0x01,0x00};
+    uint8_t cmd[13]={0x11,0x11,0x11,0x00,0x00,0x66,0x00,0xf0,0x11,0x02,0x00,0x01,0x00};
     cmd[5]=(u_DevAddress>>8) & 0xff;
     cmd[6]=u_DevAddress & 0xff;
     cmd[2]=cmd[2]+addIndex;
@@ -1509,11 +1509,59 @@ static NSUInteger getNotifytime;
 }
 
 /**
+ *sendCommand
+ 
+ */
+-(void)sendCommand:(NSInteger)opcode meshAddress:(uint32_t)u_DevAddress value:(NSArray *) value{
+//    uint8_t cmd[15]={0x11,0x11,0x11,0x00,0x00,0x66,0x00,0xf1,0x11,0x02,0x01,0x03,0xff,0xff,0xff};
+//    cmd[5]=(u_DevAddress>>8) & 0xff;
+//    cmd[6]=u_DevAddress & 0xff;
+//    cmd[7]=opcode;
+//    cmd[2]=cmd[2]+addIndex;
+//    if (cmd[2]==254) {
+//        cmd[2]=1;
+//    }
+//    for (int i = 0; i < value.count; i++) {
+//        cmd[10+i]=[value[i] intValue];
+//    }
+//
+//    addIndex++;
+//    [self logByte:cmd Len:13 Str:@"sendCommand"];   //控制台日志
+//    [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:13];
+    uint8_t cmd[10+value.count];
+    cmd[0] = 0x11;
+    cmd[1] = 0x11;
+    cmd[2] = 0x11;
+    cmd[3] = 0x00;
+    cmd[4] = 0x00;
+    cmd[5] = 0x66;
+    cmd[6] = 0x00;
+    cmd[8] = 0x11;
+    cmd[9] = 0x02;
+    cmd[5]=(u_DevAddress>>8) & 0xff;
+    cmd[6]=u_DevAddress & 0xff;
+    cmd[7]=opcode;
+    cmd[2]=cmd[2]+addIndex;
+    if (cmd[2]==254) {
+        cmd[2]=1;
+    }
+    for (int i = 0; i < value.count; i++) {
+        cmd[10+i]=[value[i] intValue];
+    }
+    
+    addIndex++;
+    [self logByte:cmd Len:10+value.count Str:@"sendCommand"];   //控制台日志
+    [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:10+value.count];
+
+    
+}
+
+/**
  *组的开灯－－－传入组地址
  */
 -(void)turnOnCertainGroupWithAddress:(uint32_t )u_GroupAddress
 {
-    uint8_t cmd[13]={0x11,0x51,0x11,0x00,0x00,0x66,0x00,0xd0,0x11,0x02,0x01,0x01,0x00};
+    uint8_t cmd[13]={0x11,0x51,0x11,0x00,0x00,0x66,0x00,0xf0,0x11,0x02,0x01,0x01,0x00};
     cmd[6]=(u_GroupAddress>>8) & 0xff;
     cmd[5]=u_GroupAddress & 0xff;
     cmd[2]=cmd[2]+addIndex;

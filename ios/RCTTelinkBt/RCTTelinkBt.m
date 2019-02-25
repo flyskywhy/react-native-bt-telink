@@ -25,17 +25,43 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-//    return @[@"serviceConnected", @"serviceDisconnected", @"notificationOnlineStatus", @"deviceStatusLogin", @"deviceStatusLogout", @"deviceStatusErrorAndroidN", @"leScan", @"leScanCompleted", @"leScanTimeout", @"meshOffline"];
     return @[@"bluetoothEnabled", @"bluetoothDisabled", @"serviceConnected", @"serviceDisconnected", @"notificationOnlineStatus", @"notificationGetDeviceState", @"deviceStatusConnecting", @"deviceStatusConnected", @"deviceStatusLogining", @"deviceStatusLogin",@"deviceStatusLogout",@"deviceStatusErrorAndroidN",@"deviceStatusUpdateMeshCompleted",@"deviceStatusUpdatingMesh",@"deviceStatusUpdateMeshFailure",@"deviceStatusUpdateAllMeshCompleted",@"deviceStatusGetLtkCompleted",@"deviceStatusGetLtkFailure",@"deviceStatusMeshOffline",@"deviceStatusMeshScanCompleted",@"deviceStatusMeshScanTimeout",@"deviceStatusOtaCompleted",@"deviceStatusOtaFailure",@"deviceStatusOtaProgress",@"deviceStatusGetFirmwareCompleted",@"deviceStatusGetFirmwareFailure",@"deviceStatusDeleteCompleted",@"deviceStatusDeleteFailure",@"leScan",@"leScanCompleted",@"leScanTimeout",@"meshOffline"];
 }
 
 RCT_EXPORT_METHOD(doInit) {
-    [[BTCentralManager shareBTCentralManager] stopScan];
+//    [[BTCentralManager shareBTCentralManager] stopScan];
     //扫描我的在线灯
     [BTCentralManager shareBTCentralManager].delegate = self;
     self.devArray = [[NSMutableArray alloc] init];
     self.BTDevArray = [[NSMutableArray alloc] init];
     self.isNeedRescan = YES;
+    
+    [self sendEventWithName:@"serviceConnected" body:nil];
+    [self sendEventWithName:@"bluetoothEnabled" body:nil];
+    [self sendEventWithName:@"deviceStatusLogout" body:nil];
+}
+
+-(void)centralManagerDidUpdateState:(CBCentralManager *)central
+{
+    //第一次打开或者每次蓝牙状态改变都会调用这个函数
+    if(central.state==CBCentralManagerStatePoweredOn)
+    {
+        NSLog(@"蓝牙设备开着");
+    }
+    else
+    {
+        NSLog(@"蓝牙设备关着");
+        
+        UIAlertView *alterView=[[UIAlertView alloc]initWithTitle:@"提示" message:@"请打开蓝牙！" delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+        [alterView show];
+    }
+    
+    
+}
+
+- (void)startScan {
+    kCentralManager.scanWithOut_Of_Mesh = NO;
+    [kCentralManager startScanWithName:@"sysin_mesh" Pwd:@"123" AutoLogin:YES];
 }
 
 - (void)OnDevChange:(id)sender Item:(BTDevItem *)item Flag:(DevChangeFlag)flag {
@@ -55,18 +81,27 @@ RCT_EXPORT_METHOD(doInit) {
 
 - (void)dosomethingWhenDiscoverDevice:(BTDevItem *)item {
     NSLog(@"itttt==========%@", item);
-    NSLog(@"valueee=====%x ", item.u_DevAdress);
+    NSLog(@"valueee=====%d ", item.u_DevAdress);
     
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
     
     [event setObject:[NSString stringWithFormat:@"%x", item.u_Mac] forKey:@"macAddress"];
-    [event setObject:@"22222" forKey:@"deviceName"];
+    [event setObject:item.name forKey:@"deviceName"];
     [event setObject:[NSString stringWithFormat:@"%@", item.u_Name] forKey:@"meshName"];
-    [event setObject:[NSString stringWithFormat:@"%x", item.u_DevAdress] forKey:@"meshAddress"];
-    [event setObject:[NSString stringWithFormat:@"%u", item.u_meshUuid] forKey:@"meshUUID"];
-    [event setObject:@"66666" forKey:@"productUUID"];
-    [event setObject:[NSString stringWithFormat:@"%u", item.u_Status] forKey:@"status"];
+//    [event setObject:[NSString stringWithFormat:@"%x", item.u_DevAdress] forKey:@"meshAddress"];
+//    [event setObject:[NSString stringWithFormat:@"%u", item.u_meshUuid] forKey:@"meshUUID"];
+//    [event setObject:[NSString stringWithFormat:@"%u", item.productID] forKey:@"productUUID"];
+//    [event setObject:[NSString stringWithFormat:@"%u", item.u_Status] forKey:@"status"];
+    
+//    [event setObject:[NSString stringWithFormat:@"%x", item.u_Mac] forKey:@"macAddress"];
+//    [event setObject:item.name forKey:@"deviceName"];
+//    [event setObject:[NSString stringWithFormat:@"%@", item.u_Name] forKey:@"meshName"];
+    [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"meshAddress"];
+    [event setObject:[NSNumber numberWithInt:item.u_meshUuid] forKey:@"meshUUID"];
+    [event setObject:[NSNumber numberWithInt:item.productID] forKey:@"productUUID"];
+    [event setObject:[NSNumber numberWithInt:item.u_Status] forKey:@"status"];
 
+    
     [self sendEventWithName:@"leScan" body:event];
     
     NSMutableArray *macs = [[NSMutableArray alloc] init];
@@ -80,23 +115,29 @@ RCT_EXPORT_METHOD(doInit) {
     if (kCentralManager.devArrs.count==1) {
         [kCentralManager connectWithItem:item];
     }
+    
+    
 }
 
 - (void)dosomethingWhenConnectedDevice:(BTDevItem *)item {
+    NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
+    [event setObject:[NSString stringWithFormat:@"%x", item.u_DevAdress] forKey:@"meshAddress"];
     NSString *tip = [NSString stringWithFormat:@"connected device address: %x", item.u_DevAdress];
+    [self sendEventWithName:@"deviceStatusLogin" body:event];
     NSLog(@"tip==========%@",tip);
+    
 }
 
 - (void)dosomethingWhenLoginDevice:(BTDevItem *)item {
-
+    NSLog(@"dosomethingWhenLoginDevice");
 }
 
 - (void)dosomethingWhenDisConnectedDevice:(BTDevItem *)item {
-
+    NSLog(@"dosomethingWhenDisConnectedDevice");
 }
 
 - (void)scanedLoginCharacteristic {
-    [kCentralManager loginWithPwd:@"123"];
+    [kCentralManager loginWithPwd:nil];
 }
 
 - (void)notifyBackWithDevice:(DeviceModel *)model {
@@ -115,33 +156,60 @@ RCT_EXPORT_METHOD(doInit) {
         //        [self.tableView reloadData];
     }
     //添加新设备
+    
     else{
         DeviceModel *omodel = [[DeviceModel alloc] initWithModel:model];
         [self.devArray addObject:omodel];
-        //        [self.lightCollectionView reloadData];
-        //        [self.tableView reloadData];
+        
+        
     }
-    //delegate.devArray = self.devArray;
+    
+    NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
+    
+    [event setObject:[NSNumber numberWithInt:1] forKey:@"status"];
+    [event setObject:[NSNumber numberWithInt:2] forKey:@"brightness"];
+    [event setObject:[NSString stringWithFormat:@"%x", model.u_DevAdress] forKey:@"meshAddress"];
+    [self sendEventWithName:@"notificationOnlineStatus" body:event];
+    
 }
-
 RCT_EXPORT_METHOD(doDestroy) {
-    NSLog(@"11111");
+    NSLog(@"doDestroy");
 }
 
-RCT_EXPORT_METHOD(notModeAutoConnectMesh) {
-    NSLog(@"11111");
+RCT_EXPORT_METHOD(doResume) {
+    NSLog(@"doResume");
+    self.manager = [[CBCentralManager alloc] initWithDelegate:self queue:nil]; 
 }
 
-RCT_EXPORT_METHOD(autoConnect) {
-    NSLog(@"11111");
+RCT_EXPORT_METHOD(enableBluetooth) {
+    NSLog(@"enableBluetooth");
 }
 
-RCT_EXPORT_METHOD(autoRefreshNotify) {
-    NSLog(@"11111");
+RCT_EXPORT_METHOD(notModeAutoConnectMesh:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    _resolveBlock=resolve;
+    NSLog(@"notModeAutoConnectMesh");
+}
+
+
+RCT_EXPORT_METHOD(autoConnect:(NSString *)userMeshName userMeshPwd:(NSString *)userMeshPwd otaMac:(NSString *)otaMac)
+{
+    NSLog(@"meshName==========%@",userMeshName);
+    [[BTCentralManager shareBTCentralManager] stopScan];
+    [self.devArray removeAllObjects];
+    kCentralManager.scanWithOut_Of_Mesh = NO;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1000 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+        [kCentralManager startScanWithName:userMeshName Pwd:userMeshPwd AutoLogin:YES];
+    });
+}
+
+RCT_EXPORT_METHOD(autoRefreshNotify:(NSInteger) repeatCount Interval:(NSInteger) NSInteger) {
+    NSLog(@"autoRefreshNotify");
 }
 
 RCT_EXPORT_METHOD(idleMode:(BOOL)disconnect) {
-    //NSLog(@"11111");
+    NSLog(@"idleMode");
 }
 
 RCT_EXPORT_METHOD(startScan:(NSString *)meshName outOfMeshName:(NSString *)outOfMeshName timeoutSeconds:(NSInteger)timeoutSeconds isSingleNode:(BOOL)isSingleNode) {
@@ -155,9 +223,19 @@ RCT_EXPORT_METHOD(startScan:(NSString *)meshName outOfMeshName:(NSString *)outOf
     });
 }
 
-RCT_EXPORT_METHOD(changePower:(NSString *)meshAddress value:(NSInteger)value) {
-    for (DeviceModel *dev in self.devArray) {
-        if ([[NSString stringWithFormat:@"%x", dev.u_DevAdress] isEqual:meshAddress]) {
+RCT_EXPORT_METHOD(sendCommand:(NSInteger)opcode meshAddress:(NSInteger)meshAddress value:(NSArray *) value) {
+    NSArray *arr = [kCentralManager devArrs];
+    for (BTDevItem *dev in arr) {
+        if (dev.u_DevAdress == meshAddress) {
+            [[BTCentralManager shareBTCentralManager] sendCommand:opcode meshAddress:dev.u_DevAdress value:value];
+        }
+    }
+}
+
+RCT_EXPORT_METHOD(changePower:(NSInteger)meshAddress value:(NSInteger)value) {
+    NSArray *arr = [kCentralManager devArrs];
+    for (BTDevItem *dev in arr) {
+        if (dev.u_DevAdress == meshAddress) {
             if (value == 1) {
                 [[BTCentralManager shareBTCentralManager] turnOffCertainLightWithAddress:dev.u_DevAdress];
             }
@@ -216,6 +294,18 @@ RCT_EXPORT_METHOD(configNode:(NSDictionary *)node cfg:(NSDictionary *)cfg resolv
 
     GetLTKBuffer;
     [kCentralManager setOut_Of_MeshWithName:[cfg objectForKey:@"oldName"] PassWord:[cfg objectForKey:@"oldPwd"] NewNetWorkName:[cfg objectForKey:@"newName"] Pwd:[cfg objectForKey:@"newPwd"] ltkBuffer:ltkBuffer ForCertainItem:self.BTDevArray[index]];
+}
+
+RCT_EXPORT_METHOD(setNodeGroupAddr) {
+    NSLog(@"setNodeGroupAddr");
+}
+
+RCT_EXPORT_METHOD(getTime) {
+    NSLog(@"getTime");
+}
+
+RCT_EXPORT_METHOD(getAlarm) {
+    NSLog(@"getTime");
 }
 
 -(void)OnDevOperaStatusChange:(id)sender Status:(OperaStatus)status{

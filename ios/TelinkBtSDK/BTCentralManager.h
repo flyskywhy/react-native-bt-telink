@@ -260,6 +260,11 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
  */
 -(void)turnOffCertainLightWithAddress:(uint32_t )u_DevAddress;
 
+/**
+ *sendCommand
+ 
+ */
+-(void)sendCommand:(NSInteger)opcode meshAddress:(uint32_t)u_DevAddress value:(NSArray *) value;
 
 /**
  *组的开灯－－－传入组地址

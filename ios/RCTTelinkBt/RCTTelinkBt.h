@@ -10,10 +10,12 @@
 #import <React/RCTEventEmitter.h>
 #import "BTDevItem.h"
 #import "DeviceModel.h"
+#import <CoreBluetooth/CoreBluetooth.h>
 
-@interface RCTTelinkBt : RCTEventEmitter <RCTBridgeModule>
+@interface RCTTelinkBt : RCTEventEmitter <RCTBridgeModule,CBCentralManagerDelegate>
 
 @property (nonatomic, assign) BOOL isNeedRescan;
+@property(nonatomic, strong) CBCentralManager *manager;
 @property(nonatomic, strong) NSMutableArray <DeviceModel *> *devArray;
 @property(nonatomic, strong) NSMutableArray <BTDevItem *> *BTDevArray;
 
