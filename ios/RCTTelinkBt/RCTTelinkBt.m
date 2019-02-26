@@ -121,7 +121,7 @@ RCT_EXPORT_METHOD(doInit) {
 
 - (void)dosomethingWhenConnectedDevice:(BTDevItem *)item {
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
-    [event setObject:[NSString stringWithFormat:@"%x", item.u_DevAdress] forKey:@"meshAddress"];
+    [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"meshAddress"];
     NSString *tip = [NSString stringWithFormat:@"connected device address: %x", item.u_DevAdress];
     [self sendEventWithName:@"deviceStatusLogin" body:event];
     NSLog(@"tip==========%@",tip);
@@ -166,10 +166,13 @@ RCT_EXPORT_METHOD(doInit) {
     
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
     
+    [event setObject:[NSNumber numberWithInt:1] forKey:@"reserve"];
     [event setObject:[NSNumber numberWithInt:1] forKey:@"status"];
     [event setObject:[NSNumber numberWithInt:2] forKey:@"brightness"];
-    [event setObject:[NSString stringWithFormat:@"%x", model.u_DevAdress] forKey:@"meshAddress"];
-    [self sendEventWithName:@"notificationOnlineStatus" body:event];
+    [event setObject:[NSNumber numberWithInt:model.u_DevAdress] forKey:@"meshAddress"];
+    
+    NSMutableArray *array = [NSMutableArray arrayWithObject:event];
+    [self sendEventWithName:@"notificationOnlineStatus" body:array];
     
 }
 RCT_EXPORT_METHOD(doDestroy) {
@@ -187,7 +190,7 @@ RCT_EXPORT_METHOD(enableBluetooth) {
 
 RCT_EXPORT_METHOD(notModeAutoConnectMesh:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    _resolveBlock=resolve;
+    resolve(@YES);
     NSLog(@"notModeAutoConnectMesh");
 }
 
@@ -223,7 +226,7 @@ RCT_EXPORT_METHOD(startScan:(NSString *)meshName outOfMeshName:(NSString *)outOf
     });
 }
 
-RCT_EXPORT_METHOD(sendCommand:(NSInteger)opcode meshAddress:(NSInteger)meshAddress value:(NSArray *) value) {
+RCT_EXPORT_METHOD(sendCommand:(NSInteger)opcode meshAddress:(NSInteger)meshAddress value:(NSArray *) value immediate :(BOOL)immediate) {
     NSArray *arr = [kCentralManager devArrs];
     for (BTDevItem *dev in arr) {
         if (dev.u_DevAdress == meshAddress) {
@@ -300,12 +303,28 @@ RCT_EXPORT_METHOD(setNodeGroupAddr) {
     NSLog(@"setNodeGroupAddr");
 }
 
-RCT_EXPORT_METHOD(getTime) {
+RCT_EXPORT_METHOD(getTime:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     NSLog(@"getTime");
+    NSArray *value = [NSArray arrayWithObject:[NSNumber numberWithInt:relayTimes]];
+    NSArray *arr = [kCentralManager devArrs];
+    for (BTDevItem *dev in arr) {
+        if (dev.u_DevAdress == meshAddress) {
+            [[BTCentralManager shareBTCentralManager] sendCommand:0xE8 meshAddress:dev.u_DevAdress value:value];
+        }
+    }
+    resolve(@YES);
 }
 
-RCT_EXPORT_METHOD(getAlarm) {
-    NSLog(@"getTime");
+RCT_EXPORT_METHOD(getAlarm:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes alarmId:(NSInteger)alarmId resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    NSLog(@"getAlarm");
+    NSArray *value = [NSArray arrayWithObjects:[NSNumber numberWithInteger:relayTimes],[NSNumber numberWithInteger:alarmId],nil];
+    NSArray *arr = [kCentralManager devArrs];
+    for (BTDevItem *dev in arr) {
+        if (dev.u_DevAdress == meshAddress) {
+            [[BTCentralManager shareBTCentralManager] sendCommand:0xE6 meshAddress:dev.u_DevAdress value:value];
+        }
+    }
+    resolve(@YES);
 }
 
 -(void)OnDevOperaStatusChange:(id)sender Status:(OperaStatus)status{
