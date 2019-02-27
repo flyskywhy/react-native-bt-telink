@@ -208,7 +208,7 @@ RCT_EXPORT_METHOD(autoConnect:(NSString *)userMeshName userMeshPwd:(NSString *)u
 }
 
 RCT_EXPORT_METHOD(autoRefreshNotify:(NSInteger) repeatCount Interval:(NSInteger) NSInteger) {
-    NSLog(@"autoRefreshNotify");
+    [kCentralManager setNotifyOpenPro];
 }
 
 RCT_EXPORT_METHOD(idleMode:(BOOL)disconnect) {
