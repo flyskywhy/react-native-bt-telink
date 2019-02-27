@@ -292,6 +292,8 @@ RCT_EXPORT_METHOD(configNode:(NSDictionary *)node cfg:(NSDictionary *)cfg resolv
         return;
     }
     
+    self.BTDevArray[index].u_DevAdress = [node objectForKey:@"meshAddress"];
+
     _resolveBlock=resolve;
     _rejectBlock=reject;
 
