@@ -500,6 +500,7 @@ class TelinkBt {
         groupNodes = 4, // 参与级联的灯串总数，也即 group.length
         groupBulbs = 96 * 4, // 参与级联总灯珠个数
         bulbOffset = 0, // 当前灯串首个灯珠地址偏移量，从 0 开始计数
+        largestBulbs = 96, // 组中最多灯珠的灯串上的灯珠数
         immediate = false,
     }) {
         NativeModule.sendCommand(0xF6, meshAddress, [
@@ -509,6 +510,7 @@ class TelinkBt {
             groupBulbs & 0xFF,
             bulbOffset >>> 8 & 0xFF,
             bulbOffset & 0xFF,
+            largestBulbs,
         ], immediate);
     }
 }
