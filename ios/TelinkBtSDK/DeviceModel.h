@@ -34,6 +34,8 @@ typedef NS_ENUM(NSUInteger, LightStataType) {
  */
 @property(nonatomic,assign)NSUInteger brightness;
 
+@property(nonatomic,assign)NSInteger reserve;
+
 
 
 -(BOOL)addGrpAddressPro:(int)addAdr;

@@ -352,7 +352,7 @@ static NSUInteger getNotifytime;
 }
 
 -(void)passUsefulMessageWithBytes:(uint8_t *)bytes{
-    
+    NSLog(@"[CoreBluetoothh] passUsefulMessageWithBytes: %@", [[self changeCommandToArray:bytes len:20] componentsJoinedByString:@"-"]);
     //灯的显示状态解析
     DeviceModel *firstItem = [self getFristDeviceModelWithBytes:bytes];
     
@@ -1434,6 +1434,7 @@ static NSUInteger getNotifytime;
     
     [self logByte:buffer Len:20 Str:@"加密结果"];
     [self writeValue:self.commandFeature Buffer:buffer Len:20 response:CBCharacteristicWriteWithoutResponse];
+    
 }
 
 + (BTCentralManager*) shareBTCentralManager
@@ -1831,6 +1832,7 @@ extern unsigned short crc16 (unsigned char *pD, int len)
 }
 
 -(DeviceModel *)getFristDeviceModelWithBytes:(uint8_t *)bytes{
+    
     DeviceModel *btItem=nil;
     if (bytes[8]==0x11 && bytes[9]==0x02){
         int com=bytes[7];
@@ -1849,19 +1851,27 @@ extern unsigned short crc16 (unsigned char *pD, int len)
                 return nil;
             }else{
                 [self logByte:bytes Len:20 Str:@"First_Status"];
-                
-                if (bytes[11] == 0) {
-                    btItem.stata = LightStataTypeOutline;
+                if (bytes[13] == 0) {
+                    btItem.reserve = 0;
+                    btItem.stata = LightStataTypeOn;
                     btItem.brightness = 0;
                 }else{
-                    btItem.brightness = bytes[12];
-                    if (bytes[12] == 0) {
-                        btItem.stata = LightStataTypeOff;
-                    }else{
-                        btItem.stata = LightStataTypeOn;
-                    }
-                    
+                    btItem.reserve = 1;
+                    btItem.stata = LightStataTypeOn;
+                    btItem.brightness = 0;
                 }
+//                if (bytes[11] == 0) {
+//                    btItem.stata = LightStataTypeOutline;
+//                    btItem.brightness = 0;
+//                }else{
+//                    btItem.brightness = bytes[12];
+//                    if (bytes[12] == 0) {
+//                        btItem.stata = LightStataTypeOff;
+//                    }else{
+//                        btItem.stata = LightStataTypeOn;
+//                    }
+//                    
+//                }
             }
         }
     }
@@ -1884,17 +1894,28 @@ extern unsigned short crc16 (unsigned char *pD, int len)
             devAd = bytes[14];
             //根据地址得到BTDevItem
             btItem = [self getDeviceWithAddress:devAd];
-            if (bytes[15] == 0) {
-                btItem.stata = LightStataTypeOutline;
+            
+            if (bytes[13] == 0) {
+                btItem.reserve = 0;
+                btItem.stata = LightStataTypeOn;
                 btItem.brightness = 0;
             }else{
-                btItem.brightness = bytes[16];
-                if (bytes[16] == 0) {
-                    btItem.stata = LightStataTypeOff;
-                }else{
-                    btItem.stata = LightStataTypeOn;
-                }
+                btItem.reserve = 1;
+                btItem.stata = LightStataTypeOn;
+                btItem.brightness = 0;
             }
+            
+//            if (bytes[15] == 0) {
+//                btItem.stata = LightStataTypeOutline;
+//                btItem.brightness = 0;
+//            }else{
+//                btItem.brightness = bytes[16];
+//                if (bytes[16] == 0) {
+//                    btItem.stata = LightStataTypeOff;
+//                }else{
+//                    btItem.stata = LightStataTypeOn;
+//                }
+//            }
         }
     }
     

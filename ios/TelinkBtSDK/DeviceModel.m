@@ -50,12 +50,14 @@
 - (void)updataLightStata:(DeviceModel *)model {
     self.stata = model.stata;
     self.brightness = model.brightness;
+    self.reserve = model.reserve;
 }
 - (instancetype)initWithModel:(DeviceModel *)model {
     if (self=[super init]) {
         _u_DevAdress = model.u_DevAdress;
         _brightness = model.brightness;
         _stata = model.stata;
+        _reserve = model.reserve;
     }
     return self;
 }

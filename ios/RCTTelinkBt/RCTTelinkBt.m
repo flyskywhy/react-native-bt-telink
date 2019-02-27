@@ -122,7 +122,7 @@ RCT_EXPORT_METHOD(doInit) {
 - (void)dosomethingWhenConnectedDevice:(BTDevItem *)item {
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
     [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"meshAddress"];
-    NSString *tip = [NSString stringWithFormat:@"connected device address: %x", item.u_DevAdress];
+    NSString *tip = [NSString stringWithFormat:@"connected device address: %d", item.u_DevAdress];
     [self sendEventWithName:@"deviceStatusLogin" body:event];
     NSLog(@"tip==========%@",tip);
     
@@ -166,9 +166,9 @@ RCT_EXPORT_METHOD(doInit) {
     
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
     
-    [event setObject:[NSNumber numberWithInt:1] forKey:@"reserve"];
-    [event setObject:[NSNumber numberWithInt:1] forKey:@"status"];
-    [event setObject:[NSNumber numberWithInt:2] forKey:@"brightness"];
+    [event setObject:[NSNumber numberWithInt:model.reserve] forKey:@"reserve"];
+    [event setObject:[NSNumber numberWithInt:model.stata] forKey:@"status"];
+    [event setObject:[NSNumber numberWithInt:model.brightness] forKey:@"brightness"];
     [event setObject:[NSNumber numberWithInt:model.u_DevAdress] forKey:@"meshAddress"];
     
     NSMutableArray *array = [NSMutableArray arrayWithObject:event];
@@ -208,7 +208,29 @@ RCT_EXPORT_METHOD(autoConnect:(NSString *)userMeshName userMeshPwd:(NSString *)u
 }
 
 RCT_EXPORT_METHOD(autoRefreshNotify:(NSInteger) repeatCount Interval:(NSInteger) NSInteger) {
-    [kCentralManager setNotifyOpenPro];
+    
+//    UILocalNotification *localNotification = [[UILocalNotification alloc] init];
+//
+//    // 可以用该语句查看当前线程
+//    NSLog(@"当前线程--%@", [NSThread currentThread]);
+//
+//    // 此处需要写一个异步任务，是因为需要开辟一个新的线程去反复执行你的代码块，否则会阻塞主线程
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+//
+//        while (TRUE) {
+//
+//            // 每隔5秒执行一次（当前线程阻塞5秒）
+//            [NSThread sleepForTimeInterval:2];
+//
+//            [[UIApplication sharedApplication] cancelAllLocalNotifications];
+//
+//            // 这里写你要反复处理的代码，如网络请求
+//            NSLog(@"***每5秒输出一次这段文字***");
+//            [kCentralManager setNotifyOpenPro];
+//            [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
+//        };
+//    });
+    
 }
 
 RCT_EXPORT_METHOD(idleMode:(BOOL)disconnect) {
@@ -291,14 +313,22 @@ RCT_EXPORT_METHOD(configNode:(NSDictionary *)node cfg:(NSDictionary *)cfg resolv
     if (index < 0) {
         return;
     }
-    
-    self.BTDevArray[index].u_DevAdress = [node objectForKey:@"meshAddress"];
+//
+//    self.BTDevArray[index].u_DevAdress = [node objectForKey:@"meshAddress"];
 
     _resolveBlock=resolve;
     _rejectBlock=reject;
+    
+    BTDevItem *dev = self.BTDevArray[index];
+//    dev.u_DevAdress = [[node objectForKey:@"meshAddress"] intValue];
+//
+//    NSLog(@"dev.u_DevAdress = %u",dev.u_DevAdress);
 
+//    [kCentralManager replaceDeviceAddress:self.BTDevArray[index].u_DevAdress WithNewDevAddress:[[node objectForKey:@"meshAddress"] intValue]];
+    
     GetLTKBuffer;
-    [kCentralManager setOut_Of_MeshWithName:[cfg objectForKey:@"oldName"] PassWord:[cfg objectForKey:@"oldPwd"] NewNetWorkName:[cfg objectForKey:@"newName"] Pwd:[cfg objectForKey:@"newPwd"] ltkBuffer:ltkBuffer ForCertainItem:self.BTDevArray[index]];
+    [kCentralManager setOut_Of_MeshWithName:[cfg objectForKey:@"oldName"] PassWord:[cfg objectForKey:@"oldPwd"] NewNetWorkName:[cfg objectForKey:@"newName"] Pwd:[cfg objectForKey:@"newPwd"] ltkBuffer:ltkBuffer ForCertainItem:dev];
+    
 }
 
 RCT_EXPORT_METHOD(setNodeGroupAddr) {
@@ -307,7 +337,7 @@ RCT_EXPORT_METHOD(setNodeGroupAddr) {
 
 RCT_EXPORT_METHOD(getTime:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     NSLog(@"getTime");
-    NSArray *value = [NSArray arrayWithObject:[NSNumber numberWithInt:relayTimes]];
+    NSArray *value = [NSArray arrayWithObject:[NSNumber numberWithInteger:relayTimes]];
     NSArray *arr = [kCentralManager devArrs];
     for (BTDevItem *dev in arr) {
         if (dev.u_DevAdress == meshAddress) {
