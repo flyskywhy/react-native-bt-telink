@@ -742,6 +742,7 @@ static NSUInteger getNotifytime;
                     tempItem.productID = ProductID;
                 }
                 tempItem.u_DevAdress =[self getIntValueByHex:tempStr];
+                tempItem.u_DevAdress =(tempItem.u_DevAdress<<8) & 0xff00 + (tempItem.u_DevAdress>>8);
             }
             if (isNew) {
                 scanTime = 0;          //扫描超时清零
@@ -1479,8 +1480,8 @@ static NSUInteger getNotifytime;
 //
 -(void)turnOnCertainLightWithAddress:(uint32_t )u_DevAddress{
     uint8_t cmd[13]={0x11,0x71,0x11,0x00,0x00,0x66,0x00,0xf0,0x11,0x02,0x01,0x01,0x00};
-    cmd[5]=(u_DevAddress>>8) & 0xff;
-    cmd[6]=u_DevAddress & 0xff;
+    cmd[5]=u_DevAddress & 0xff;
+    cmd[6]=(u_DevAddress>>8) & 0xff;
     cmd[2]=cmd[2]+addIndex;
     if (cmd[2]==254) {
         cmd[2]=1;
@@ -1497,8 +1498,8 @@ static NSUInteger getNotifytime;
  */
 -(void)turnOffCertainLightWithAddress:(uint32_t )u_DevAddress{
     uint8_t cmd[13]={0x11,0x11,0x11,0x00,0x00,0x66,0x00,0xf0,0x11,0x02,0x00,0x01,0x00};
-    cmd[5]=(u_DevAddress>>8) & 0xff;
-    cmd[6]=u_DevAddress & 0xff;
+    cmd[5]=u_DevAddress & 0xff;
+    cmd[6]=(u_DevAddress>>8) & 0xff;
     cmd[2]=cmd[2]+addIndex;
     if (cmd[2]==254) {
         cmd[2]=1;
@@ -1516,8 +1517,8 @@ static NSUInteger getNotifytime;
  */
 -(void)sendCommand:(NSInteger)opcode meshAddress:(uint32_t)u_DevAddress value:(NSArray *) value{
 //    uint8_t cmd[15]={0x11,0x11,0x11,0x00,0x00,0x66,0x00,0xf1,0x11,0x02,0x01,0x03,0xff,0xff,0xff};
-//    cmd[5]=(u_DevAddress>>8) & 0xff;
-//    cmd[6]=u_DevAddress & 0xff;
+//    cmd[5]=u_DevAddress & 0xff;
+//    cmd[6]=(u_DevAddress>>8) & 0xff;
 //    cmd[7]=opcode;
 //    cmd[2]=cmd[2]+addIndex;
 //    if (cmd[2]==254) {
@@ -1540,8 +1541,8 @@ static NSUInteger getNotifytime;
     cmd[6] = 0x00;
     cmd[8] = 0x11;
     cmd[9] = 0x02;
-    cmd[5]=(u_DevAddress>>8) & 0xff;
-    cmd[6]=u_DevAddress & 0xff;
+    cmd[5]=u_DevAddress & 0xff;
+    cmd[6]=(u_DevAddress>>8) & 0xff;
     cmd[7]=opcode;
     cmd[2]=cmd[2]+addIndex;
     if (cmd[2]==254) {
@@ -1564,8 +1565,8 @@ static NSUInteger getNotifytime;
 -(void)turnOnCertainGroupWithAddress:(uint32_t )u_GroupAddress
 {
     uint8_t cmd[13]={0x11,0x51,0x11,0x00,0x00,0x66,0x00,0xf0,0x11,0x02,0x01,0x01,0x00};
-    cmd[6]=(u_GroupAddress>>8) & 0xff;
     cmd[5]=u_GroupAddress & 0xff;
+    cmd[6]=(u_GroupAddress>>8) & 0xff;
     cmd[2]=cmd[2]+addIndex;
     if (cmd[2]==254) {
         cmd[2]=1;
@@ -1582,8 +1583,8 @@ static NSUInteger getNotifytime;
 -(void)turnOffCertainGroupWithAddress:(uint32_t )u_GroupAddress
 {
     uint8_t cmd[13]={0x11,0x31,0x11,0x00,0x00,0x66,0x00,0xd0,0x11,0x02,0x00,0x01,0x00};
-    cmd[6]=(u_GroupAddress>>8) & 0xff;
     cmd[5]=u_GroupAddress & 0xff;
+    cmd[6]=(u_GroupAddress>>8) & 0xff;
     cmd[2]=cmd[2]+addIndex;
     if (cmd[2]==254) {
         cmd[2]=1;
@@ -1598,9 +1599,10 @@ static NSUInteger getNotifytime;
 
 -(void)replaceDeviceAddress:(uint32_t)presentDevAddress WithNewDevAddress:(NSUInteger)newDevAddress{
     uint8_t cmd[12]={0x11,0x11,0x70,0x00,0x00,0x00,0x00,0xe0,0x11,0x02,0x00,0x00};
-    cmd[5]=(presentDevAddress>>8) & 0xff;
-    cmd[6]=presentDevAddress & 0xff;
-    cmd[10]=newDevAddress;
+    cmd[5]=presentDevAddress & 0xff;
+    cmd[6]=(presentDevAddress>>8) & 0xff;
+    cmd[10]=newDevAddress & 0xff;
+    cmd[11]=(newDevAddress>>8) & 0xff;
     cmd[2]=cmd[2]+addIndex;
     if (cmd[2]==254) {
         cmd[2]=1;
@@ -1619,8 +1621,8 @@ static NSUInteger getNotifytime;
 -(void)setLightOrGroupLumWithDestinateAddress:(uint32_t)destinateAddress WithLum:(NSInteger)lum{
 
     uint8_t cmd[11]={0x11,0x11,0x50,0x00,0x00,0x00,0x00,0xd2,0x11,0x02,0x0A};
-    cmd[5]=(destinateAddress>>8) & 0xff;
-    cmd[6]=destinateAddress & 0xff;
+    cmd[5]=destinateAddress & 0xff;
+    cmd[6]=(destinateAddress>>8) & 0xff;
     cmd[2]=cmd[2]+addIndex;
     if (cmd[2]==254) {
         cmd[2]=1;
@@ -1665,12 +1667,11 @@ static NSUInteger getNotifytime;
 -(void)addDevice:(uint32_t)targetDeviceAddress ToDestinateGroupAddress:(uint32_t)groupAddress{
 
     uint8_t cmd[13]={0x11,0x61,0x11,0x00,0x00,0x00,0x00,0xd7,0x11,0x02,0x01,0x02,0x80};
-    cmd[5]=(targetDeviceAddress>>8) & 0xff;
-    cmd[6]=targetDeviceAddress & 0xff;
-
-    cmd[12]=(groupAddress>>8) & 0xff;
+    cmd[5]=targetDeviceAddress & 0xff;
+    cmd[6]=(targetDeviceAddress>>8) & 0xff;
 
     cmd[11]=groupAddress & 0xff;
+    cmd[12]=(groupAddress>>8) & 0xff;
 
     cmd[2]=cmd[2]+addIndex;
     if (cmd[2]>=254) {
@@ -1686,10 +1687,10 @@ static NSUInteger getNotifytime;
 -(void)deleteDevice:(uint32_t)targetDeviceAddress ToDestinateGroupAddress:(uint32_t)groupAddress
 {
     uint8_t cmd[13]={0x11,0x61,0x11,0x00,0x00,0x00,0x00,0xd7,0x11,0x02,0x00,0x02,0x80};
-    cmd[5]=(targetDeviceAddress>>8) & 0xff;
-    cmd[6]=targetDeviceAddress & 0xff;
-    cmd[12]=(groupAddress>>8) & 0xff;
+    cmd[5]=targetDeviceAddress & 0xff;
+    cmd[6]=(targetDeviceAddress>>8) & 0xff;
     cmd[11]=groupAddress & 0xff;
+    cmd[12]=(groupAddress>>8) & 0xff;
     cmd[2]=cmd[2]+addIndex;
     if (cmd[2]>=254) {
         cmd[2]=1;
@@ -1707,8 +1708,8 @@ static NSUInteger getNotifytime;
 
 -(void)kickoutLightFromMeshWithDestinateAddress:(uint32_t)destinateAddress {
     uint8_t cmd[10]={0x11,0x61,0x31,0x00,0x00,0x00,0x00,0xe3,0x11,0x02,};
-    cmd[5]=(destinateAddress>>8) & 0xff;
-    cmd[6]=destinateAddress& 0xff;
+    cmd[5]=destinateAddress& 0xff;
+    cmd[6]=(destinateAddress>>8) & 0xff;
     cmd[2]=cmd[2]+addIndex;
     if (cmd[2]==254) {
         cmd[2]=1;
@@ -1719,8 +1720,8 @@ static NSUInteger getNotifytime;
 
 -(void)setCTOfLightWithDestinationAddress:(uint32_t)destinationAddress AndCT:(float)CT{
     uint8_t cmd[12]={0x11,0x11,0x88,0x00,0x00,0x00,0x00,0xe2,0x11,0x02,0x05,0x00};
-    cmd[5]=(destinationAddress>>8) & 0xff;
-    cmd[6]=destinationAddress & 0xff;
+    cmd[5]=destinationAddress & 0xff;
+    cmd[6]=(destinationAddress>>8) & 0xff;
     if (cmd[2]==254) {
         cmd[2]=1;
     }
@@ -1731,8 +1732,8 @@ static NSUInteger getNotifytime;
 }
 - (void)getGroupAddressWithDeviceAddress:(uint32_t)destinationAddress {
     uint8_t cmd[12]={0x11,0x12 ,0x88,0x00,0x00,0x00,0x00,0xdd,0x11,0x02,0x10,0x01};
-    cmd[5]=(destinationAddress>>8) & 0xff;
-    cmd[6]=destinationAddress & 0xff;
+    cmd[5]=destinationAddress & 0xff;
+    cmd[6]=(destinationAddress>>8) & 0xff;
     if (cmd[2]==254) {
         cmd[2]=1;
     }
