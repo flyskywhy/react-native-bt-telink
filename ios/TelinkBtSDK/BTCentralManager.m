@@ -275,7 +275,6 @@ static NSUInteger getNotifytime;
     NSMutableString *tempMStr=[[NSMutableString alloc] init];
     for (int i=0;i<len;i++)
         [tempMStr appendFormat:@"%0x ",bytes[i]];
-    NSLog(@"%@ == %@",str,tempMStr);
 }
 
 -(void)pasterData:(uint8_t *)buffer IsNotify:(BOOL)isNotify
@@ -364,9 +363,7 @@ static NSUInteger getNotifytime;
     }
 
     if (bytes[8]==0x11 && bytes[9]==0x02 && bytes[7] == 0xe1) {
-        NSLog(@"[CoreBluetoothh] passUsefulMessageWithBytes: %@", [[self changeCommandToArray:bytes len:20] componentsJoinedByString:@"-"]);
         uint32_t address = [self analysisedAddressAfterSettingWithBytes:bytes];
-        NSLog(@"[CoreBluetoothh] passUsefulMessageWithBytes address: %d", address);
         if ([_delegate respondsToSelector:@selector(resultOfReplaceAddress:)]) {
             [self printContentWithString:[NSString stringWithFormat:@"change address back: 0x%04x", [[srcDevArrs firstObject] u_DevAdress]]];
             [self logByte:bytes Len:20 Str:@"Setting_Address"];
@@ -742,7 +739,7 @@ static NSUInteger getNotifytime;
                     tempItem.productID = ProductID;
                 }
                 tempItem.u_DevAdress =[self getIntValueByHex:tempStr];
-                tempItem.u_DevAdress =(tempItem.u_DevAdress<<8) & 0xff00 + (tempItem.u_DevAdress>>8);
+                tempItem.u_DevAdress =((tempItem.u_DevAdress<<8) & 0xff00) + (tempItem.u_DevAdress>>8);
             }
             if (isNew) {
                 scanTime = 0;          //扫描超时清零
@@ -1928,7 +1925,7 @@ extern unsigned short crc16 (unsigned char *pD, int len)
     if (address != 0) {
         DeviceModel *devItem = [[DeviceModel alloc]init];
         //类型转换
-        uint32_t newAddress = address << 8;
+        uint32_t newAddress = address;
         devItem.u_DevAdress = newAddress;
 
         return devItem;

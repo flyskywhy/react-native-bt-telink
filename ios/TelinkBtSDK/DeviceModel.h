@@ -9,9 +9,9 @@
 
 #import <Foundation/Foundation.h>
 typedef NS_ENUM(NSUInteger, LightStataType) {
-    LightStataTypeOutline,
-    LightStataTypeOn,
     LightStataTypeOff,
+    LightStataTypeOn,
+    LightStataTypeOutline
 };
 @interface DeviceModel : NSObject{
 @public
