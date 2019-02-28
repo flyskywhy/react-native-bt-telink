@@ -212,6 +212,7 @@ RCT_EXPORT_METHOD(autoConnect:(NSString *)userMeshName userMeshPwd:(NSString *)u
     NSLog(@"meshName==========%@",userMeshName);
     [[BTCentralManager shareBTCentralManager] stopScan];
     [self.devArray removeAllObjects];
+    [self.BTDevArray removeAllObjects];
     kCentralManager.scanWithOut_Of_Mesh = NO;
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1000 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
@@ -253,6 +254,7 @@ RCT_EXPORT_METHOD(startScan:(NSString *)meshName outOfMeshName:(NSString *)outOf
     NSLog(@"meshName==========%@",meshName);
     [[BTCentralManager shareBTCentralManager] stopScan];
     [self.devArray removeAllObjects];
+    [self.BTDevArray removeAllObjects];
     kCentralManager.scanWithOut_Of_Mesh = NO;
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1000 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
@@ -261,15 +263,12 @@ RCT_EXPORT_METHOD(startScan:(NSString *)meshName outOfMeshName:(NSString *)outOf
 }
 
 RCT_EXPORT_METHOD(sendCommand:(NSInteger)opcode meshAddress:(NSInteger)meshAddress value:(NSArray *) value immediate :(BOOL)immediate) {
-    
-    
-    
-    NSArray *arr = [kCentralManager devArrs];
-    for (BTDevItem *dev in arr) {
-        if (dev.u_DevAdress == meshAddress) {
-            [[BTCentralManager shareBTCentralManager] sendCommand:opcode meshAddress:dev.u_DevAdress value:value];
-        }
-    }
+//    NSArray *arr = [kCentralManager devArrs];
+//    for (BTDevItem *dev in arr) {
+//        if (dev.u_DevAdress == meshAddress) {
+            [[BTCentralManager shareBTCentralManager] sendCommand:opcode meshAddress:meshAddress value:value];
+//        }
+//    }
 }
 
 RCT_EXPORT_METHOD(changePower:(NSInteger)meshAddress value:(NSInteger)value) {
@@ -320,7 +319,12 @@ RCT_EXPORT_METHOD(configNode:(NSDictionary *)node cfg:(NSDictionary *)cfg resolv
         if ([[NSString stringWithFormat:@"%x", self.BTDevArray[i].u_Mac] isEqualToString:[node objectForKey:@"macAddress"]]) {
             self.btv = [[BTDevItem alloc] initWithDevice:self.BTDevArray[i]];
             self.cfg = [[NSMutableDictionary alloc] initWithDictionary:cfg];
-            [kCentralManager replaceDeviceAddress:self.BTDevArray[i].u_DevAdress WithNewDevAddress:[[node objectForKey:@"meshAddress"] intValue]];
+            if(self.BTDevArray[i].u_DevAdress == [[node objectForKey:@"meshAddress"] intValue]){
+                [self resultOfReplaceAddress:self.BTDevArray[i].u_DevAdress];
+            }else{
+                [kCentralManager replaceDeviceAddress:self.BTDevArray[i].u_DevAdress WithNewDevAddress:[[node objectForKey:@"meshAddress"] intValue]];
+            }
+            
         }
     }
 //    NSLog(@"index=====%ld", index);
