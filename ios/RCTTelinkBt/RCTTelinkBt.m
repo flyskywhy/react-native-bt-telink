@@ -249,6 +249,9 @@ RCT_EXPORT_METHOD(startScan:(NSString *)meshName outOfMeshName:(NSString *)outOf
 }
 
 RCT_EXPORT_METHOD(sendCommand:(NSInteger)opcode meshAddress:(NSInteger)meshAddress value:(NSArray *) value immediate :(BOOL)immediate) {
+    
+    
+    
     NSArray *arr = [kCentralManager devArrs];
     for (BTDevItem *dev in arr) {
         if (dev.u_DevAdress == meshAddress) {
@@ -301,35 +304,46 @@ RCT_EXPORT_METHOD(changeColor:(NSString *)meshAddress value:(NSInteger)value) {
 
 RCT_EXPORT_METHOD(configNode:(NSDictionary *)node cfg:(NSDictionary *)cfg resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     
-    NSInteger index = -1;
-    
     for (int i=0; i<self.BTDevArray.count; i++) {
         if ([[NSString stringWithFormat:@"%x", self.BTDevArray[i].u_Mac] isEqualToString:[node objectForKey:@"macAddress"]]) {
-            index = i;
+            self.btv = [[BTDevItem alloc] initWithDevice:self.BTDevArray[i]];
+            self.cfg = [[NSMutableDictionary alloc] initWithDictionary:cfg];
+            [kCentralManager replaceDeviceAddress:self.BTDevArray[i].u_DevAdress WithNewDevAddress:[[node objectForKey:@"meshAddress"] intValue]];
         }
     }
-    NSLog(@"index=====%ld", index);
-    
-    if (index < 0) {
-        return;
-    }
+//    NSLog(@"index=====%ld", index);
+//
+//    if (index < 0) {
+//        return;
+//    }
 //
 //    self.BTDevArray[index].u_DevAdress = [node objectForKey:@"meshAddress"];
 
+    
     _resolveBlock=resolve;
     _rejectBlock=reject;
     
-    BTDevItem *dev = self.BTDevArray[index];
-//    dev.u_DevAdress = [[node objectForKey:@"meshAddress"] intValue];
+//    BTDevItem *dev = self.BTDevArray[index];
+////    dev.u_DevAdress = [[node objectForKey:@"meshAddress"] intValue];
+////
+////    NSLog(@"dev.u_DevAdress = %u",dev.u_DevAdress);
 //
-//    NSLog(@"dev.u_DevAdress = %u",dev.u_DevAdress);
-
-//    [kCentralManager replaceDeviceAddress:self.BTDevArray[index].u_DevAdress WithNewDevAddress:[[node objectForKey:@"meshAddress"] intValue]];
-    
-    GetLTKBuffer;
-    [kCentralManager setOut_Of_MeshWithName:[cfg objectForKey:@"oldName"] PassWord:[cfg objectForKey:@"oldPwd"] NewNetWorkName:[cfg objectForKey:@"newName"] Pwd:[cfg objectForKey:@"newPwd"] ltkBuffer:ltkBuffer ForCertainItem:dev];
+////    [kCentralManager replaceDeviceAddress:self.BTDevArray[index].u_DevAdress WithNewDevAddress:[[node objectForKey:@"meshAddress"] intValue]];
+//
+//    GetLTKBuffer;
+//    [kCentralManager setOut_Of_MeshWithName:[cfg objectForKey:@"oldName"] PassWord:[cfg objectForKey:@"oldPwd"] NewNetWorkName:[cfg objectForKey:@"newName"] Pwd:[cfg objectForKey:@"newPwd"] ltkBuffer:ltkBuffer ForCertainItem:dev];
     
 }
+
+-(void)resultOfReplaceAddress:(uint32_t )resultAddress
+{
+    self.btv.u_DevAdress = resultAddress;
+    
+    GetLTKBuffer;
+    [kCentralManager setOut_Of_MeshWithName:[self.cfg objectForKey:@"oldName"] PassWord:[self.cfg objectForKey:@"oldPwd"] NewNetWorkName:[self.cfg objectForKey:@"newName"] Pwd:[self.cfg objectForKey:@"newPwd"] ltkBuffer:ltkBuffer ForCertainItem:self.btv];
+}
+
+
 
 RCT_EXPORT_METHOD(setNodeGroupAddr) {
     NSLog(@"setNodeGroupAddr");

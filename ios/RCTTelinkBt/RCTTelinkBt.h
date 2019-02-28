@@ -18,5 +18,7 @@
 @property(nonatomic, strong) CBCentralManager *manager;
 @property(nonatomic, strong) NSMutableArray <DeviceModel *> *devArray;
 @property(nonatomic, strong) NSMutableArray <BTDevItem *> *BTDevArray;
+@property(nonatomic,strong) NSMutableDictionary *cfg;
+@property(nonatomic,strong) BTDevItem *btv;
 
 @end

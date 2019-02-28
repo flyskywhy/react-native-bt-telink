@@ -352,7 +352,6 @@ static NSUInteger getNotifytime;
 }
 
 -(void)passUsefulMessageWithBytes:(uint8_t *)bytes{
-    NSLog(@"[CoreBluetoothh] passUsefulMessageWithBytes: %@", [[self changeCommandToArray:bytes len:20] componentsJoinedByString:@"-"]);
     //灯的显示状态解析
     DeviceModel *firstItem = [self getFristDeviceModelWithBytes:bytes];
     
@@ -365,7 +364,9 @@ static NSUInteger getNotifytime;
     }
     
     if (bytes[8]==0x11 && bytes[9]==0x02 && bytes[7] == 0xe1) {
+        NSLog(@"[CoreBluetoothh] passUsefulMessageWithBytes: %@", [[self changeCommandToArray:bytes len:20] componentsJoinedByString:@"-"]);
         uint32_t address = [self analysisedAddressAfterSettingWithBytes:bytes];
+        NSLog(@"[CoreBluetoothh] passUsefulMessageWithBytes address: %d", address);
         if ([_delegate respondsToSelector:@selector(resultOfReplaceAddress:)]) {
             [self printContentWithString:[NSString stringWithFormat:@"change address back: 0x%04x", [[srcDevArrs firstObject] u_DevAdress]]];
             [self logByte:bytes Len:20 Str:@"Setting_Address"];
@@ -1129,10 +1130,10 @@ static NSUInteger getNotifytime;
     self.userPassword=pwd;
     self.isNeedScan=YES;
     _operaType = DevOperaType_Normal;
-    if (_centerState == CBCentralManagerStatePoweredOn) {
+    //if (_centerState == CBCentralManagerStatePoweredOn) {
         [self printContentWithString:@"ready scan devices "];
         [_centralManager scanForPeripheralsWithServices:nil options:nil];
-    }
+    //}
     //如果是最后一个设备被断电的时候
 }
 
