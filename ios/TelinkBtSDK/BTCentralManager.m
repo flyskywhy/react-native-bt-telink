@@ -28,28 +28,28 @@ static NSUInteger getNotifytime;
 
 @interface BTCentralManager() {
     CBCentralManager *centralManager;
-    
+
     NSString *userName;
     NSString *userPassword;
     NSString *nUserName;
     NSString *nUserPassword;
-    
+
     CBCharacteristic *commandFeature;
     CBCharacteristic *pairFeature;
     CBCharacteristic *notifyFeature;
     CBCharacteristic *otaFeature;
     CBCharacteristic *fireWareFeature;
-    
+
     uint8_t loginRand[8];
     uint8_t sectionKey[16];
-    
+
     @public
     uint8_t *_TBuffer;
-    
+
     int snNo;
     int connectTime;
     NSInteger currSetIndex;
-    
+
     BOOL isSetAll;
     BOOL isNeedScan;
     BOOL isEndAllSet;
@@ -57,14 +57,14 @@ static NSUInteger getNotifytime;
     NSMutableArray *IdentifersArrs;
     BTDevItem *disconnectItem;
     NSUInteger otaPackIndex;
-    
+
     uint8_t tempbuffer[20];
     BOOL flags;
     NSTimer *scanTimer;
     NSTimer *getNotifyTimer;
     NSTimer *connectTimer;
     NSThread    *_delayThread;
-    
+
 }
 
 @property (nonatomic, strong) dispatch_source_t clickTimer;
@@ -144,7 +144,7 @@ static NSUInteger getNotifytime;
 //    _duration = 300;
     otaPackIndex = 0;
     memset(tempbuffer, 0, 20);
-    
+
     //开启延迟线程
     _delayThread = [[NSThread alloc] initWithTarget:self selector:@selector(startThread) object:nil];
     [_delayThread start];
@@ -153,11 +153,11 @@ static NSUInteger getNotifytime;
 -(void)startThread {
     [self performSelector:@selector(_) withObject:nil afterDelay:[[NSDate distantFuture] timeIntervalSince1970]];
     [NSThread currentThread].name = @"Delay Thread";
-    
+
     while ([[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]) {
-        
+
     }
-    
+
 }
 
 -(void)_{}
@@ -227,13 +227,13 @@ static NSUInteger getNotifytime;
 -(void)writeValue:(CBCharacteristic *)characteristic Buffer:(uint8_t *)buffer Len:(int)len response:(CBCharacteristicWriteType)type {
     if (!characteristic)
         return;
-    
+
     if (!self.selConnectedItem)
         return;
-    
+
     if (self.selConnectedItem.blDevInfo.state!=CBPeripheralStateConnected)
         return;
-    
+
     NSData *tempData=[NSData dataWithBytes:buffer length:len];
     [self.selConnectedItem.blDevInfo writeValue:tempData forCharacteristic:characteristic type:type];
 }
@@ -242,30 +242,30 @@ static NSUInteger getNotifytime;
 //{
 //    if (!characteristic)
 //        return;
-//    
+//
 //    if (!self.selConnectedItem)
 //        return;
-//    
+//
 //    if (self.selConnectedItem.blDevInfo.state!=CBPeripheralStateConnected)
 //        return;
-//    
+//
 //    NSData *tempData=[NSData dataWithBytes:buffer length:len];
-//    
+//
 //    [self.selConnectedItem.blDevInfo writeValue:tempData forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
-//    
+//
 //}
 
 -(void)readValue:(CBCharacteristic *)characteristic Buffer:(uint8_t *)buffer
 {
     if (!characteristic)
         return;
-    
+
     if (!self.selConnectedItem)
         return;
-    
+
     if (self.selConnectedItem.blDevInfo.state!=CBPeripheralStateConnected)
         return;
-    
+
     [self.selConnectedItem.blDevInfo readValueForCharacteristic:characteristic];
 }
 
@@ -280,16 +280,16 @@ static NSUInteger getNotifytime;
 
 -(void)pasterData:(uint8_t *)buffer IsNotify:(BOOL)isNotify
 {
-    
+
     uint8_t sec_ivm[8];
     uint32_t tempMac=self.selConnectedItem.u_Mac;
-    
+
     sec_ivm[0]=(tempMac>>24) & 0xff;
     sec_ivm[1]=(tempMac>>16) & 0xff;
     sec_ivm[2]=(tempMac>>8) & 0xff;
-    
+
     memcpy(sec_ivm+3, buffer, 5);
-    
+
     if (!(buffer[0]==0 && buffer[1]==0 && buffer[2]==0))
     {
         if ([CryptoAction decryptionPpacket:sectionKey Iv:sec_ivm Mic:buffer+5 MicLen:2 Ps:buffer+7 Len:13]){
@@ -308,7 +308,7 @@ static NSUInteger getNotifytime;
 {
     if (srcDevArrs.count<2)
         return nil;
-    
+
     BTDevItem *resultItem=nil;
     for (BTDevItem *tempItem in srcDevArrs)
     {
@@ -317,7 +317,7 @@ static NSUInteger getNotifytime;
         resultItem=tempItem;
         break;
     }
-    
+
     return resultItem;
 }
 
@@ -342,19 +342,19 @@ static NSUInteger getNotifytime;
 -(void)sendDevNotify:(uint8_t *)bytes
 {
     [self logByte:bytes Len:20 Str:@"Notify"];
-    
+
     if (_delegate && [_delegate respondsToSelector:@selector(OnDevNofify:Byte:)])
     {
         [_delegate OnDevNofify:self Byte:bytes];
     }
     [self passUsefulMessageWithBytes:bytes];
-    
+
 }
 
 -(void)passUsefulMessageWithBytes:(uint8_t *)bytes{
     //灯的显示状态解析
     DeviceModel *firstItem = [self getFristDeviceModelWithBytes:bytes];
-    
+
     if ([_delegate respondsToSelector:@selector(notifyBackWithDevice:)]) {
         [_delegate notifyBackWithDevice:firstItem];
     }
@@ -362,7 +362,7 @@ static NSUInteger getNotifytime;
     if ([_delegate respondsToSelector:@selector(notifyBackWithDevice:)]) {
         [_delegate notifyBackWithDevice:secondItem];
     }
-    
+
     if (bytes[8]==0x11 && bytes[9]==0x02 && bytes[7] == 0xe1) {
         NSLog(@"[CoreBluetoothh] passUsefulMessageWithBytes: %@", [[self changeCommandToArray:bytes len:20] componentsJoinedByString:@"-"]);
         uint32_t address = [self analysisedAddressAfterSettingWithBytes:bytes];
@@ -400,20 +400,20 @@ static NSUInteger getNotifytime;
 
     uint8_t buffer[20];
     memset(buffer, 0, 20);
-    
+
     self.operaStatus=DevOperaStatus_SetName_Start;
     [CryptoAction  getNetworkInfo:buffer Opcode:4 Str:self.nUserName Psk:sectionKey];
 //    [self writeValue:self.pairFeature Buffer:buffer Len:20];
      [self writeValue:self.pairFeature Buffer:buffer Len:20 response:CBCharacteristicWriteWithResponse];
     //NSLog(@"Setting_Name");
-    
+
     self.operaStatus=DevOperaStatus_SetPassword_Start;
     memset(buffer, 0, 20);
     [CryptoAction  getNetworkInfo:buffer Opcode:5 Str:self.nUserPassword Psk:sectionKey];
      [self writeValue:self.pairFeature Buffer:buffer Len:20 response:CBCharacteristicWriteWithResponse];
 //    [self writeValue:self.pairFeature Buffer:buffer Len:20];
     //NSLog(@"Seting_Password");
-    
+
     self.operaStatus=DevOperaStatus_SetLtk_Start;
     [CryptoAction  getNetworkInfoByte:buffer Opcode:6 Str:tempbuffer Psk:sectionKey];
 //    [self writeValue:self.pairFeature Buffer:buffer Len:20];
@@ -425,26 +425,26 @@ static NSUInteger getNotifytime;
     if (srcDevArrs.count<1)
         return;
     self.isSetAll = YES;
-    
+
     self.nUserName=nName;
     self.nUserPassword=nPwd;
     _operaType=DevOperaType_Set;
     self.currSetIndex=NSNotFound;
-    
+
     for (BTDevItem *tempItem in srcDevArrs)
         tempItem.isSeted=NO;
-    
+
     self.isEndAllSet=NO;
-    
+
     [self setNewNetworkNextPro];
-    
+
     if (buffer != nil) {
         for (int i = 0;  i < 20 ; i++) {
             tempbuffer[i] = buffer[i];
         }
-        
+
     }
-    
+
 }
 
 -(void)setOut_Of_MeshWithName:(NSString *)addName PassWord:(NSString *)addPassWord NewNetWorkName:(NSString *)nName Pwd:(NSString *)nPwd ltkBuffer:(uint8_t *)buffer ForCertainItem:(BTDevItem *)item{
@@ -460,7 +460,7 @@ static NSUInteger getNotifytime;
         [self stopConnected];
     }
     _operaType = DevOperaType_Set;
-    
+
     if (buffer != nil) {
         for (int i = 0;  i < 20 ; i++) {
             tempbuffer[i] = buffer[i];
@@ -479,7 +479,7 @@ static NSUInteger getNotifytime;
     if (!item)
         return;
     self.isSetAll=NO;
-    
+
     self.nUserName=nName;
     self.nUserPassword=nPwd;
     if ([[item u_Name]isEqualToString:@"out_of_mesh"]&& self.scanWithOut_Of_Mesh == YES) {
@@ -510,7 +510,7 @@ static NSUInteger getNotifytime;
         else
             currSetIndex=0;
     }
-    
+
     if (!tempItem)
     {
         [self stopConnected];
@@ -526,18 +526,18 @@ static NSUInteger getNotifytime;
         }
         _selConnectedItem=tempItem;
     }
-    
+
     if (!tempItem){
         self.isEndAllSet=YES;
         self.operaStatus=DevOperaStatus_SetNetwork_Finish;
         return;
     }
-    
+
     if ((currSetIndex+1)==srcDevArrs.count)
         self.isEndAllSet=YES;
-    
+
     [self setMeshNameAndPwdAndLtk:tempItem];
-    
+
     currSetIndex++;
 }
 
@@ -561,7 +561,7 @@ static NSUInteger getNotifytime;
     _selConnectedItem=setItem;
     self.flags = YES;
     setItem.isSeted=YES;
-    
+
     for (int i=0; i<srcDevArrs.count; i++) {
         NSLog(@"[CoreBluetooth] srcDevArrs -> %@", [srcDevArrs[i] blDevInfo]);
     }
@@ -576,7 +576,7 @@ static NSUInteger getNotifytime;
     for (int i=0; i<srcDevArrs.count; i++) {
         [pers addObject:[srcDevArrs[i] blDevInfo].identifier.UUIDString];
     }
-    //防止多个连接 
+    //防止多个连接
     CBUUID *uuid =  [CBUUID UUIDWithString:BTDevInfo_ServiceUUID];
     NSArray <CBPeripheral *>*arr =[_centralManager retrieveConnectedPeripheralsWithServices:@[uuid]];
     NSMutableArray *peruuids = [[NSMutableArray alloc] init];
@@ -604,7 +604,7 @@ static NSUInteger getNotifytime;
         return resStr;
     if (!rStr)
         return resStr;
-    
+
     NSRange tempRan=NSMakeRange(0, resStr.length);
     resStr=[resStr stringByReplacingOccurrencesOfString:tagStr withString:rStr options:0 range:tempRan];
     return resStr;
@@ -685,15 +685,15 @@ static NSUInteger getNotifytime;
             tempItem.u_Name=tempUserName;
             tempItem.u_Vid=tempVid;
             tempItem.rssi=[RSSI intValue];
-            
+
             tempRange=NSMakeRange(5, 4);
             tempStr=[tempParStr substringWithRange:tempRange];
             tempItem.u_meshUuid=[self getIntValueByHex:tempStr];
-            
+
             tempRange=NSMakeRange(10, 8);
             tempStr=[tempParStr substringWithRange:tempRange];
             tempItem.u_Mac=[self getIntValueByHex:tempStr];
-            
+
             //PId
             if (tempParStr.length>=23) {
                 tempRange=NSMakeRange(19, 4);
@@ -713,10 +713,10 @@ static NSUInteger getNotifytime;
                 if ([tempString isEqualToString:@"1102"]) {
                     tempRange=NSMakeRange(39, 2);
                     tempStr=[tempParStr substringWithRange:tempRange];
-                    
+
                     tempStr = [NSString stringWithFormat:@"%@00",tempStr];
                     tempStr=[self replaceStr:tempStr TagStr:@" " WithStr:@""];
-                    
+
                     if (tempParStr.length >= 36) {
                         NSRange Part1=NSMakeRange(32, 2);
                         NSRange Part2 = NSMakeRange(34, 2);
@@ -750,7 +750,7 @@ static NSUInteger getNotifytime;
                 [self sendDevChange:tempItem Flag:DevChangeFlag_Add];
                 NSString *tip = [NSString stringWithFormat:@"scaned new device with address: 0x%04x", tempItem.u_DevAdress];
                 [self printContentWithString:tip];
-                
+
                 if ([_delegate respondsToSelector:@selector(scanResult:)]) {
                     [[BTCentralManager shareBTCentralManager]stopScan];
                     self.disconnectType = DisconectType_SequrenceSetting;
@@ -777,20 +777,20 @@ static NSUInteger getNotifytime;
     peripheral.delegate=self;
     _isConnected=YES;
     [self printContentWithString:[NSString stringWithFormat:@"did connect address: 0x%04x", self.selConnectedItem.u_DevAdress]];
-    
+
     if (self.scanWithOut_Of_Mesh == YES) {
         BTDevItem *connectedItem = [[BTDevItem alloc]init];
         connectedItem.blDevInfo = peripheral;
         if (connectedItem)
             [self sendDevChange:connectedItem Flag:DevChangeFlag_Connected];
-        
+
     }else if(self.scanWithOut_Of_Mesh == NO){
         BTDevItem *tempItem=[self getDevItemWithPer:peripheral];
         if (tempItem) {
             [self sendDevChange:tempItem Flag:DevChangeFlag_Connected];
         }
     }
-    
+
     NSLog(@"[CoreBluetooth] 0.71 调用发现设备Service方法");
     if (self.loginTimer) {
         [self.loginTimer invalidate];
@@ -804,7 +804,7 @@ static NSUInteger getNotifytime;
     if ([self.delegate respondsToSelector:@selector(loginTimeout:)]) {
         [self.delegate loginTimeout:(TimeoutType)[timer.userInfo intValue]];
     }
-    
+
     if (self.loginTimer) {
         [self.loginTimer invalidate];
         self.loginTimer = nil;
@@ -824,16 +824,16 @@ static NSUInteger getNotifytime;
         BTDevItem *tempItem=[self getDevItemWithPer:peripheral];
         if (tempItem)
             [self sendDevChange:tempItem Flag:DevChangeFlag_ConnecteFail];
-        
+
         if (isAutoLogin && [self.selConnectedItem.blDevInfo isEqual:peripheral])
         {
             _operaType=DevOperaType_AutoLogin;
             [self connectNextPro];
             //NSLog(@"ReConnecting Due TO Fail To Connect -%@",peripheral.description);
-            
+
         }
     }
-    
+
 }
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
@@ -848,11 +848,11 @@ static NSUInteger getNotifytime;
     }
     if ([_delegate respondsToSelector:@selector(settingForDisconnect:WithDisconectType:)]) {
         [_delegate settingForDisconnect:item WithDisconectType:DisconectType_SequrenceSetting];
-        
+
     }
     self.disconnectType = DisconectType_Normal;
     [self reInitData];
-    
+
     if (_operaType==DevOperaType_Set){
         [self selConnectedItem];
         if (self.flags == YES) {
@@ -888,7 +888,7 @@ static NSUInteger getNotifytime;
     if (scanTime == 6) {
         [self.scanTimer invalidate];
         self.scanTimer = nil;
-        
+
         if ([_delegate respondsToSelector:@selector(resetStatusOfAllLight)]) {
             [_delegate resetStatusOfAllLight];
         }
@@ -906,14 +906,14 @@ static NSUInteger getNotifytime;
         //        [self setNewNetworkNextPro];
         return;
     }
-    
+
     for (CBService *tempSer in peripheral.services)
     {
         if ([tempSer.UUID isEqual:[CBUUID UUIDWithString:BTDevInfo_ServiceUUID]]){
             NSLog(@"[CoreBluetooth] 0.82 找到里面含有设备信息的Service，然后调用发现该Service的特征");
             [self printContentWithString:[NSString stringWithFormat:@"did discover services for address: 0x%04x", self.selConnectedItem.u_DevAdress]];
             [peripheral discoverCharacteristics:nil forService:tempSer];
-            
+
             if (self.loginTimer) {
                 [self.loginTimer invalidate];
                 self.loginTimer = nil;
@@ -922,7 +922,7 @@ static NSUInteger getNotifytime;
         }
         if ([tempSer.UUID isEqual:[CBUUID UUIDWithString:Service_Device_Information]]) {
             [peripheral discoverCharacteristics:nil forService:tempSer];
-            
+
         }
 //        if ([tempSer.UUID isEqual:[CBUUID UUIDWithString:Service_Device_Information]]) {
 //            [peripheral discoverCharacteristics:nil forService:tempSer];
@@ -932,16 +932,16 @@ static NSUInteger getNotifytime;
 
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
-    
+
     NSLog(@"[CoreBluetooth] 0.9 找到服务的特征的回调");
-    
+
     self.operaStatus=DevOperaStatus_ScanChar_Finish;
     if (error) {
         [self setNewNetworkNextPro];
         return;
     }
     [self printContentWithString:[NSString stringWithFormat:@"did discover characteristics for address: 0x%04x", self.selConnectedItem.u_DevAdress]];
-    
+
     for (CBCharacteristic *tempCharac in service.characteristics)
     {
         if ([tempCharac.UUID isEqual:[CBUUID UUIDWithString:BTDevInfo_FeatureUUID_Notify]])
@@ -973,11 +973,11 @@ static NSUInteger getNotifytime;
         }
     }
     NSLog(@"[CoreBluetooth] pairFeature %@", self.pairFeature);
-    
+
 }
 
 -(void)reloadState:(CBCharacteristic *)characteristic{
-    
+
 }
 
 
@@ -986,20 +986,20 @@ static NSUInteger getNotifytime;
         BTLog(@"收到数据错误: %@", [error localizedDescription]);
         return;
     }
-    
+
     if ([characteristic isEqual:self.pairFeature]) {
-        
+
         NSLog(@"[CoreBluetooth] 1.3.1 pairFeature back");
-        
+
         uint8_t *tempData=(uint8_t *)[characteristic.value bytes];
-        
+
         if (_operaStatus==DevOperaStatus_Login_Start) {
             if (!tempData) return;
             if (tempData[0]==13) {
                 uint8_t buffer[16];
-                
+
                 NSLog(@"[CoreBluetooth] %d", (OperaStatus)DevOperaStatus_Login_Start);
-                
+
                 if ([CryptoAction encryptPair:self.userName
                                           Pas:self.userPassword
                                         Prand:tempData+1
@@ -1011,10 +1011,10 @@ static NSUInteger getNotifytime;
                                          Prandm:loginRand
                                          Prands:tempData+1
                                         PResult:buffer];
-                    
+
                     memcpy(sectionKey, buffer, 16);
                     [self logByte:buffer Len:16 Str:@"SectionKey"];
-                    
+
                     _isLogin=YES;
                     if ([_delegate respondsToSelector:@selector(OnDevChange:Item:Flag:)]) {
                         [_delegate OnDevChange:self Item:[self getDevItemWithPer:peripheral] Flag:DevChangeFlag_Login];
@@ -1062,21 +1062,21 @@ static NSUInteger getNotifytime;
                 self.operaStatus=DevOperaStatus_SetNetwork_Finish;
                 NSLog(@"[CoreBluetooth] SetNetwork_Finish");
             }
-            
+
         }
     } else if ([characteristic isEqual:self.commandFeature]){
-        
+
         NSLog(@"[CoreBluetooth] 1.3.2 commandFeature back");
-        
+
         if (_isLogin){
             BTLog(@"%@",@"Command 数据解析");
             uint8_t *tempData=(uint8_t *)[characteristic.value bytes];
             [self pasterData:tempData IsNotify:NO];
         }
     } else if ([characteristic isEqual:self.notifyFeature]){
-        
+
         NSLog(@"[CoreBluetooth] 1.3.3 notifyFeature back");
-        
+
         BTLog(@"Recieve_Notify_Data%@",characteristic.value);
         if (_isLogin)
         {
@@ -1093,9 +1093,9 @@ static NSUInteger getNotifytime;
             [self printContentWithString:noti];
         }
     } else if ([characteristic isEqual:self.fireWareFeature]){
-        
+
         NSLog(@"[CoreBluetooth] 1.3.4 fireWareFeature back");
-        
+
         NSData *tempData = [characteristic value];
         if ([_delegate respondsToSelector:@selector(OnConnectionDevFirmWare:)] && tempData) {
             [_delegate OnConnectionDevFirmWare:tempData];
@@ -1121,7 +1121,7 @@ static NSUInteger getNotifytime;
 
 #pragma mark Public
 -(void)startScanWithName:(NSString *)nStr Pwd:(NSString *)pwd{
-    
+
     NSLog(@"[CoreBluetooth] 0 进入扫描设备方法");
     NSLog(@"[CoreBluetooth] Mesh -> %@, %@", nStr, pwd);
     [self stopScan];
@@ -1161,9 +1161,9 @@ static NSUInteger getNotifytime;
                     self.selConnectedItem.blDevInfo.state==CBPeripheralStateConnecting) {
                     [_centralManager cancelPeripheralConnection:[self.selConnectedItem blDevInfo]];
                 }
-                
+
             }
-            
+
         }
         _selConnectedItem=nil;
         [self.srcDevArrs removeAllObjects];
@@ -1175,7 +1175,7 @@ static NSUInteger getNotifytime;
 
 -(void)connectPro
 {
-    
+
     if ([srcDevArrs count]<1)
         return;
     BTDevItem *item = nil;
@@ -1184,20 +1184,20 @@ static NSUInteger getNotifytime;
     }else{
         item = [srcDevArrs lastObject];
     }
-    
+
     //扫描连接的时候
     if ([item.u_Name isEqualToString:@"out_of_mesh"]&& self.scanWithOut_Of_Mesh == YES) {
         self.userName = @"out_of_mesh";
         self.userPassword = @"123";
     }
     _selConnectedItem=item;
-    
-    
+
+
     [self.centralManager connectPeripheral:[item blDevInfo]
                                    options:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:CBConnectPeripheralOptionNotifyOnDisconnectionKey]];
     NSString *tip = [NSString stringWithFormat:@"send connect request for address: 0x%04x", self.selConnectedItem.u_DevAdress];
     [self printContentWithString:tip];
-    
+
     if (self.loginTimer) {
         [self.loginTimer invalidate];
         self.loginTimer = nil;
@@ -1209,7 +1209,7 @@ static NSUInteger getNotifytime;
 {
     if ([srcDevArrs count]<2)
         return;
-    
+
     BTDevItem *tempItem=[self getNextItemWith:self.selConnectedItem];
     if (!tempItem)
         return;
@@ -1228,7 +1228,7 @@ static NSUInteger getNotifytime;
     _selConnectedItem=cItem;
     [self.centralManager connectPeripheral:[cItem blDevInfo]
                                    options:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:CBConnectPeripheralOptionNotifyOnDisconnectionKey]];
-    
+
 }
 
 -(void)loginWithPwd:(NSString *)pStr {
@@ -1242,21 +1242,21 @@ static NSUInteger getNotifytime;
     self.operaStatus=DevOperaStatus_Login_Start;
     if (!_isConnected)
         return;
-    
+
     self.userPassword=pStr;
     uint8_t buffer[17];
     [CryptoAction getRandPro:loginRand Len:8];
-    
+
     for (int i=0;i<8;i++)
         loginRand[i]=i;
-    
+
     buffer[0]=12;
-    
+
     [CryptoAction encryptPair:self.userName
                           Pas:self.userPassword
                         Prand:loginRand
                       PResult:buffer+1];
-    
+
     [self logByte:buffer Len:17 Str:@"Login_String"];
 //    [self writeValue:self.pairFeature Buffer:buffer Len:17];
     NSLog(@"[CoreBluetooth] 1.2 写特征值");
@@ -1330,7 +1330,7 @@ static NSUInteger getNotifytime;
     if (!cmdArr) return;
     //if _clickDate is equal 0,it means the first time to executor command
     NSTimeInterval count = 0;
-    
+
     if (cmd[7]==0xd0||cmd[7]==0xd2||cmd[7]==0xe2||cmd[7]==0xf0) {
         self.containCYDelay = YES;
         self.btCMDType = BTCommandCaiYang;
@@ -1406,48 +1406,48 @@ static NSUInteger getNotifytime;
     if (self.exeCMDDate<current) {
         self.exeCMDDate = current;
     }
-    
+
     uint8_t buffer[20];
     uint8_t sec_ivm[8];
-    
+
     memset(buffer, 0, 20);
     memcpy(buffer, cmd, len);
     memset(sec_ivm, 0,8);
-    
+
     [self getNextSnNo];
     buffer[0]=snNo & 0xff;
     buffer[1]=(snNo>>8) & 0xff;
     buffer[2]=(snNo>>16) & 0xff;
-    
+
     uint32_t tempMac=self.selConnectedItem.u_Mac;
-    
+
     sec_ivm[0]=(tempMac>>24) & 0xff;
     sec_ivm[1]=(tempMac>>16) & 0xff;
     sec_ivm[2]=(tempMac>>8) & 0xff;
     sec_ivm[3]=tempMac & 0xff;
-    
+
     sec_ivm[4]=1;
     sec_ivm[5]=buffer[0];
     sec_ivm[6]=buffer[1];
     sec_ivm[7]=buffer[2];
-    
+
     [CryptoAction encryptionPpacket:sectionKey Iv:sec_ivm Mic:buffer+3 MicLen:2 Ps:buffer+5 Len:15];
-    
+
     [self logByte:buffer Len:20 Str:@"加密结果"];
     [self writeValue:self.commandFeature Buffer:buffer Len:20 response:CBCharacteristicWriteWithoutResponse];
-    
+
 }
 
 + (BTCentralManager*) shareBTCentralManager
 {
-    
+
     static BTCentralManager *shareBTCentralManager = nil;
     static dispatch_once_t tempOnce=0;
     dispatch_once(&tempOnce, ^{
         shareBTCentralManager = [[BTCentralManager alloc] init];
         [shareBTCentralManager initData];
     });
-    
+
     return shareBTCentralManager;
 }
 
@@ -1468,9 +1468,9 @@ static NSUInteger getNotifytime;
 -(void)turnOffAllLight{
     uint8_t cmd[13]={0x11,0x11,0x12,0x00,0x00,0xff,0xff,0xd0,0x11,0x02,0x00,0x01,0x00};
     [self logByte:cmd Len:13 Str:@"All_Off"];
-    
+
     [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:13];
-    
+
 }
 
 /**
@@ -1485,7 +1485,7 @@ static NSUInteger getNotifytime;
     if (cmd[2]==254) {
         cmd[2]=1;
     }
-    
+
     addIndex++;
     [self logByte:cmd Len:13 Str:@"Turn_On"];   //控制台日志
     [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:13];
@@ -1493,7 +1493,7 @@ static NSUInteger getNotifytime;
 
 /**
  *单灯的关－－－关灯--squrence no＋1
- 
+
  */
 -(void)turnOffCertainLightWithAddress:(uint32_t )u_DevAddress{
     uint8_t cmd[13]={0x11,0x11,0x11,0x00,0x00,0x66,0x00,0xf0,0x11,0x02,0x00,0x01,0x00};
@@ -1503,16 +1503,16 @@ static NSUInteger getNotifytime;
     if (cmd[2]==254) {
         cmd[2]=1;
     }
-    
+
     addIndex++;
     [self logByte:cmd Len:13 Str:@"Turn_Off"];   //控制台日志
     [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:13];
-    
+
 }
 
 /**
  *sendCommand
- 
+
  */
 -(void)sendCommand:(NSInteger)opcode meshAddress:(uint32_t)u_DevAddress value:(NSArray *) value{
 //    uint8_t cmd[15]={0x11,0x11,0x11,0x00,0x00,0x66,0x00,0xf1,0x11,0x02,0x01,0x03,0xff,0xff,0xff};
@@ -1550,12 +1550,12 @@ static NSUInteger getNotifytime;
     for (int i = 0; i < value.count; i++) {
         cmd[10+i]=[value[i] intValue];
     }
-    
+
     addIndex++;
     [self logByte:cmd Len:10+value.count Str:@"sendCommand"];   //控制台日志
     [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:10+value.count];
 
-    
+
 }
 
 /**
@@ -1570,7 +1570,7 @@ static NSUInteger getNotifytime;
     if (cmd[2]==254) {
         cmd[2]=1;
     }
-    
+
     addIndex++;
     [self logByte:cmd Len:13 Str:@"Group_On"];   //控制台日志
     [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:13];
@@ -1588,7 +1588,7 @@ static NSUInteger getNotifytime;
     if (cmd[2]==254) {
         cmd[2]=1;
     }
-    
+
     addIndex++;
     [self logByte:cmd Len:13 Str:@"Group_Off"];   //控制台日志
     [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:13];
@@ -1609,7 +1609,7 @@ static NSUInteger getNotifytime;
     [self logByte:cmd Len:13 Str:@"Distribute_Address"];   //控制台日志
     [self printContentWithString:[NSString stringWithFormat:@"发出修改地址命令: 0x%04x", [[srcDevArrs firstObject] u_DevAdress]]];
     [[BTCentralManager shareBTCentralManager]sendCommand:cmd Len:12];
-    
+
 }
 
 
@@ -1617,7 +1617,7 @@ static NSUInteger getNotifytime;
  *设置亮度值lum－－传入目的地址和亮度值---可以是单灯或者组的地址
  */
 -(void)setLightOrGroupLumWithDestinateAddress:(uint32_t)destinateAddress WithLum:(NSInteger)lum{
-    
+
     uint8_t cmd[11]={0x11,0x11,0x50,0x00,0x00,0x00,0x00,0xd2,0x11,0x02,0x0A};
     cmd[5]=(destinateAddress>>8) & 0xff;
     cmd[6]=destinateAddress & 0xff;
@@ -1640,15 +1640,15 @@ static NSUInteger getNotifytime;
     red = (CGFloat)R;
     green = (CGFloat)G;
     blue = (CGFloat)B;
-    
+
     uint8_t cmd[14]={0x11,0x61,0x31,0x00,0x00,0x66,0x00,0xe2,0x11,0x02,0x04,0x0,0x0,0x0};
     cmd[2]=cmd[2]+addIndex;
     if (cmd[2]==254) {
         cmd[2]=1;
     }
     addIndex++;
-    
-    
+
+
     cmd[5]=destinateAddress & 0xff;
     cmd[6]=(destinateAddress>>8) & 0xff;
     cmd[11]=red*255.f;
@@ -1656,30 +1656,30 @@ static NSUInteger getNotifytime;
     cmd[13]=blue*255.f;
     [self logByte:cmd Len:11 Str:@"RGB"];
     [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:14];
-    
-    
+
+
 }
 /**
  *加组－－－传入待加灯的地址，和 待加入的组的地址
  */
 -(void)addDevice:(uint32_t)targetDeviceAddress ToDestinateGroupAddress:(uint32_t)groupAddress{
-    
+
     uint8_t cmd[13]={0x11,0x61,0x11,0x00,0x00,0x00,0x00,0xd7,0x11,0x02,0x01,0x02,0x80};
     cmd[5]=(targetDeviceAddress>>8) & 0xff;
     cmd[6]=targetDeviceAddress & 0xff;
-    
+
     cmd[12]=(groupAddress>>8) & 0xff;
-    
+
     cmd[11]=groupAddress & 0xff;
-    
+
     cmd[2]=cmd[2]+addIndex;
     if (cmd[2]>=254) {
         cmd[2]=1;
     }
     addIndex++;
-    
+
     [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:13];
-    
+
 }
 
 //删出组
@@ -1695,9 +1695,9 @@ static NSUInteger getNotifytime;
         cmd[2]=1;
     }
     addIndex++;
-    
+
     [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:13];
-    
+
 }
 
 /**
@@ -1727,7 +1727,7 @@ static NSUInteger getNotifytime;
     addIndex++;
     cmd[10]=CT;
     [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:12];
-    
+
 }
 - (void)getGroupAddressWithDeviceAddress:(uint32_t)destinationAddress {
     uint8_t cmd[12]={0x11,0x12 ,0x88,0x00,0x00,0x00,0x00,0xdd,0x11,0x02,0x10,0x01};
@@ -1741,30 +1741,30 @@ static NSUInteger getNotifytime;
 }
 /**
  *NewMethod
- 
- 
+
+
  */
 -(void)sendPack:(NSData *)data{
     if (!_isConnected || !_isLogin ||!self.selConnectedItem || !self.otaFeature ||(self.selConnectedItem.blDevInfo.state!=CBPeripheralStateConnected))
         return;
-    
+
     NSUInteger length = data.length;
     uint8_t *tempData=(uint8_t *)[data bytes];                 //数据包
     uint8_t pack_head[2];
     pack_head[1] = (otaPackIndex >>8)& 0xff;                    //从0开始
     pack_head[0] = (otaPackIndex)&0xff;
-    
+
     //普通数据包
     if (length > 0 && length < 16) {
         length = 16;
     }
     uint8_t otaBuffer[length+4];              //总包
     memset(otaBuffer, 0, length+4);
-    
-    
+
+
     uint8_t otaCmd[length+2];               //待校验包
     memset(otaCmd, 0, length+2);
-    
+
     for (int i = 0; i < 2; i ++) {                    //index指数部分
         otaBuffer[i] = pack_head[i];
     }
@@ -1778,7 +1778,7 @@ static NSUInteger getNotifytime;
     for (int i = 0; i < length+2; i++) {
         otaCmd[i] = otaBuffer[i];
     }
-    
+
     //CRC校验部分
     unsigned short crc_t = crc16(otaCmd, (int)length+2);
     uint8_t crc[2];
@@ -1787,7 +1787,7 @@ static NSUInteger getNotifytime;
     for (int i = (int)length+3; i > (int)length+1; i--) {   //2->4
         otaBuffer[i] = crc[i-length-2];
     }
-    
+
     [self logByte:otaBuffer Len:(int)length+4 Str:@"数据包"];
     NSData *tempdata=[NSData dataWithBytes:otaBuffer length:length+4];
     if (self.isLogin) {
@@ -1833,12 +1833,12 @@ extern unsigned short crc16 (unsigned char *pD, int len)
 }
 
 -(DeviceModel *)getFristDeviceModelWithBytes:(uint8_t *)bytes{
-    
+
     DeviceModel *btItem=nil;
     if (bytes[8]==0x11 && bytes[9]==0x02){
         int com=bytes[7];
         int devAd=0;
-        
+
         //状态220
         if (com==0xdc){
             devAd=bytes[10];
@@ -1871,12 +1871,12 @@ extern unsigned short crc16 (unsigned char *pD, int len)
 //                    }else{
 //                        btItem.stata = LightStataTypeOn;
 //                    }
-//                    
+//
 //                }
             }
         }
     }
-    
+
     return  btItem;
 }
 
@@ -1895,7 +1895,7 @@ extern unsigned short crc16 (unsigned char *pD, int len)
             devAd = bytes[14];
             //根据地址得到BTDevItem
             btItem = [self getDeviceWithAddress:devAd];
-            
+
             if (bytes[13] == 0) {
                 btItem.reserve = 0;
                 btItem.stata = LightStataTypeOn;
@@ -1905,7 +1905,7 @@ extern unsigned short crc16 (unsigned char *pD, int len)
                 btItem.stata = LightStataTypeOn;
                 btItem.brightness = 0;
             }
-            
+
 //            if (bytes[15] == 0) {
 //                btItem.stata = LightStataTypeOutline;
 //                btItem.brightness = 0;
@@ -1919,7 +1919,7 @@ extern unsigned short crc16 (unsigned char *pD, int len)
 //            }
         }
     }
-    
+
     return  btItem;
 }
 
@@ -1929,7 +1929,7 @@ extern unsigned short crc16 (unsigned char *pD, int len)
         //类型转换
         uint32_t newAddress = address << 8;
         devItem.u_DevAdress = newAddress;
-        
+
         return devItem;
     }else{
         return nil;
@@ -1951,7 +1951,7 @@ extern unsigned short crc16 (unsigned char *pD, int len)
     NSDateFormatter *fo = [[NSDateFormatter alloc] init];
     fo.dateFormat = @"HH:mm:ss";
     fo.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
-    
+
     NSString *con = [fo stringFromDate:date];
     NSString *path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"content"];
     NSData *data = [NSData dataWithContentsOfFile:path];
