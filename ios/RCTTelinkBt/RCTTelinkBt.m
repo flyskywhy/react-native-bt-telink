@@ -134,6 +134,18 @@ RCT_EXPORT_METHOD(doInit) {
 
 - (void)dosomethingWhenDisConnectedDevice:(BTDevItem *)item {
     NSLog(@"dosomethingWhenDisConnectedDevice");
+    NSMutableArray *array = [[NSMutableArray alloc] init];
+    for (DeviceModel *omodel in self.devArray) {
+        if (item.u_DevAdress == omodel.u_DevAdress) {
+            NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
+            [event setObject:[NSNumber numberWithInt:omodel.reserve] forKey:@"reserve"];
+            [event setObject:[NSNumber numberWithInt:2] forKey:@"status"];
+            [event setObject:[NSNumber numberWithInt:omodel.brightness] forKey:@"brightness"];
+            [event setObject:[NSNumber numberWithInt:omodel.u_DevAdress] forKey:@"meshAddress"];
+            [array addObject:event];
+        }
+    }
+    [self sendEventWithName:@"notificationOnlineStatus" body:array];
 }
 
 - (void)scanedLoginCharacteristic {

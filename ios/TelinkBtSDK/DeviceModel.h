@@ -24,7 +24,7 @@ typedef NS_ENUM(NSUInteger, LightStataType) {
 
 
 /**
- *状态－0-离线状态   1-－在线关灯状态  3-－－在线开灯状态
+ *状态－0-在线关灯状态   1-－在线开灯状态  2-－－离线状态
  */
 
 @property(nonatomic,assign)LightStataType stata;
