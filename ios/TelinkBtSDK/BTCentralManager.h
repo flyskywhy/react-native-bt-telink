@@ -78,6 +78,8 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
 @optional
 - (void)loginTimeout:(TimeoutType)type;
 - (void)scanedLoginCharacteristic;
+
+- (void)loginout:(BTDevItem *)item;
 /**
  *手机蓝牙状态变化
  
@@ -136,6 +138,11 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
  *修改设备地址之后的notify解析
  */
 -(void)resultOfReplaceAddress:(uint32_t )resultAddress;
+
+/**
+ *获取设备时间
+ */
+-(void)getDevDate:(NSDate *)date;
 
 /**
  *接收存储状态的对象－－－使用时候需要导入模型类DeviceModel－－－－必须要实现的部分
@@ -265,6 +272,12 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
  
  */
 -(void)sendCommand:(NSInteger)opcode meshAddress:(uint32_t)u_DevAddress value:(NSArray *) value;
+
+/**
+ *setNodeGroupAddr
+ 
+ */
+-(void)setNodeGroupAddr :(uint32_t)u_DevAddress groupAddress:(NSInteger) groupAddress toDel:(BOOL) toDel;
 
 /**
  *组的开灯－－－传入组地址

@@ -19,6 +19,8 @@
 @implementation RCTTelinkBt {
     RCTPromiseResolveBlock _resolveBlock;
     RCTPromiseRejectBlock _rejectBlock;
+    RCTPromiseResolveBlock _resolvedateBlock;
+    RCTPromiseResolveBlock _resolveMesheBlock;
 }
 
 RCT_EXPORT_MODULE()
@@ -34,7 +36,10 @@ RCT_EXPORT_METHOD(doInit) {
     [BTCentralManager shareBTCentralManager].delegate = self;
     self.devArray = [[NSMutableArray alloc] init];
     self.BTDevArray = [[NSMutableArray alloc] init];
+    self.dict = [[NSMutableDictionary alloc] init];
+    self.DisConnectDevArray = [[NSMutableArray alloc] init];
     self.isNeedRescan = YES;
+    self.configNode = NO;
     
     [self sendEventWithName:@"serviceConnected" body:nil];
     [self sendEventWithName:@"bluetoothEnabled" body:nil];
@@ -59,11 +64,6 @@ RCT_EXPORT_METHOD(doInit) {
     
 }
 
-- (void)startScan {
-    kCentralManager.scanWithOut_Of_Mesh = NO;
-    [kCentralManager startScanWithName:@"sysin_mesh" Pwd:@"123" AutoLogin:YES];
-}
-
 - (void)OnDevChange:(id)sender Item:(BTDevItem *)item Flag:(DevChangeFlag)flag {
     //if (!self.isStartOTA) return;
     kCentralManager.isAutoLogin = NO;
@@ -80,27 +80,34 @@ RCT_EXPORT_METHOD(doInit) {
 #pragma mark- Delegate
 
 - (void)dosomethingWhenDiscoverDevice:(BTDevItem *)item {
+    NSLog(@"dosomethingWhenDiscoverDevice item = %d",item.u_DevAdress);
     NSLog(@"itttt==========%@", item);
     NSLog(@"valueee=====%d ", item.u_DevAdress);
+
+
+    
+    
+    [kCentralManager connectWithItem:item];
+}
+
+////设备断开连接
+//- (void)loginout:(BTDevItem *)item
+//{
+//    [self sendEventWithName:@"deviceStatusLogout" body:nil];
+//}
+
+- (void)dosomethingWhenConnectedDevice:(BTDevItem *)item {
+    NSLog(@"dosomethingWhenConnectedDevice item = %d ", item.u_DevAdress);
     
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
     
     [event setObject:[NSString stringWithFormat:@"%x", item.u_Mac] forKey:@"macAddress"];
     [event setObject:item.name forKey:@"deviceName"];
     [event setObject:[NSString stringWithFormat:@"%@", item.u_Name] forKey:@"meshName"];
-//    [event setObject:[NSString stringWithFormat:@"%x", item.u_DevAdress] forKey:@"meshAddress"];
-//    [event setObject:[NSString stringWithFormat:@"%u", item.u_meshUuid] forKey:@"meshUUID"];
-//    [event setObject:[NSString stringWithFormat:@"%u", item.productID] forKey:@"productUUID"];
-//    [event setObject:[NSString stringWithFormat:@"%u", item.u_Status] forKey:@"status"];
-    
-//    [event setObject:[NSString stringWithFormat:@"%x", item.u_Mac] forKey:@"macAddress"];
-//    [event setObject:item.name forKey:@"deviceName"];
-//    [event setObject:[NSString stringWithFormat:@"%@", item.u_Name] forKey:@"meshName"];
     [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"meshAddress"];
     [event setObject:[NSNumber numberWithInt:item.u_meshUuid] forKey:@"meshUUID"];
     [event setObject:[NSNumber numberWithInt:item.productID] forKey:@"productUUID"];
     [event setObject:[NSNumber numberWithInt:item.u_Status] forKey:@"status"];
-
     
     [self sendEventWithName:@"leScan" body:event];
     
@@ -111,25 +118,32 @@ RCT_EXPORT_METHOD(doInit) {
     if (![macs containsObject:@(item.u_DevAdress)]) {
         [self.BTDevArray addObject:item];
     }
-
-    if (kCentralManager.devArrs.count==1) {
-        [kCentralManager connectWithItem:item];
-    }
     
-    
-}
-
-- (void)dosomethingWhenConnectedDevice:(BTDevItem *)item {
-    NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
-    [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"meshAddress"];
-    NSString *tip = [NSString stringWithFormat:@"connected device address: %d", item.u_DevAdress];
-    [self sendEventWithName:@"deviceStatusLogin" body:event];
-    NSLog(@"tip==========%@",tip);
     
 }
 
 - (void)dosomethingWhenLoginDevice:(BTDevItem *)item {
-    NSLog(@"dosomethingWhenLoginDevice");
+    NSLog(@"dosomethingWhenLoginDevice item = %d",item.u_DevAdress);
+    
+    NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
+    [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"meshAddress"];
+    [self sendEventWithName:@"deviceStatusLogin" body:event];
+    NSLog(@"dosomethingWhenConnectedDevice item = %d",item.u_DevAdress);
+    
+    if (self.configNode) {
+        if ([[NSString stringWithFormat:@"%x", item.u_Mac] isEqualToString:[self.node objectForKey:@"macAddress"]]) {
+            [self.dict setObject:item forKey:[NSString stringWithFormat:@"%d",[[self.node objectForKey:@"meshAddress"] intValue]]];
+            if(item.u_DevAdress == [[self.node objectForKey:@"meshAddress"] intValue]){
+                [self resultOfReplaceAddress:item.u_DevAdress];
+            }else{
+                [kCentralManager replaceDeviceAddress:item.u_DevAdress WithNewDevAddress:[[self.node objectForKey:@"meshAddress"] intValue]];
+            }
+            
+            self.configNode = !self.configNode;
+        }
+        
+    }
+    
 }
 
 - (void)dosomethingWhenDisConnectedDevice:(BTDevItem *)item {
@@ -146,10 +160,16 @@ RCT_EXPORT_METHOD(doInit) {
         }
     }
     [self sendEventWithName:@"notificationOnlineStatus" body:array];
+    if (![self.DisConnectDevArray containsObject:item]) {
+        [self.DisConnectDevArray addObject:item];
+    }
+    [self sendEventWithName:@"deviceStatusLogout" body:nil];
+    
+    
 }
 
 - (void)scanedLoginCharacteristic {
-    [kCentralManager loginWithPwd:nil];
+    [kCentralManager loginWithPwd:self.pwd];
 }
 
 - (void)notifyBackWithDevice:(DeviceModel *)model {
@@ -164,11 +184,8 @@ RCT_EXPORT_METHOD(doInit) {
         NSUInteger index = [macs indexOfObject:@(model.u_DevAdress)];
         DeviceModel *tempModel =[self.devArray objectAtIndex:index];
         [tempModel updataLightStata:model];
-        //        [self.lightCollectionView reloadData];
-        //        [self.tableView reloadData];
     }
     //添加新设备
-    
     else{
         DeviceModel *omodel = [[DeviceModel alloc] initWithModel:model];
         [self.devArray addObject:omodel];
@@ -185,6 +202,8 @@ RCT_EXPORT_METHOD(doInit) {
     
     NSMutableArray *array = [NSMutableArray arrayWithObject:event];
     [self sendEventWithName:@"notificationOnlineStatus" body:array];
+    
+    
     
 }
 RCT_EXPORT_METHOD(doDestroy) {
@@ -213,8 +232,9 @@ RCT_EXPORT_METHOD(autoConnect:(NSString *)userMeshName userMeshPwd:(NSString *)u
     [[BTCentralManager shareBTCentralManager] stopScan];
     [self.devArray removeAllObjects];
     [self.BTDevArray removeAllObjects];
+    [self.DisConnectDevArray removeAllObjects];
     kCentralManager.scanWithOut_Of_Mesh = NO;
-    
+    self.pwd = userMeshPwd;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1000 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
         [kCentralManager startScanWithName:userMeshName Pwd:userMeshPwd AutoLogin:YES];
     });
@@ -222,27 +242,6 @@ RCT_EXPORT_METHOD(autoConnect:(NSString *)userMeshName userMeshPwd:(NSString *)u
 
 RCT_EXPORT_METHOD(autoRefreshNotify:(NSInteger) repeatCount Interval:(NSInteger) NSInteger) {
     
-//    UILocalNotification *localNotification = [[UILocalNotification alloc] init];
-//
-//    // 可以用该语句查看当前线程
-//    NSLog(@"当前线程--%@", [NSThread currentThread]);
-//
-//    // 此处需要写一个异步任务，是因为需要开辟一个新的线程去反复执行你的代码块，否则会阻塞主线程
-//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-//
-//        while (TRUE) {
-//
-//            // 每隔5秒执行一次（当前线程阻塞5秒）
-//            [NSThread sleepForTimeInterval:2];
-//
-//            [[UIApplication sharedApplication] cancelAllLocalNotifications];
-//
-//            // 这里写你要反复处理的代码，如网络请求
-//            NSLog(@"***每5秒输出一次这段文字***");
-//            [kCentralManager setNotifyOpenPro];
-//            [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
-//        };
-//    });
     
 }
 
@@ -252,23 +251,27 @@ RCT_EXPORT_METHOD(idleMode:(BOOL)disconnect) {
 
 RCT_EXPORT_METHOD(startScan:(NSString *)meshName outOfMeshName:(NSString *)outOfMeshName timeoutSeconds:(NSInteger)timeoutSeconds isSingleNode:(BOOL)isSingleNode) {
     NSLog(@"meshName==========%@",meshName);
+    [self sendEventWithName:@"deviceStatusLogout" body:nil];
     [[BTCentralManager shareBTCentralManager] stopScan];
     [self.devArray removeAllObjects];
     [self.BTDevArray removeAllObjects];
+    [self.DisConnectDevArray removeAllObjects];
+    self.configNode = NO;
     kCentralManager.scanWithOut_Of_Mesh = NO;
-
+    kCentralManager.timeOut = 60;
+    self.pwd = @"123";
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1000 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
         [kCentralManager startScanWithName:meshName Pwd:@"123" AutoLogin:YES];
     });
 }
 
 RCT_EXPORT_METHOD(sendCommand:(NSInteger)opcode meshAddress:(NSInteger)meshAddress value:(NSArray *) value immediate :(BOOL)immediate) {
-//    NSArray *arr = [kCentralManager devArrs];
-//    for (BTDevItem *dev in arr) {
-//        if (dev.u_DevAdress == meshAddress) {
+    NSArray *arr = [kCentralManager devArrs];
+    for (BTDevItem *dev in arr) {
+        if (dev.u_DevAdress == meshAddress) {
             [[BTCentralManager shareBTCentralManager] sendCommand:opcode meshAddress:meshAddress value:value];
-//        }
-//    }
+        }
+    }
 }
 
 RCT_EXPORT_METHOD(changePower:(NSInteger)meshAddress value:(NSInteger)value) {
@@ -315,48 +318,31 @@ RCT_EXPORT_METHOD(changeColor:(NSString *)meshAddress value:(NSInteger)value) {
 
 RCT_EXPORT_METHOD(configNode:(NSDictionary *)node cfg:(NSDictionary *)cfg resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     
-    for (int i=0; i<self.BTDevArray.count; i++) {
-        if ([[NSString stringWithFormat:@"%x", self.BTDevArray[i].u_Mac] isEqualToString:[node objectForKey:@"macAddress"]]) {
-            self.btv = [[BTDevItem alloc] initWithDevice:self.BTDevArray[i]];
-            self.cfg = [[NSMutableDictionary alloc] initWithDictionary:cfg];
-            if(self.BTDevArray[i].u_DevAdress == [[node objectForKey:@"meshAddress"] intValue]){
-                [self resultOfReplaceAddress:self.BTDevArray[i].u_DevAdress];
-            }else{
-                [kCentralManager replaceDeviceAddress:self.BTDevArray[i].u_DevAdress WithNewDevAddress:[[node objectForKey:@"meshAddress"] intValue]];
-            }
-            
+    self.cfg = [[NSMutableDictionary alloc] initWithDictionary:cfg];
+    self.node = [[NSMutableDictionary alloc] initWithDictionary:node];
+    self.configNode = YES;
+    for (BTDevItem *bt in self.BTDevArray) {
+        if ([[NSString stringWithFormat:@"%x", bt.u_Mac] isEqualToString:[node objectForKey:@"macAddress"]]) {
+            [kCentralManager connectWithItem:bt];
         }
     }
-//    NSLog(@"index=====%ld", index);
-//
-//    if (index < 0) {
-//        return;
-//    }
-//
-//    self.BTDevArray[index].u_DevAdress = [node objectForKey:@"meshAddress"];
-
+    
+    NSLog(@"configNode node = %d",[[node objectForKey:@"meshAddress"] intValue]);
     
     _resolveBlock=resolve;
     _rejectBlock=reject;
-    
-//    BTDevItem *dev = self.BTDevArray[index];
-////    dev.u_DevAdress = [[node objectForKey:@"meshAddress"] intValue];
-////
-////    NSLog(@"dev.u_DevAdress = %u",dev.u_DevAdress);
-//
-////    [kCentralManager replaceDeviceAddress:self.BTDevArray[index].u_DevAdress WithNewDevAddress:[[node objectForKey:@"meshAddress"] intValue]];
-//
-//    GetLTKBuffer;
-//    [kCentralManager setOut_Of_MeshWithName:[cfg objectForKey:@"oldName"] PassWord:[cfg objectForKey:@"oldPwd"] NewNetWorkName:[cfg objectForKey:@"newName"] Pwd:[cfg objectForKey:@"newPwd"] ltkBuffer:ltkBuffer ForCertainItem:dev];
-    
 }
 
 -(void)resultOfReplaceAddress:(uint32_t )resultAddress
 {
-    self.btv.u_DevAdress = resultAddress;
-    
+    BTDevItem *b = [self.dict valueForKey:[NSString stringWithFormat:@"%d",resultAddress]];
+    b.u_DevAdress = resultAddress;
+
+    NSLog(@"configNode b = %@",b.description);
+
     GetLTKBuffer;
-    [kCentralManager setOut_Of_MeshWithName:[self.cfg objectForKey:@"oldName"] PassWord:[self.cfg objectForKey:@"oldPwd"] NewNetWorkName:[self.cfg objectForKey:@"newName"] Pwd:[self.cfg objectForKey:@"newPwd"] ltkBuffer:ltkBuffer ForCertainItem:self.btv];
+    [kCentralManager setOut_Of_MeshWithName:[self.cfg objectForKey:@"oldName"] PassWord:[self.cfg objectForKey:@"oldPwd"] NewNetWorkName:[self.cfg objectForKey:@"newName"] Pwd:[self.cfg objectForKey:@"newPwd"] ltkBuffer:ltkBuffer ForCertainItem:b];
+   
 }
 
 
@@ -374,7 +360,16 @@ RCT_EXPORT_METHOD(getTime:(NSInteger)meshAddress relayTimes:(NSInteger)relayTime
             [[BTCentralManager shareBTCentralManager] sendCommand:0xE8 meshAddress:dev.u_DevAdress value:value];
         }
     }
-    resolve(@YES);
+    _resolvedateBlock = resolve;
+}
+
+-(void)getDevDate:(NSDate *)date
+{
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    NSString *strDate = [dateFormatter stringFromDate:date];
+    NSLog(@"[CoreBluetoothh] time strDate %@",strDate);
+    _resolvedateBlock(strDate);
 }
 
 RCT_EXPORT_METHOD(getAlarm:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes alarmId:(NSInteger)alarmId resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
@@ -387,6 +382,22 @@ RCT_EXPORT_METHOD(getAlarm:(NSInteger)meshAddress relayTimes:(NSInteger)relayTim
         }
     }
     resolve(@YES);
+}
+
+RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddress groupAddress:(NSInteger)groupAddress resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSMutableArray *array = [[NSMutableArray alloc] init];
+    if (toDel) {
+        [array addObject:[NSNumber numberWithInt:0]];
+    }else{
+        [array addObject:[NSNumber numberWithInt:1]];
+    }
+    NSArray *arr = [kCentralManager devArrs];
+    for (BTDevItem *dev in arr) {
+        if (dev.u_DevAdress == meshAddress) {
+            [[BTCentralManager shareBTCentralManager] setNodeGroupAddr:dev.u_DevAdress groupAddress:groupAddress toDel:toDel];
+        }
+    }
 }
 
 -(void)OnDevOperaStatusChange:(id)sender Status:(OperaStatus)status{

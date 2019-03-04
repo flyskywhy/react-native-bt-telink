@@ -354,6 +354,8 @@ static NSUInteger getNotifytime;
     //灯的显示状态解析
     DeviceModel *firstItem = [self getFristDeviceModelWithBytes:bytes];
 
+    NSLog(@"[CoreBluetoothh] time %@",[[self changeCommandToArray:bytes len:20] componentsJoinedByString:@"-"]);
+    
     if ([_delegate respondsToSelector:@selector(notifyBackWithDevice:)]) {
         [_delegate notifyBackWithDevice:firstItem];
     }
@@ -368,6 +370,23 @@ static NSUInteger getNotifytime;
             [self printContentWithString:[NSString stringWithFormat:@"change address back: 0x%04x", [[srcDevArrs firstObject] u_DevAdress]]];
             [self logByte:bytes Len:20 Str:@"Setting_Address"];
             [_delegate resultOfReplaceAddress:address];
+        }
+    }else if (bytes[8]==0x11 && bytes[9]==0x02 && bytes[7] == 0xe9){
+        int year = ((bytes[11] & 0xFF) << 8) + (bytes[10] & 0xFF);
+        int month = (bytes[12] & 0xFF);
+        int day = bytes[13] & 0xFF;
+        int hour = bytes[14] & 0xFF;
+        int minute = bytes[15] & 0xFF;
+        int second = bytes[16] & 0xFF;
+        NSString *str = [NSString stringWithFormat:@"%d-%d-%d %d:%d:%d",year,month,day,hour,minute,second];
+        NSLog(@"[CoreBluetoothh] time %@",str);
+        
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];// 创建一个时间格式化对象
+        [dateFormatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"]; //设定时间的格式
+        NSDate *tempDate = [dateFormatter dateFromString:str];//将字符串转换为时间对象
+
+        if ([_delegate respondsToSelector:@selector(getDevDate:)]) {
+            [_delegate getDevDate:tempDate];
         }
     }
 }
@@ -454,6 +473,7 @@ static NSUInteger getNotifytime;
     self.userName = addName;
     self.userPassword = addPassWord;
     if (![_selConnectedItem isEqual:item]) {
+        NSLog(@"[CoreBluetooth] 认领失败u_DevAdress = %d",item.u_DevAdress);
         [self stopConnected];
     }
     _operaType = DevOperaType_Set;
@@ -560,6 +580,9 @@ static NSUInteger getNotifytime;
     setItem.isSeted=YES;
 
     for (int i=0; i<srcDevArrs.count; i++) {
+        if ([srcDevArrs[i] u_Mac] == setItem.u_Mac) {
+            [srcDevArrs replaceObjectAtIndex:i withObject:setItem];
+        }
         NSLog(@"[CoreBluetooth] srcDevArrs -> %@", [srcDevArrs[i] blDevInfo]);
     }
     [self.centralManager connectPeripheral:[setItem blDevInfo]
@@ -769,7 +792,7 @@ static NSUInteger getNotifytime;
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     NSLog(@"[CoreBluetooth] 0.7 连接上设备的回调");
-    [self.centralManager stopScan];
+    //[self.centralManager stopScan];
     [self.connectTimer invalidate];
     connectTime = 0;
     peripheral.delegate=self;
@@ -847,6 +870,9 @@ static NSUInteger getNotifytime;
     if ([_delegate respondsToSelector:@selector(settingForDisconnect:WithDisconectType:)]) {
         [_delegate settingForDisconnect:item WithDisconectType:DisconectType_SequrenceSetting];
 
+    }
+    if ([_delegate respondsToSelector:@selector(loginout:)]) {
+        [_delegate loginout:item];
     }
     self.disconnectType = DisconectType_Normal;
     [self reInitData];
@@ -1513,21 +1539,6 @@ static NSUInteger getNotifytime;
 
  */
 -(void)sendCommand:(NSInteger)opcode meshAddress:(uint32_t)u_DevAddress value:(NSArray *) value{
-//    uint8_t cmd[15]={0x11,0x11,0x11,0x00,0x00,0x66,0x00,0xf1,0x11,0x02,0x01,0x03,0xff,0xff,0xff};
-//    cmd[5]=u_DevAddress & 0xff;
-//    cmd[6]=(u_DevAddress>>8) & 0xff;
-//    cmd[7]=opcode;
-//    cmd[2]=cmd[2]+addIndex;
-//    if (cmd[2]==254) {
-//        cmd[2]=1;
-//    }
-//    for (int i = 0; i < value.count; i++) {
-//        cmd[10+i]=[value[i] intValue];
-//    }
-//
-//    addIndex++;
-//    [self logByte:cmd Len:13 Str:@"sendCommand"];   //控制台日志
-//    [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:13];
     uint8_t cmd[10+value.count];
     cmd[0] = 0x11;
     cmd[1] = 0x11;
@@ -1553,7 +1564,28 @@ static NSUInteger getNotifytime;
     [self logByte:cmd Len:10+value.count Str:@"sendCommand"];   //控制台日志
     [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:10+value.count];
 
+}
 
+/**
+ *setNodeGroupAddr
+ 
+ */
+-(void)setNodeGroupAddr :(uint32_t)u_DevAddress groupAddress:(NSInteger) groupAddress toDel:(BOOL) toDel
+{
+    uint8_t cmd[13]={0x11,0x11,0x11,0x00,0x00,0x66,0x00,0xd7,0x11,0x02,0x00,0x01,0x00};
+    cmd[5]=u_DevAddress & 0xff;
+    cmd[6]=(u_DevAddress>>8) & 0xff;
+    cmd[2]=cmd[2]+addIndex;
+    if (cmd[2]==254) {
+        cmd[2]=1;
+    }
+    cmd[10] = toDel ? 0 : 1;
+    cmd[11]=groupAddress & 0xff;
+    cmd[12]=(groupAddress>>8) & 0xff;
+    
+    addIndex++;
+    [self logByte:cmd Len:13 Str:@"setNodeGroupAddr"];   //控制台日志
+    [[BTCentralManager shareBTCentralManager] sendCommand:cmd Len:13];
 }
 
 /**

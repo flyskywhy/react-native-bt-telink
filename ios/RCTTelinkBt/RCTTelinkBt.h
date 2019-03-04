@@ -19,6 +19,10 @@
 @property(nonatomic, strong) NSMutableArray <DeviceModel *> *devArray;
 @property(nonatomic, strong) NSMutableArray <BTDevItem *> *BTDevArray;
 @property(nonatomic,strong) NSMutableDictionary *cfg;
-@property(nonatomic,strong) BTDevItem *btv;
+@property(nonatomic,strong) NSMutableDictionary *dict;
+@property(nonatomic, strong) NSMutableArray <BTDevItem *> *DisConnectDevArray;
+@property(nonatomic,strong) NSMutableDictionary *node;
+@property(nonatomic,assign) BOOL configNode;
+@property(nonatomic,strong) NSString *pwd;
 
 @end
