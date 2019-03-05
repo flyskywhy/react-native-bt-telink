@@ -127,7 +127,9 @@ RCT_EXPORT_METHOD(doInit) {
     
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
     [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"meshAddress"];
+    [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"connectMeshAddress"];
     [self sendEventWithName:@"deviceStatusLogin" body:event];
+    
     NSLog(@"dosomethingWhenConnectedDevice item = %d",item.u_DevAdress);
     
     if (self.configNode) {
