@@ -268,12 +268,7 @@ RCT_EXPORT_METHOD(startScan:(NSString *)meshName outOfMeshName:(NSString *)outOf
 }
 
 RCT_EXPORT_METHOD(sendCommand:(NSInteger)opcode meshAddress:(NSInteger)meshAddress value:(NSArray *) value immediate :(BOOL)immediate) {
-    NSArray *arr = [kCentralManager devArrs];
-    for (BTDevItem *dev in arr) {
-        if (dev.u_DevAdress == meshAddress) {
-            [[BTCentralManager shareBTCentralManager] sendCommand:opcode meshAddress:meshAddress value:value];
-        }
-    }
+    [[BTCentralManager shareBTCentralManager] sendCommand:opcode meshAddress:meshAddress value:value];
 }
 
 RCT_EXPORT_METHOD(changePower:(NSInteger)meshAddress value:(NSInteger)value) {
@@ -369,9 +364,12 @@ RCT_EXPORT_METHOD(getTime:(NSInteger)meshAddress relayTimes:(NSInteger)relayTime
 {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-    NSString *strDate = [dateFormatter stringFromDate:date];
-    NSLog(@"[CoreBluetoothh] time strDate %@",strDate);
-    _resolvedateBlock(strDate);
+    NSString *dateString = [dateFormatter stringFromDate:date];
+    NSLog(@"time strDate = %@",dateString);
+    NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
+    [event setObject:dateString forKey:@"time"];
+    
+    _resolvedateBlock(event);
 }
 
 RCT_EXPORT_METHOD(getAlarm:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes alarmId:(NSInteger)alarmId resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {

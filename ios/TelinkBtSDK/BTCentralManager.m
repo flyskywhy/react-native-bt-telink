@@ -372,7 +372,10 @@ static NSUInteger getNotifytime;
             [_delegate resultOfReplaceAddress:address];
         }
     }else if (bytes[8]==0x11 && bytes[9]==0x02 && bytes[7] == 0xe9){
-        int year = ((bytes[11] & 0xFF) << 8) + (bytes[10] & 0xFF);
+        int year = ((bytes[10] & 0xFF) << 8) + (bytes[11] & 0xFF);
+        if (year>2019) {
+            year = 1970;
+        }
         int month = (bytes[12] & 0xFF);
         int day = bytes[13] & 0xFF;
         int hour = bytes[14] & 0xFF;
