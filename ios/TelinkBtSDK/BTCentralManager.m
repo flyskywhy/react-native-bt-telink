@@ -390,7 +390,7 @@ static NSUInteger getNotifytime;
             [_delegate getDevDate:tempDate];
         }
     }else if (bytes[8]==0x11 && bytes[9]==0x02 && bytes[7] == 0xd4){
-        NSLog(@"[CoreBluetoothh] time %@",[[self changeCommandToArray:bytes len:20] componentsJoinedByString:@"-"]);
+        NSLog(@"[CoreBluetoothh] address %@",[[self changeCommandToArray:bytes len:20] componentsJoinedByString:@"-"]);
         NSMutableArray *arr = [[NSMutableArray alloc] init];
         int length = 20;
         int position = 10;
@@ -404,6 +404,7 @@ static NSUInteger getNotifytime;
                 break;
             
             address = address | 0x8000;
+            NSLog(@"[CoreBluetoothh] address = %d",address);
             [arr addObject:[NSNumber numberWithInt:address]];
         }
         
@@ -1389,7 +1390,7 @@ static NSUInteger getNotifytime;
     //if _clickDate is equal 0,it means the first time to executor command
     NSTimeInterval count = 0;
 
-    if (cmd[7]==0xd0||cmd[7]==0xd2||cmd[7]==0xe2||cmd[7]==0xf0) {
+    if (cmd[7]==0xd0||cmd[7]==0xd2||cmd[7]==0xe2) {
         self.containCYDelay = YES;
         self.btCMDType = BTCommandCaiYang;
         if ((current - _clickDate)<kCMDInterval) {

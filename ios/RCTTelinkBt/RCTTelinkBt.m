@@ -88,8 +88,13 @@ RCT_EXPORT_METHOD(doInit) {
     NSLog(@"itttt==========%@", item);
     NSLog(@"valueee=====%d ", item.u_DevAdress);
 
-
-    
+    NSMutableArray *macs = [[NSMutableArray alloc] init];
+    for (int i=0; i<self.BTDevArray.count; i++) {
+        [macs addObject:@(self.BTDevArray[i].u_DevAdress)];
+    }
+    if (![macs containsObject:@(item.u_DevAdress)]) {
+        [self.BTDevArray addObject:item];
+    }
     
     [kCentralManager connectWithItem:item];
 }
@@ -115,15 +120,6 @@ RCT_EXPORT_METHOD(doInit) {
     
     [self sendEventWithName:@"leScan" body:event];
     
-    NSMutableArray *macs = [[NSMutableArray alloc] init];
-    for (int i=0; i<self.BTDevArray.count; i++) {
-        [macs addObject:@(self.BTDevArray[i].u_DevAdress)];
-    }
-    if (![macs containsObject:@(item.u_DevAdress)]) {
-        [self.BTDevArray addObject:item];
-    }
-    
-    
 }
 
 - (void)dosomethingWhenLoginDevice:(BTDevItem *)item {
@@ -134,7 +130,6 @@ RCT_EXPORT_METHOD(doInit) {
     [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"connectMeshAddress"];
     [self sendEventWithName:@"deviceStatusLogin" body:event];
     
-    NSLog(@"dosomethingWhenConnectedDevice item = %d",item.u_DevAdress);
     
     if (self.configNode) {
         if ([[NSString stringWithFormat:@"%x", item.u_Mac] isEqualToString:[self.node objectForKey:@"macAddress"]]) {
@@ -166,9 +161,6 @@ RCT_EXPORT_METHOD(doInit) {
         }
     }
     [self sendEventWithName:@"notificationOnlineStatus" body:array];
-    if (![self.DisConnectDevArray containsObject:item]) {
-        [self.DisConnectDevArray addObject:item];
-    }
     [self sendEventWithName:@"deviceStatusLogout" body:nil];
     
     
@@ -272,6 +264,10 @@ RCT_EXPORT_METHOD(startScan:(NSString *)meshName outOfMeshName:(NSString *)outOf
 }
 
 RCT_EXPORT_METHOD(sendCommand:(NSInteger)opcode meshAddress:(NSInteger)meshAddress value:(NSArray *) value immediate :(BOOL)immediate) {
+    NSArray *arr = [kCentralManager devArrs];
+    for (BTDevItem *item in arr) {
+        NSLog(@"sendCommand meshAddress = %d",item.u_DevAdress);
+    }
     [[BTCentralManager shareBTCentralManager] sendCommand:opcode meshAddress:meshAddress value:value];
 }
 
@@ -405,6 +401,7 @@ RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddres
 
 -(void)onGetGroupNotify:(NSArray *)array
 {
+    NSLog(@"array");
     if (array.count) {
         _resolvesetNodeGroupAddr(array);
     }else{
