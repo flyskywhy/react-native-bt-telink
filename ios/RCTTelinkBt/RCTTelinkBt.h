@@ -24,5 +24,8 @@
 @property(nonatomic,strong) NSMutableDictionary *node;
 @property(nonatomic,assign) BOOL configNode;
 @property(nonatomic,strong) NSString *pwd;
-
+@property(nonatomic,assign) BOOL HomePage;
+@property(nonatomic,assign) BOOL frist;
+@property(nonatomic,strong) NSString *userMeshName;
+@property(nonatomic,strong) NSString *userMeshPwd;
 @end
