@@ -145,6 +145,11 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
 -(void)getDevDate:(NSDate *)date;
 
 /**
+ *集联回掉
+ */
+-(void)onGetGroupNotify:(NSArray *)array;
+
+/**
  *接收存储状态的对象－－－使用时候需要导入模型类DeviceModel－－－－必须要实现的部分
  */
 -(void)getFirstStataFromNotify:(DeviceModel *)firstDevice;

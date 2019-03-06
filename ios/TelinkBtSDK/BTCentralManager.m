@@ -353,8 +353,6 @@ static NSUInteger getNotifytime;
 -(void)passUsefulMessageWithBytes:(uint8_t *)bytes{
     //灯的显示状态解析
     DeviceModel *firstItem = [self getFristDeviceModelWithBytes:bytes];
-
-    NSLog(@"[CoreBluetoothh] time %@",[[self changeCommandToArray:bytes len:20] componentsJoinedByString:@"-"]);
     
     if ([_delegate respondsToSelector:@selector(notifyBackWithDevice:)]) {
         [_delegate notifyBackWithDevice:firstItem];
@@ -391,6 +389,39 @@ static NSUInteger getNotifytime;
         if ([_delegate respondsToSelector:@selector(getDevDate:)]) {
             [_delegate getDevDate:tempDate];
         }
+    }else if (bytes[8]==0x11 && bytes[9]==0x02 && bytes[7] == 0xd4){
+        NSLog(@"[CoreBluetoothh] time %@",[[self changeCommandToArray:bytes len:20] componentsJoinedByString:@"-"]);
+        NSMutableArray *arr = [[NSMutableArray alloc] init];
+        int length = 20;
+        int position = 10;
+        int address;
+        
+        while (position < length) {
+            address = bytes[position++];
+            address = address & 0xFF;
+            
+            if (address == 0xFF)
+                break;
+            
+            address = address | 0x8000;
+            [arr addObject:[NSNumber numberWithInt:address]];
+        }
+        
+        if ([_delegate respondsToSelector:@selector(onGetGroupNotify:)]) {
+            [_delegate onGetGroupNotify:arr];
+        }
+    }else if (bytes[8]==0x11 && bytes[9]==0x02 && bytes[7] == 0xe7){
+//        int total = bytes[20 - 1] & 0xFF;
+//        if (total == 0); //return nil;
+//        int offset = 1;
+//        int index = bytes[offset++];
+//        uint8_t *data[] = (byte) (bytes[offset] & 0xFF);
+//        int sceneId = params[params.length - 2];
+//
+//        int action = NumberUtils.byteToInt(data, 0, 3);
+//        int type = NumberUtils.byteToInt(data, 4, 6);
+//        int status = data >> 7 & 0x01;
+//        long time = NumberUtils.bytesToLong(params, 3, 5);
     }
 }
 

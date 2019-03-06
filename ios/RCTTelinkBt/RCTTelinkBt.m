@@ -18,9 +18,13 @@
 
 @implementation RCTTelinkBt {
     RCTPromiseResolveBlock _resolveBlock;
-    RCTPromiseRejectBlock _rejectBlock;
     RCTPromiseResolveBlock _resolvedateBlock;
     RCTPromiseResolveBlock _resolveMesheBlock;
+    RCTPromiseResolveBlock _resolvesetNodeGroupAddr;
+    RCTPromiseResolveBlock _resolvesegetAlarm;
+    
+    RCTPromiseRejectBlock _rejectsetNodeGroupAddr;
+    RCTPromiseRejectBlock _rejectBlock;
 }
 
 RCT_EXPORT_MODULE()
@@ -363,7 +367,7 @@ RCT_EXPORT_METHOD(getTime:(NSInteger)meshAddress relayTimes:(NSInteger)relayTime
 -(void)getDevDate:(NSDate *)date
 {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ss"];
     NSString *dateString = [dateFormatter stringFromDate:date];
     NSLog(@"time strDate = %@",dateString);
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
@@ -374,15 +378,12 @@ RCT_EXPORT_METHOD(getTime:(NSInteger)meshAddress relayTimes:(NSInteger)relayTime
 
 RCT_EXPORT_METHOD(getAlarm:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes alarmId:(NSInteger)alarmId resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     NSLog(@"getAlarm");
-    NSArray *value = [NSArray arrayWithObjects:[NSNumber numberWithInteger:relayTimes],[NSNumber numberWithInteger:alarmId],nil];
-    NSArray *arr = [kCentralManager devArrs];
-    for (BTDevItem *dev in arr) {
-        if (dev.u_DevAdress == meshAddress) {
-            [[BTCentralManager shareBTCentralManager] sendCommand:0xE6 meshAddress:dev.u_DevAdress value:value];
-        }
-    }
-    resolve(@YES);
+//    NSArray *value = [NSArray arrayWithObjects:[NSNumber numberWithInteger:relayTimes],[NSNumber numberWithInteger:alarmId],nil];
+//    [[BTCentralManager shareBTCentralManager] sendCommand:0xE6 meshAddress:meshAddress value:value];
+//    _resolvesegetAlarm = resolve;
 }
+
+
 
 RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddress groupAddress:(NSInteger)groupAddress resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -398,6 +399,18 @@ RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddres
             [[BTCentralManager shareBTCentralManager] setNodeGroupAddr:dev.u_DevAdress groupAddress:groupAddress toDel:toDel];
         }
     }
+    _resolvesetNodeGroupAddr = resolve;
+    _rejectsetNodeGroupAddr = reject;
+}
+
+-(void)onGetGroupNotify:(NSArray *)array
+{
+    if (array.count) {
+        _resolvesetNodeGroupAddr(array);
+    }else{
+        _rejectsetNodeGroupAddr(0,@"GetGroup return null",nil);
+    }
+    
 }
 
 -(void)OnDevOperaStatusChange:(id)sender Status:(OperaStatus)status{
