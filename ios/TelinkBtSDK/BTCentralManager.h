@@ -178,6 +178,7 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
 
 @property (nonatomic, weak) id delegate;
 @property (nonatomic, assign) BOOL isDebugLog;
+@property(nonatomic,assign) int frist;
 
 @property(nonatomic,assign)NSUInteger timeOut;                    //特别指明，此处是一个一个设置全部设备mesh 从scan到默认已经全部设置完成的时间－－－具体数值根据项目调试－－－默认全部扫描并且设置完成在ScanAndSetAllDeviceFinished中通知
 @property(nonatomic,assign)BOOL scanSetting;
@@ -349,4 +350,6 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
 -(void)readFeatureOfselConnectedItem;
 
 -(void)connectPro;
+
+-(void)notDiscover;
 @end

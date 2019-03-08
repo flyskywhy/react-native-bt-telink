@@ -729,7 +729,8 @@ static NSUInteger getNotifytime;
         if (tempVid==BTDevInfo_UID) {
             NSString *tempUuid=[[peripheral identifier] UUIDString];
             [self.IdentifersArrs addObject:peripheral];
-            BTDevItem *tempItem=[self getItemWithTag:tempUuid];
+            BTDevItem *tempItem=nil;
+            NSLog(@"111tempItem = %@",tempItem.description);
             BOOL isNew=NO;
             if (!tempItem) {
                 isNew=YES;
@@ -800,6 +801,7 @@ static NSUInteger getNotifytime;
                 }
                 tempItem.u_DevAdress =[self getIntValueByHex:tempStr];
                 tempItem.u_DevAdress =((tempItem.u_DevAdress<<8) & 0xff00) + (tempItem.u_DevAdress>>8);
+                NSLog(@"111tempItem 1 = %d",tempItem.u_DevAdress);
             }
             if (isNew) {
                 scanTime = 0;          //扫描超时清零
@@ -822,6 +824,12 @@ static NSUInteger getNotifytime;
                 [[BTCentralManager shareBTCentralManager].centralManager stopScan];
                 [self connectPro];
 
+            }
+            for (int i = 0; i < srcDevArrs.count; i++) {
+                BTDevItem *b = [[BTDevItem alloc] initWithDevice:srcDevArrs[i]];
+                if ([tempItem.devIdentifier isEqualToString:b.devIdentifier]) {
+                    [srcDevArrs replaceObjectAtIndex:i withObject:tempItem];
+                }
             }
         }
     }
@@ -1193,6 +1201,7 @@ static NSUInteger getNotifytime;
     _operaType = DevOperaType_Normal;
     //if (_centerState == CBCentralManagerStatePoweredOn) {
         [self printContentWithString:@"ready scan devices "];
+    self.frist = 0;
         [_centralManager scanForPeripheralsWithServices:nil options:nil];
     //}
     //如果是最后一个设备被断电的时候
@@ -1232,6 +1241,11 @@ static NSUInteger getNotifytime;
         [self reInitData];
         [_centralManager stopScan];
     }
+}
+
+-(void)notDiscover
+{
+    [_centralManager stopScan];
 }
 
 -(void)connectPro

@@ -87,7 +87,7 @@ RCT_EXPORT_METHOD(doInit) {
 
 - (void)dosomethingWhenDiscoverDevice:(BTDevItem *)item {
     
-    NSLog(@"dosomethingWhenDiscoverDevice item = %d",item.u_DevAdress);
+    NSLog(@"dosomethingWhenDiscoverDevice item = %@",item.description);
 
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
     
@@ -134,14 +134,14 @@ RCT_EXPORT_METHOD(doInit) {
         }
         
     }else{
-        if (self.frist) {
-            [self sendEventWithName:@"deviceStatusLogout" body:nil];
-            self.frist = !self.frist;
-        }
         NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
         [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"meshAddress"];
         [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"connectMeshAddress"];
         [self sendEventWithName:@"deviceStatusLogin" body:event];
+//        if (self.frist && self.HomePage) {
+//            [self sendEventWithName:@"deviceStatusLogout" body:nil];
+//            self.frist = !self.frist;
+//        }
     }
     
 }
@@ -231,10 +231,7 @@ RCT_EXPORT_METHOD(autoConnect:(NSString *)userMeshName userMeshPwd:(NSString *)u
     self.HomePage = YES;
     self.userMeshName = userMeshName;
     self.userMeshPwd = userMeshPwd;
-//    [kCentralManager startScanWithName:userMeshName Pwd:userMeshPwd AutoLogin:YES];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1000 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-        [kCentralManager startScanWithName:userMeshName Pwd:userMeshPwd AutoLogin:YES];
-    });
+    [kCentralManager startScanWithName:userMeshName Pwd:userMeshPwd AutoLogin:YES];
 }
 
 RCT_EXPORT_METHOD(autoRefreshNotify:(NSInteger) repeatCount Interval:(NSInteger) NSInteger) {
@@ -317,7 +314,7 @@ RCT_EXPORT_METHOD(changeColor:(NSString *)meshAddress value:(NSInteger)value) {
 }
 
 RCT_EXPORT_METHOD(configNode:(NSDictionary *)node cfg:(NSDictionary *)cfg resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    
+    [kCentralManager notDiscover];
     self.cfg = [[NSMutableDictionary alloc] initWithDictionary:cfg];
     self.node = [[NSMutableDictionary alloc] initWithDictionary:node];
     self.configNode = YES;
@@ -337,8 +334,9 @@ RCT_EXPORT_METHOD(configNode:(NSDictionary *)node cfg:(NSDictionary *)cfg resolv
 {
     BTDevItem *b = [self.dict valueForKey:[NSString stringWithFormat:@"%d",resultAddress]];
     b.u_DevAdress = resultAddress;
-
+    BTDevItem *b1 = [kCentralManager selConnectedItem];
     NSLog(@"configNode b = %@",b.description);
+    NSLog(@"configNode b1 = %@",b1.description);
 
     GetLTKBuffer;
     [kCentralManager setOut_Of_MeshWithName:[self.cfg objectForKey:@"oldName"] PassWord:[self.cfg objectForKey:@"oldPwd"] NewNetWorkName:[self.cfg objectForKey:@"newName"] Pwd:[self.cfg objectForKey:@"newPwd"] ltkBuffer:ltkBuffer ForCertainItem:b];
@@ -354,12 +352,7 @@ RCT_EXPORT_METHOD(setNodeGroupAddr) {
 RCT_EXPORT_METHOD(getTime:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     NSLog(@"getTime");
     NSArray *value = [NSArray arrayWithObject:[NSNumber numberWithInteger:relayTimes]];
-    NSArray *arr = [kCentralManager devArrs];
-    for (BTDevItem *dev in arr) {
-        if (dev.u_DevAdress == meshAddress) {
-            [[BTCentralManager shareBTCentralManager] sendCommand:0xE8 meshAddress:dev.u_DevAdress value:value];
-        }
-    }
+     [[BTCentralManager shareBTCentralManager] sendCommand:0xE8 meshAddress:meshAddress value:value];
     _resolvedateBlock = resolve;
 }
 
@@ -392,19 +385,17 @@ RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddres
     }else{
         [array addObject:[NSNumber numberWithInt:1]];
     }
-    NSArray *arr = [kCentralManager devArrs];
-    for (BTDevItem *dev in arr) {
-        if (dev.u_DevAdress == meshAddress) {
-            [[BTCentralManager shareBTCentralManager] setNodeGroupAddr:dev.u_DevAdress groupAddress:groupAddress toDel:toDel];
-        }
-    }
+    [[BTCentralManager shareBTCentralManager] setNodeGroupAddr:meshAddress groupAddress:groupAddress toDel:toDel];
+    
     _resolvesetNodeGroupAddr = resolve;
     _rejectsetNodeGroupAddr = reject;
 }
 
 -(void)onGetGroupNotify:(NSArray *)array
 {
-    NSLog(@"array");
+    for (NSNumber *num in array) {
+        NSLog(@"array = %@",[NSNumber numberWithInt:num]);
+    }
     if (array.count) {
         _resolvesetNodeGroupAddr(array);
     }else{
