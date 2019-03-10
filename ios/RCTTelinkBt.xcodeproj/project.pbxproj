@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C39B30322322A0F0051048D /* CryptoUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C39B2F522322A0E0051048D /* CryptoUtil.c */; };
+		0C39B30422322A0F0051048D /* BTDevItem+Custom.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C39B2F722322A0E0051048D /* BTDevItem+Custom.m */; };
+		0C39B30522322A0F0051048D /* CryptoAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C39B2F822322A0E0051048D /* CryptoAction.m */; };
+		0C39B30622322A0F0051048D /* TranslateTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C39B2FB22322A0E0051048D /* TranslateTool.m */; };
+		0C39B30722322A0F0051048D /* BTDevItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C39B2FD22322A0E0051048D /* BTDevItem.m */; };
+		0C39B30822322A0F0051048D /* BTCentralManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C39B2FF22322A0F0051048D /* BTCentralManager.m */; };
+		0C39B30922322A0F0051048D /* DeviceModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C39B30022322A0F0051048D /* DeviceModel.m */; };
 		6C34A800208DD7CD00F9C6FE /* RCTTelinkBt.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C34A7FF208DD7CD00F9C6FE /* RCTTelinkBt.m */; };
-		6CAC7A1D20A139F000B31D67 /* UIWindow+ARShow.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC7A1420A139EE00B31D67 /* UIWindow+ARShow.m */; };
-		6CAC7A1E20A139F000B31D67 /* DeviceModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC7A1520A139EE00B31D67 /* DeviceModel.m */; };
-		6CAC7A1F20A139F000B31D67 /* BTDevItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC7A1620A139EE00B31D67 /* BTDevItem.m */; };
-		6CAC7A2020A139F000B31D67 /* TranslateTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC7A1720A139EE00B31D67 /* TranslateTool.m */; };
-		6CAC7A2120A139F000B31D67 /* BTCentralManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC7A1820A139EE00B31D67 /* BTCentralManager.m */; };
-		6CAC7A2220A139F000B31D67 /* CryptoUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC7A1A20A139EF00B31D67 /* CryptoUtil.c */; };
-		6CAC7A2320A139F000B31D67 /* CryptoAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CAC7A1B20A139EF00B31D67 /* CryptoAction.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,25 +30,24 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0C39B2F422322A0E0051048D /* CryptoAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CryptoAction.h; sourceTree = "<group>"; };
+		0C39B2F522322A0E0051048D /* CryptoUtil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CryptoUtil.c; sourceTree = "<group>"; };
+		0C39B2F622322A0E0051048D /* TranslateTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TranslateTool.h; sourceTree = "<group>"; };
+		0C39B2F722322A0E0051048D /* BTDevItem+Custom.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "BTDevItem+Custom.m"; sourceTree = "<group>"; };
+		0C39B2F822322A0E0051048D /* CryptoAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CryptoAction.m; sourceTree = "<group>"; };
+		0C39B2F922322A0E0051048D /* CryptoUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CryptoUtil.h; sourceTree = "<group>"; };
+		0C39B2FA22322A0E0051048D /* BTDevItem+Custom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "BTDevItem+Custom.h"; sourceTree = "<group>"; };
+		0C39B2FB22322A0E0051048D /* TranslateTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TranslateTool.m; sourceTree = "<group>"; };
+		0C39B2FC22322A0E0051048D /* BTCentralManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTCentralManager.h; sourceTree = "<group>"; };
+		0C39B2FD22322A0E0051048D /* BTDevItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTDevItem.m; sourceTree = "<group>"; };
+		0C39B2FE22322A0E0051048D /* BTDevItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTDevItem.h; sourceTree = "<group>"; };
+		0C39B2FF22322A0F0051048D /* BTCentralManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTCentralManager.m; sourceTree = "<group>"; };
+		0C39B30022322A0F0051048D /* DeviceModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeviceModel.m; sourceTree = "<group>"; };
+		0C39B30122322A0F0051048D /* DeviceModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeviceModel.h; sourceTree = "<group>"; };
+		0C39B30222322A0F0051048D /* BTConst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTConst.h; sourceTree = "<group>"; };
 		6C006F09208DBE5100A995E9 /* libRCTTelinkBt.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTTelinkBt.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C34A7FE208DD7B300F9C6FE /* RCTTelinkBt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTTelinkBt.h; sourceTree = "<group>"; };
 		6C34A7FF208DD7CD00F9C6FE /* RCTTelinkBt.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTTelinkBt.m; sourceTree = "<group>"; };
-		6CAC7A0D20A139EC00B31D67 /* BTCentralManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTCentralManager.h; sourceTree = "<group>"; };
-		6CAC7A0E20A139EC00B31D67 /* BTConst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTConst.h; sourceTree = "<group>"; };
-		6CAC7A0F20A139ED00B31D67 /* CryptoUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CryptoUtil.h; sourceTree = "<group>"; };
-		6CAC7A1020A139ED00B31D67 /* DeviceModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeviceModel.h; sourceTree = "<group>"; };
-		6CAC7A1120A139ED00B31D67 /* TranslateTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TranslateTool.h; sourceTree = "<group>"; };
-		6CAC7A1220A139ED00B31D67 /* DemoDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoDefine.h; sourceTree = "<group>"; };
-		6CAC7A1320A139ED00B31D67 /* BTDevItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTDevItem.h; sourceTree = "<group>"; };
-		6CAC7A1420A139EE00B31D67 /* UIWindow+ARShow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+ARShow.m"; sourceTree = "<group>"; };
-		6CAC7A1520A139EE00B31D67 /* DeviceModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeviceModel.m; sourceTree = "<group>"; };
-		6CAC7A1620A139EE00B31D67 /* BTDevItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTDevItem.m; sourceTree = "<group>"; };
-		6CAC7A1720A139EE00B31D67 /* TranslateTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TranslateTool.m; sourceTree = "<group>"; };
-		6CAC7A1820A139EE00B31D67 /* BTCentralManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTCentralManager.m; sourceTree = "<group>"; };
-		6CAC7A1920A139EF00B31D67 /* UIWindow+ARShow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWindow+ARShow.h"; sourceTree = "<group>"; };
-		6CAC7A1A20A139EF00B31D67 /* CryptoUtil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CryptoUtil.c; sourceTree = "<group>"; };
-		6CAC7A1B20A139EF00B31D67 /* CryptoAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CryptoAction.m; sourceTree = "<group>"; };
-		6CAC7A1C20A139EF00B31D67 /* CryptoAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CryptoAction.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +61,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0C39B2F322322A0E0051048D /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				0C39B2F422322A0E0051048D /* CryptoAction.h */,
+				0C39B2F522322A0E0051048D /* CryptoUtil.c */,
+				0C39B2F622322A0E0051048D /* TranslateTool.h */,
+				0C39B2F722322A0E0051048D /* BTDevItem+Custom.m */,
+				0C39B2F822322A0E0051048D /* CryptoAction.m */,
+				0C39B2F922322A0E0051048D /* CryptoUtil.h */,
+				0C39B2FA22322A0E0051048D /* BTDevItem+Custom.h */,
+				0C39B2FB22322A0E0051048D /* TranslateTool.m */,
+			);
+			path = Tools;
+			sourceTree = "<group>";
+		};
 		6C006F00208DBE5000A995E9 = {
 			isa = PBXGroup;
 			children = (
@@ -82,22 +96,14 @@
 		6C006F0B208DBE5100A995E9 /* TelinkBtSDK */ = {
 			isa = PBXGroup;
 			children = (
-				6CAC7A0D20A139EC00B31D67 /* BTCentralManager.h */,
-				6CAC7A1820A139EE00B31D67 /* BTCentralManager.m */,
-				6CAC7A0E20A139EC00B31D67 /* BTConst.h */,
-				6CAC7A1320A139ED00B31D67 /* BTDevItem.h */,
-				6CAC7A1620A139EE00B31D67 /* BTDevItem.m */,
-				6CAC7A1C20A139EF00B31D67 /* CryptoAction.h */,
-				6CAC7A1B20A139EF00B31D67 /* CryptoAction.m */,
-				6CAC7A1A20A139EF00B31D67 /* CryptoUtil.c */,
-				6CAC7A0F20A139ED00B31D67 /* CryptoUtil.h */,
-				6CAC7A1220A139ED00B31D67 /* DemoDefine.h */,
-				6CAC7A1020A139ED00B31D67 /* DeviceModel.h */,
-				6CAC7A1520A139EE00B31D67 /* DeviceModel.m */,
-				6CAC7A1120A139ED00B31D67 /* TranslateTool.h */,
-				6CAC7A1720A139EE00B31D67 /* TranslateTool.m */,
-				6CAC7A1920A139EF00B31D67 /* UIWindow+ARShow.h */,
-				6CAC7A1420A139EE00B31D67 /* UIWindow+ARShow.m */,
+				0C39B2FC22322A0E0051048D /* BTCentralManager.h */,
+				0C39B2FF22322A0F0051048D /* BTCentralManager.m */,
+				0C39B30222322A0F0051048D /* BTConst.h */,
+				0C39B2FE22322A0E0051048D /* BTDevItem.h */,
+				0C39B2FD22322A0E0051048D /* BTDevItem.m */,
+				0C39B30122322A0F0051048D /* DeviceModel.h */,
+				0C39B30022322A0F0051048D /* DeviceModel.m */,
+				0C39B2F322322A0E0051048D /* Tools */,
 			);
 			path = TelinkBtSDK;
 			sourceTree = "<group>";
@@ -167,14 +173,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6CAC7A2320A139F000B31D67 /* CryptoAction.m in Sources */,
+				0C39B30722322A0F0051048D /* BTDevItem.m in Sources */,
+				0C39B30922322A0F0051048D /* DeviceModel.m in Sources */,
+				0C39B30822322A0F0051048D /* BTCentralManager.m in Sources */,
+				0C39B30522322A0F0051048D /* CryptoAction.m in Sources */,
+				0C39B30322322A0F0051048D /* CryptoUtil.c in Sources */,
 				6C34A800208DD7CD00F9C6FE /* RCTTelinkBt.m in Sources */,
-				6CAC7A1D20A139F000B31D67 /* UIWindow+ARShow.m in Sources */,
-				6CAC7A2220A139F000B31D67 /* CryptoUtil.c in Sources */,
-				6CAC7A1F20A139F000B31D67 /* BTDevItem.m in Sources */,
-				6CAC7A2120A139F000B31D67 /* BTCentralManager.m in Sources */,
-				6CAC7A2020A139F000B31D67 /* TranslateTool.m in Sources */,
-				6CAC7A1E20A139F000B31D67 /* DeviceModel.m in Sources */,
+				0C39B30622322A0F0051048D /* TranslateTool.m in Sources */,
+				0C39B30422322A0F0051048D /* BTDevItem+Custom.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

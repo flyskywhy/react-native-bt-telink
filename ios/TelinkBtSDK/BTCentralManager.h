@@ -1,3 +1,24 @@
+/********************************************************************************************************
+ * @file     BTCentralManager.h 
+ *
+ * @brief    for TLSR chips
+ *
+ * @author	 telink
+ * @date     Sep. 30, 2010
+ *
+ * @par      Copyright (c) 2010, Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
+ *           
+ *			 The information contained herein is confidential and proprietary property of Telink 
+ * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms 
+ *			 of Commercial License Agreement between Telink Semiconductor (Shanghai) 
+ *			 Co., Ltd. and the licensee in separate contract or the terms described here-in. 
+ *           This heading MUST NOT be removed from this file.
+ *
+ * 			 Licensees are granted free, non-transferable use of the information in this 
+ *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided. 
+ *           
+ *******************************************************************************************************/
 //
 //  BTCentralManager.h
 //  TelinkBlue
@@ -9,6 +30,8 @@
 #import <Foundation/Foundation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "DeviceModel.h"
+
+//创建特定的ltkBuffer数组，[0xc0,0xc1,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xd8,0xd9,0xda,0xdb,0xdc,0xdd,0xde,0xf0,0x00,0x00,0x00,0x00]
 #define GetLTKBuffer  \
 Byte ltkBuffer[20]; \
 memset(ltkBuffer, 0, 20); \
@@ -20,9 +43,17 @@ ltkBuffer[j] = 0xd0+j; \
 } \
 }
 
-//#define kCaiyang 0.32
+//为了静默meshOTA新增通知
+#define kOnConnectionDevFirmWareNotify            @"kOnConnectionDevFirmWareNotify"
+#define kOnDevChangeNotify                                 @"kOnDevChangeNotify"
+#define kOnDevNotifyNotify                                    @"kOnDevNotifyNotify"
+
+//不采样的命令中，相邻命令的执行间隔大于等于0.32s
 #define kCMDInterval 0.32
 #define kTestLog YES
+
+#define ScanTimeout (15.0)
+
 typedef enum {
     BTCommandCaiYang,
     BTCommandInterval
@@ -45,7 +76,6 @@ typedef enum {
     DevOperaType_AutoLogin
 }DevOperaType;
 
-
 typedef enum {
     DevOperaStatus_Normal=1,
     DevOperaStatus_ScanSrv_Finish,//完成扫描服务uuid
@@ -66,24 +96,67 @@ typedef enum {
 }DisconectType;
 
 typedef NS_ENUM(NSUInteger, TimeoutType) {
+    TimeoutTypeScanDevice = 1<<0,
     TimeoutTypeConnectting = 1<<1,
     TimeoutTypeScanServices = 1<<2,
     TimeoutTypeScanCharacteritics = 1<<3,
     TimeoutTypeWritePairFeatureBack = 1<<4,
+    TimeoutTypeReadPairFeatureBack = 1<<5,
+    TimeoutTypeReadPairFeatureBackFailLogin = 1<<6
 };
+
+typedef NS_ENUM(NSUInteger, BTStateCode) {
+    BTStateCode_Normal = 0,//不会上报
+    BTStateCode_Scan = 1,
+    BTStateCode_Connect = 2,
+    BTStateCode_Login = 3
+};
+
+typedef NS_ENUM(NSUInteger, BTErrorCode) {
+    BTErrorCode_UnKnow = 0,//不会上报
+    BTErrorCode_NO_ADV = 101,
+    BTErrorCode_BLE_Disable,
+    BTErrorCode_NO_Device_Scaned,//can receive adv
+    
+    BTErrorCode_Cannot_CreatConnectRelation = 201,
+    BTErrorCode_Cannot_ReceiveATTList,
+    
+    BTErrorCode_WriteLogin_NOResponse = 301,
+    BTErrorCode_ReadLogin_NOResponse,
+    BTErrorCode_ValueCheck_LoginFail
+};
+
+typedef enum : NSUInteger {
+    MeshOTAState_normal = 0,//正常状态，可以开始OTA
+    MeshOTAState_continue = 2,//异常后继续meshOTA状态，继续显示进度
+    MeshOTAState_end = 4,//OTA结束状态，需要index清零
+    MeshOTAState_error,//错误状态，OTA失败（需发送Mesh stop）
+    MeshOTAState_no = 0xff,//非meshOTA状态
+} MeshOTAState;
+
 @class BTDevItem;
 
 @protocol BTCentralManagerDelegate <NSObject>
 
 @optional
+
+
 - (void)loginTimeout:(TimeoutType)type;
+//收集error code
+- (void)exceptionReport:(int)stateCode errorCode:(int)errorCode deviceID:(int)deviceID;
+
 - (void)scanedLoginCharacteristic;
 
-- (void)loginout:(BTDevItem *)item;
+///**
+// mesh加灯模式，修改mesh名称、密码成功回调
+// */
+//- (void)setMeshInfoSuccessBack;
+
 /**
  *手机蓝牙状态变化
  
- */-(void)OnCenterStatusChange:(id)sender;
+ */
+-(void)OnCenterStatusChange:(id)sender;
 /**
  *扫描设备变化
  */
@@ -91,7 +164,8 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
 
 /**
  *收到设备上传信息,一般byte为20字节
- */-(void)OnDevNofify:(id)sender Byte:(uint8_t *)byte;
+ */
+- (void)OnDevNotify:(id)sender Byte:(uint8_t *)byte;
 
 /**
  *接收到设备的firewareVersion－－
@@ -106,17 +180,27 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
 /**
  *Command口上传信息
  */
--(void)OnDevCommandReport:(id)sender Byte:(uint8_t *)byte;
+- (void)OnDevCommandReport:(id)sender Byte:(uint8_t *)byte;
 
 /**
  *操作状态变化
  */
--(void)OnDevOperaStatusChange:(id)sender Status:(OperaStatus)status;
+- (void)OnDevOperaStatusChange:(id)sender Status:(OperaStatus)status;
 
 /**
  *扫描到一个设备
  */
--(void)scanResult:(BTDevItem *)item;
+- (void)scanResult:(BTDevItem *)item;
+
+/**
+ *集联回掉
+ */
+-(void)onGetGroupNotify:(NSArray *)array;
+
+/**
+ *获取设备时间
+ */
+-(void)getDevDate:(NSDate *)date;
 
 /**
  *因为断开连接导致逐个加灯失败情况处理
@@ -129,36 +213,21 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
 -(void)RevokeOfSelconnectItemChange:(BTDevItem *)item;
 
 /**
- *  调用情形1-－扫描没有发现可以直连的设备的时候调用－－可在.m文件内部设置超时时间
+ 调用情形1-－扫描没有发现可以直连的设备的时候调用－－可在.m文件内部设置超时时间
  调用情形2-－直连灯被拔掉的时候短暂性的重新设置灯的显示状态为离线
  */
 -(void)resetStatusOfAllLight;
-
 /**
  *修改设备地址之后的notify解析
  */
 -(void)resultOfReplaceAddress:(uint32_t )resultAddress;
-
-/**
- *获取设备时间
- */
--(void)getDevDate:(NSDate *)date;
-
-/**
- *集联回掉
- */
--(void)onGetGroupNotify:(NSArray *)array;
-
 /**
  *接收存储状态的对象－－－使用时候需要导入模型类DeviceModel－－－－必须要实现的部分
  */
--(void)getFirstStataFromNotify:(DeviceModel *)firstDevice;
-
--(void)getSecondStataFromNotify:(DeviceModel *)secondDevice;
-
+-(void)getFirstStataFromNotify:(DeviceModel *)firstDevice NS_DEPRECATED(2_0, 2_0, 2_0, 2_0, "deprecated, use notifyBackWithDevice instead") ;
+-(void)getSecondStataFromNotify:(DeviceModel *)secondDevice NS_DEPRECATED(2_0, 2_0, 2_0, 2_0, "deprecated, use notifyBackWithDevice instead") ;
 //代替掉上面两个方法
 - (void)notifyBackWithDevice:(DeviceModel *)model;
-
 
 @end
 
@@ -178,7 +247,6 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
 
 @property (nonatomic, weak) id delegate;
 @property (nonatomic, assign) BOOL isDebugLog;
-@property(nonatomic,assign) int frist;
 
 @property(nonatomic,assign)NSUInteger timeOut;                    //特别指明，此处是一个一个设置全部设备mesh 从scan到默认已经全部设置完成的时间－－－具体数值根据项目调试－－－默认全部扫描并且设置完成在ScanAndSetAllDeviceFinished中通知
 @property(nonatomic,assign)BOOL scanSetting;
@@ -205,7 +273,7 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
 -(void)stopScan;
 
 /**
- *当cItem为nil时默认连接devArr数组最后一个设备
+ *当cItem为nil时默认连接devArr数组最后一个设备。注意：需要在非自动登录的扫描后才可以调用该方法，否则可能造成cItem.blDevInfo为nil。
  */
 -(void)connectWithItem:(BTDevItem *)cItem;
 
@@ -215,6 +283,12 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
  *发送命令
  */
 -(void)sendCommand:(uint8_t *)cmd Len:(int)len;
+
+/**
+ *setNodeGroupAddr
+ 
+ */
+-(void)setNodeGroupAddr :(uint32_t)u_DevAddress groupAddress:(NSInteger) groupAddress toDel:(BOOL) toDel;
 
 /**
  *设置所有灯的meshname
@@ -233,7 +307,10 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
  */
 -(void)setOut_Of_MeshWithName:(NSString *)addName PassWord:(NSString *)addPassWord NewNetWorkName:(NSString *)nName Pwd:(NSString *)nPwd ltkBuffer:(uint8_t *)buffer ForCertainItem:(BTDevItem *)item;
 
-
+/**
+ mesh模式加灯使用，修改完所有的短地址后，修改mesh网络的name、password
+ */
+- (void)updateMeshInfo:(NSString *)nname password:(NSString *)npasword;
 
 /**
  *设置某一个灯的meshname-------长按cell修改时候－－－demo设置为name：tling   －－npwd：123
@@ -259,13 +336,13 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
  *全开接口
  */
 
--(void)turnOffAllLight;
+- (void)turnOffAllLight;
 
 /**
  *单灯的开灯－－－传入设备地址
  */
 
--(void)turnOnCertainLightWithAddress:(uint32_t )u_DevAddress;
+- (void)turnOnCertainLightWithAddress:(uint32_t )u_DevAddress;
 
 
 /**
@@ -273,17 +350,13 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
  */
 -(void)turnOffCertainLightWithAddress:(uint32_t )u_DevAddress;
 
+
 /**
  *sendCommand
  
  */
 -(void)sendCommand:(NSInteger)opcode meshAddress:(uint32_t)u_DevAddress value:(NSArray *) value;
 
-/**
- *setNodeGroupAddr
- 
- */
--(void)setNodeGroupAddr :(uint32_t)u_DevAddress groupAddress:(NSInteger) groupAddress toDel:(BOOL) toDel;
 
 /**
  *组的开灯－－－传入组地址
@@ -347,9 +420,74 @@ typedef NS_ENUM(NSUInteger, TimeoutType) {
 /**
  *读取当前直连灯属性值
  */
--(void)readFeatureOfselConnectedItem;
+- (void)readFeatureOfselConnectedItem;
 
 -(void)connectPro;
 
--(void)notDiscover;
+- (NSString *)currentName;
+- (NSString *)currentPwd;
+
+#pragma mark - MeshOTA相关
+/**
+ 读取MeshOTA状态
+ */
+- (void)readMeshOTAState;
+
+/**
+ app告诉直连节点进入MeshOTA状态
+ @param deviceType 需要MeshOTA的设备类型，如：1、2、3、4
+ */
+- (void)changeMeshStateToMeshOTAWithDeviceType:(NSInteger )deviceType;
+
+/**
+ 读取所有设备版本号
+ */
+- (void)readFirmwareVersion;
+
+/**
+ meshOTA停止操作
+ */
+- (void)meshOTAStop;
+
+///开始OTA前需要先清零Index，主要是meshOTA需要
+- (void)resetOTAPackIndex;
+
+///判断是否可以发送OTA发包(发送非OTA包后，一秒内不可发送OTA包，主要是meshOTA需要)
+- (BOOL)canSendPack;
+
+///保存log信息，供APP显示
+- (void)printContentWithString:(NSString *)content;
+
+///设置时间
+- (void)setTime;
+
+@end
+
+
+@interface BTCentralManager (MeshAdd)
+
+/**
+ 获取当前mesh网络的所有设备mac
+ */
+- (void)getAddressMac;
+
+/**
+ 修改设备的短地址
+ 
+ @param address 修改前的短地址
+ @param newAddress 修改后的短地址
+ @param mac 设备的mac
+ */
+- (void)changeDeviceAddress:(uint8_t)address new:(uint8_t)newAddress mac:(uint32_t)mac;
+
+/**
+ 临时设置当前网络到默认网络
+ */
+- (void)allDefault;
+
+/**
+ 清除临时设置
+ */
+- (void)allResett;
+
 @end
