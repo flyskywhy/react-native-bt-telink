@@ -494,10 +494,11 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         TelinkLightService.Instance().updateMesh(params);
     }
 
-    private void onUpdateMeshCompleted() {
+    private void onUpdateMeshCompleted(DeviceInfo deviceInfo) {
         if (D) Log.d(TAG, "onUpdateMeshCompleted");
         if (mConfigNodePromise != null) {
             WritableMap params = Arguments.createMap();
+            params.putString("firmwareRevision", deviceInfo.firmwareRevision);
             mConfigNodePromise.resolve(params);
         }
         mConfigNodePromise = null;
@@ -549,7 +550,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
                 sendEvent(DEVICE_STATUS_LOGOUT);
                 break;
             case LightAdapter.STATUS_UPDATE_MESH_COMPLETED:
-                onUpdateMeshCompleted();
+                onUpdateMeshCompleted(deviceInfo);
                 break;
             case LightAdapter.STATUS_UPDATE_MESH_FAILURE:
                 onUpdateMeshFailure(deviceInfo);
