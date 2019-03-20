@@ -45,7 +45,6 @@ RCT_EXPORT_METHOD(doInit) {
     self.isNeedRescan = YES;
     self.configNode = NO;
     self.HomePage = YES;
-    self.frist = NO;
     
     [self sendEventWithName:@"serviceConnected" body:nil];
     [self sendEventWithName:@"bluetoothEnabled" body:nil];
@@ -185,7 +184,7 @@ RCT_EXPORT_METHOD(doInit) {
         
         
     }
-    
+    NSLog(@"model = %@",model.versionString);
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
     
     [event setObject:[NSNumber numberWithInt:model.reserve] forKey:@"reserve"];
@@ -421,10 +420,20 @@ RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddres
 
 -(void)OnDevOperaStatusChange:(id)sender Status:(OperaStatus)status{
     if (status == DevOperaStatus_SetNetwork_Finish) {
-        _resolveBlock(self.devArray);
-        self.frist = YES;
         [self sendEventWithName:@"deviceStatusLogout" body:nil];
+        //查询版本号
+        [[BTCentralManager shareBTCentralManager] readFeatureOfselConnectedItem];
     }
+}
+
+/*data:<56312e48 00000000 00000000>*/
+-(void)OnConnectionDevFirmWare:(NSData *)data{
+    NSString *firm = [[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(0, 4)] encoding:NSUTF8StringEncoding];
+    NSLog(@"OnConnectionDevFirmWare:%@",firm);
+    
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    [dict setObject:firm forKey:@"firmwareRevision"];
+    _resolveBlock(dict);
 }
 
 - (void)exceptionReport:(int)stateCode errorCode:(int)errorCode deviceID:(int)deviceID
