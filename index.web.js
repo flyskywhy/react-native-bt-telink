@@ -47,6 +47,8 @@ class TelinkBt {
 
     static enableBluetooth() {}
 
+    static enableSystemLocation() {}
+
     static notModeAutoConnectMesh() {
         return true;
     }

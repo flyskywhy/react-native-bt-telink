@@ -16,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -57,6 +58,7 @@ import com.telink.bluetooth.light.LightAdapter;
 import com.telink.bluetooth.light.OnlineStatusNotificationParser;
 import com.telink.bluetooth.light.GetGroupNotificationParser;
 import com.telink.bluetooth.light.Parameters;
+import com.telink.util.ContextUtil;
 import com.telink.util.Event;
 import com.telink.util.EventListener;
 
@@ -67,12 +69,15 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     // Debugging
     private static final boolean D = true;
 
+    private static final int REQUEST_CODE_LOCATION_SETTINGS = 2;
     private static final int ACCESS_COARSE_LOCATION_RESULT_CODE = 4;
     private static final int BLUETOOTH_RESULT_CODE = 5;
 
     // Event names
     public static final String BT_ENABLED = "bluetoothEnabled";
     public static final String BT_DISABLED = "bluetoothDisabled";
+    public static final String SYSTEM_LOCATION_ENABLED = "systemLocationEnabled";
+    public static final String SYSTEM_LOCATION_DISABLED = "systemLocationDisabled";
     public static final String SERVICE_CONNECTED = "serviceConnected";
     public static final String SERVICE_DISCONNECTED = "serviceDisconnected";
     public static final String NOTIFICATION_ONLINE_STATUS = "notificationOnlineStatus";
@@ -183,6 +188,10 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         //         if (D) Log.d(TAG, "Pairing failed");
         //     }
         // }
+
+        if (requestCode == REQUEST_CODE_LOCATION_SETTINGS) {
+            checkSystemLocation();
+        }
     }
 
     @Override
@@ -290,7 +299,9 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
             Toast.makeText(mContext, "ble not support", Toast.LENGTH_SHORT).show();
             return;
         }
+
         checkPermissions();
+        checkSystemLocation();
     }
 
     private void checkPermissions() {
@@ -319,11 +330,27 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         }
     }
 
+    private void checkSystemLocation() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextUtil.isLocationEnable(mContext)) {
+                sendEvent(SYSTEM_LOCATION_ENABLED);
+            } else {
+                sendEvent(SYSTEM_LOCATION_DISABLED);
+            }
+        }
+    }
+
     @ReactMethod
     public void enableBluetooth() {
         if (mBluetoothAdapter != null && !mBluetoothAdapter.isEnabled()) {
             mBluetoothAdapter.enable();
         }
+    }
+
+    @ReactMethod
+    public void enableSystemLocation() {
+        Intent locationIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        getCurrentActivity().startActivityForResult(locationIntent, REQUEST_CODE_LOCATION_SETTINGS);
     }
 
     @ReactMethod
