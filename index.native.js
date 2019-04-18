@@ -517,6 +517,18 @@ class TelinkBt {
             largestBulbs,
         ], immediate);
     }
+
+    static flashWriteAttr({ // 设置灯串信息
+        meshAddress,
+        timeSequence = 1, // 灯串时序，1 为短时序，0 为长时序
+        nodeBulbs = 96, // 灯串上激活灯的个数,最大值为255
+        immediate = false,
+    }) {
+        NativeModule.sendCommand(0xF5, meshAddress, [
+            timeSequence,
+            nodeBulbs,
+        ], immediate);
+    }
 }
 
 module.exports = TelinkBt;
