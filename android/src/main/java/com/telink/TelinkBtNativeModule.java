@@ -560,12 +560,12 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
 
         switch (deviceInfo.status) {
             case LightAdapter.STATUS_LOGIN:
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        TelinkLightService.Instance().sendCommandNoResponse((byte) 0xE4, 0xFFFF, new byte[]{});
-                    }
-                }, 3 * 1000);
+                // mHandler.postDelayed(new Runnable() {
+                //     @Override
+                //     public void run() {
+                //         TelinkLightService.Instance().sendCommandNoResponse((byte) 0xE4, 0xFFFF, new byte[]{});
+                //     }
+                // }, 3 * 1000);
 
                 WritableMap params = Arguments.createMap();
                 params.putInt("connectMeshAddress", mTelinkApplication.getConnectDevice().meshAddress);
