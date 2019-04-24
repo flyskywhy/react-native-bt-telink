@@ -84,6 +84,7 @@ public final class LightController extends EventBus<Integer> implements LightPer
     private static final int TAG_OTA_LAST = 502;
     private static final int TAG_OTA_READ = 503;
     private static final int TAG_OTA_CHECK = 504;
+    private static final int TAG_OTA_FIRST = 505;
 
     private static final int TAG_NORMAL_COMMAND = 1000;
 
@@ -764,7 +765,11 @@ public final class LightController extends EventBus<Integer> implements LightPer
 
         if (this.otaPacketParser.hasNextPacket()) {
             cmd.data = this.otaPacketParser.getNextPacket();
-            cmd.tag = TAG_OTA_WRITE;
+            if (this.otaPacketParser.index == 0) {
+                cmd.tag = TAG_OTA_FIRST;
+            } else {
+                cmd.tag = TAG_OTA_WRITE;
+            }
         } else {
             cmd.data = this.otaPacketParser.getCheckPacket();
             cmd.tag = TAG_OTA_LAST;
@@ -1518,7 +1523,11 @@ public final class LightController extends EventBus<Integer> implements LightPer
         public void success(Peripheral peripheral, Command command, Object obj) {
             lastOTATag = (int) command.tag;
             if (normalCnt.get() > 0) return;
-            if (command.tag.equals(TAG_OTA_WRITE)) {
+            if (command.tag.equals(TAG_OTA_FIRST)) {
+                int delay = 300;
+                mDelayHandler.postDelayed(otaTask, delay);
+                setOtaProgressChanged();
+            } else if (command.tag.equals(TAG_OTA_WRITE)) {
                 int delay = Manufacture.getDefault().getOtaDelay();
                 if (delay <= 0) {
                     if (!validateOta())
@@ -1562,6 +1571,7 @@ public final class LightController extends EventBus<Integer> implements LightPer
 
         @Override
         public boolean timeout(Peripheral peripheral, Command command) {
+
             if (command.tag.equals(TAG_OTA_CHECK)) {
                 TelinkLog.d("last read packet response timeout : ");
                 resetOta();
@@ -1574,8 +1584,11 @@ public final class LightController extends EventBus<Integer> implements LightPer
             } else if (command.tag.equals(TAG_OTA_READ)) {
                 sendNextOtaPacketCommand();
                 return false;
+            } else if (command.tag.equals(TAG_OTA_WRITE) || command.tag.equals(TAG_OTA_FIRST)) {
+                TelinkLog.d("timeout ota write : " + Arrays.bytesToHexString(command.data, ":"));
+                return true;
             }
-            TelinkLog.d("timeout : " + Arrays.bytesToHexString(command.data, ":"));
+
             return false;
         }
     }
@@ -1612,7 +1625,7 @@ public final class LightController extends EventBus<Integer> implements LightPer
         public void run() {
             TelinkLog.w("pushCheckTask: " + lastOTATag);
             if (normalCnt.decrementAndGet() > 0) return;
-            if (lastOTATag == TAG_OTA_WRITE) {
+            if (lastOTATag == TAG_OTA_WRITE || lastOTATag == TAG_OTA_FIRST) {
                 int delay = Manufacture.getDefault().getOtaDelay();
                 if (delay <= 0) {
                     if (!validateOta())

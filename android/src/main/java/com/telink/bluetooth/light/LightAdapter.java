@@ -677,8 +677,8 @@ public class LightAdapter {
 
         if (!this.isStarted.get())
             return;
-        if (this.getMode() == MODE_IDLE)
-            return;
+        /*if (this.getMode() == MODE_IDLE)
+            return;*/
         TelinkLog.e("LightAdapter#idleMode");
         this.setMode(MODE_IDLE);
         this.status.getAndSet(-1);

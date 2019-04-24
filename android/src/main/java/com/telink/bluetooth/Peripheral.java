@@ -73,7 +73,7 @@ public class Peripheral extends BluetoothGattCallback {
     protected final Runnable mCommandDelayRunnable = new CommandDelayRunnable();
 
     private final Object mStateLock = new Object();
-//    private final Object mProcessLock = new Object();
+    private final Object mProcessLock = new Object();
 
     protected BluetoothDevice device;
     protected BluetoothGatt gatt;
@@ -164,7 +164,11 @@ public class Peripheral extends BluetoothGattCallback {
             TelinkLog.d("Peripheral#connect " + this.getDeviceName() + " -- "
                     + this.getMacAddress());
             this.mConnState.set(CONN_STATE_CONNECTING);
-            this.gatt = this.device.connectGatt(context, false, this);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.gatt = this.device.connectGatt(context, false, this, BluetoothDevice.TRANSPORT_LE);
+            } else {
+                this.gatt = this.device.connectGatt(context, false, this);
+            }
             if (this.gatt == null) {
                 this.disconnect();
                 this.mConnState.set(CONN_STATE_IDLE);
@@ -284,20 +288,20 @@ public class Peripheral extends BluetoothGattCallback {
 
     private void postCommand(CommandContext commandContext) {
         TelinkLog.d("postCommand");
-        if (commandContext.command.delay < 0) {
-            synchronized (this.mOutputCommandQueue) {
-                this.mOutputCommandQueue.add(commandContext);
-                this.processCommand(commandContext);
-            }
-            return;
-        }
+//        if (commandContext.command.delay < 0) {
+//            synchronized (this.mOutputCommandQueue) {
+//                this.mOutputCommandQueue.add(commandContext);
+//                this.processCommand(commandContext);
+//            }
+//            return;
+//        }
 
         this.mInputCommandQueue.add(commandContext);
-//        synchronized (this.mProcessLock) {
-        if (!this.processing.get()) {
-            this.processCommand();
+        synchronized (this.mProcessLock) {
+            if (!this.processing.get()) {
+                this.processCommand();
+            }
         }
-//        }
     }
 
     private void processCommand() {
@@ -318,14 +322,15 @@ public class Peripheral extends BluetoothGattCallback {
         commandType = commandContext.command.type;
 
         if (commandType != Command.CommandType.ENABLE_NOTIFY && commandType != Command.CommandType.DISABLE_NOTIFY) {
+//            synchronized (this.mProcessLock) {
+//            if (!this.processing.get())
+            this.processing.set(true);
+//            }
+
             synchronized (mOutputCommandQueue) {
                 this.mOutputCommandQueue.add(commandContext);
             }
 
-//            synchronized (this.mProcessLock) {
-            if (!this.processing.get())
-                this.processing.set(true);
-//            }
         }
 
         int delay = commandContext.command.delay;
@@ -382,12 +387,12 @@ public class Peripheral extends BluetoothGattCallback {
 
         TelinkLog.d("commandCompleted");
 
-//        synchronized (this.mProcessLock) {
-        if (this.processing.get())
-            this.processing.set(false);
-//        }
+        synchronized (this.mProcessLock) {
+            if (this.processing.get())
+                this.processing.set(false);
+            this.processCommand();
+        }
 
-        this.processCommand();
     }
 
     private void commandSuccess(CommandContext commandContext, Object data) {

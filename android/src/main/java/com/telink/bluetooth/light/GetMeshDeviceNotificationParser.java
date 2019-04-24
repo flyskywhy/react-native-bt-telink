@@ -65,6 +65,8 @@ public final class GetMeshDeviceNotificationParser extends NotificationParser<Ge
 
         public int deviceId;
 
+        public int newDeviceId = -1;
+
         public byte[] macBytes;
     }
 }
