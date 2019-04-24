@@ -408,7 +408,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     public static byte[] readableArray2ByteArray(ReadableArray arr) {
         int size = arr.size();
         byte[] byteArr = new byte[size];
-        for(int i = 0; i < arr.size(); i++) {
+        for(int i = 0; i < size; i++) {
             byteArr[i] = (byte)arr.getInt(i);
         }
 
