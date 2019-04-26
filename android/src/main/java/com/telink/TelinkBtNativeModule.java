@@ -560,12 +560,18 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
 
         switch (deviceInfo.status) {
             case LightAdapter.STATUS_LOGIN:
-                // mHandler.postDelayed(new Runnable() {
-                //     @Override
-                //     public void run() {
-                //         TelinkLightService.Instance().sendCommandNoResponse((byte) 0xE4, 0xFFFF, new byte[]{});
-                //     }
-                // }, 3 * 1000);
+                // 这里在 login 后自动进行“设置时间信息”的操作，
+                // 其实本来这些代码是当初移植时不知道具体用途而暂时遗留下来的，
+                // 按说现在“设置时间信息”放在 JavaScript 代码中进行后这些代码就没有必要存在了，
+                // 但是现在这些代码起到了一个额外的作用——
+                // 在连接成功后能够让蓝牙灯爆闪一下以提醒用户连接成功，
+                // 所以仍然保留了这些代码。
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        TelinkLightService.Instance().sendCommandNoResponse((byte) 0xE4, 0xFFFF, new byte[]{});
+                    }
+                }, 3 * 1000);
 
                 WritableMap params = Arguments.createMap();
                 params.putInt("connectMeshAddress", mTelinkApplication.getConnectDevice().meshAddress);
