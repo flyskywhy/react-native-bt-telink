@@ -2,6 +2,7 @@ package com.telink;
 
 import javax.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -56,11 +57,13 @@ import com.telink.bluetooth.light.LeScanParameters;
 import com.telink.bluetooth.light.LeUpdateParameters;
 import com.telink.bluetooth.light.LightAdapter;
 import com.telink.bluetooth.light.OnlineStatusNotificationParser;
+import com.telink.bluetooth.light.OtaDeviceInfo;
 import com.telink.bluetooth.light.GetGroupNotificationParser;
 import com.telink.bluetooth.light.Parameters;
 import com.telink.util.ContextUtil;
 import com.telink.util.Event;
 import com.telink.util.EventListener;
+import com.telink.util.Strings;
 
 import static com.telink.TelinkBtPackage.TAG;
 
@@ -82,6 +85,10 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     public static final String SERVICE_DISCONNECTED = "serviceDisconnected";
     public static final String NOTIFICATION_ONLINE_STATUS = "notificationOnlineStatus";
     public static final String NOTIFICATION_GET_DEVICE_STATE = "notificationGetDeviceState";
+    public static final String NOTIFICATION_DATA_GET_VERSION = "notificationDataGetVersion";
+    public static final String NOTIFICATION_DATA_GET_MESH_OTA_PROGRESS = "notificationDataGetMeshOtaProgress";
+    public static final String NOTIFICATION_DATA_GET_OTA_STATE = "notificationDataGetOtaState";
+    public static final String NOTIFICATION_DATA_SET_OTA_MODE_RES = "notificationDataSetOtaModeRes";
     public static final String DEVICE_STATUS_CONNECTING = "deviceStatusConnecting";
     public static final String DEVICE_STATUS_CONNECTED = "deviceStatusConnected";
     public static final String DEVICE_STATUS_LOGINING = "deviceStatusLogining";
@@ -97,9 +104,9 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     public static final String DEVICE_STATUS_MESH_OFFLINE = "deviceStatusMeshOffline";
     public static final String DEVICE_STATUS_MESH_SCAN_COMPLETED = "deviceStatusMeshScanCompleted";
     public static final String DEVICE_STATUS_MESH_SCAN_TIMEOUT = "deviceStatusMeshScanTimeout";
-    public static final String DEVICE_STATUS_OTA_COMPLETED = "deviceStatusOtaCompleted";
-    public static final String DEVICE_STATUS_OTA_FAILURE = "deviceStatusOtaFailure";
-    public static final String DEVICE_STATUS_OTA_PROGRESS = "deviceStatusOtaProgress";
+    public static final String DEVICE_STATUS_OTA_MASTER_PROGRESS = "deviceStatusOtaMasterProgress";
+    public static final String DEVICE_STATUS_OTA_MASTER_COMPLETE = "deviceStatusOtaMasterComplete";
+    public static final String DEVICE_STATUS_OTA_MASTER_FAIL = "deviceStatusOtaMasterFail";
     public static final String DEVICE_STATUS_GET_FIRMWARE_COMPLETED = "deviceStatusGetFirmwareCompleted";
     public static final String DEVICE_STATUS_GET_FIRMWARE_FAILURE = "deviceStatusGetFirmwareFailure";
     public static final String DEVICE_STATUS_DELETE_COMPLETED = "deviceStatusDeleteCompleted";
@@ -555,9 +562,14 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         sendEvent(DEVICE_STATUS_ERROR_N);
     }
 
+    @ReactMethod
+    public void startOta(ReadableArray firmware) {
+        byte[] data = readableArray2ByteArray(firmware);
+        TelinkLightService.Instance().startOta(data);
+    }
+
     private void onDeviceStatusChanged(DeviceEvent event) {
         DeviceInfo deviceInfo = event.getArgs();
-
         switch (deviceInfo.status) {
             case LightAdapter.STATUS_LOGIN:
                 // 这里在 login 后自动进行“设置时间信息”的操作，
@@ -590,6 +602,21 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
                 break;
             case LightAdapter.STATUS_ERROR_N:
                 onNError(event);
+                break;
+            case LightAdapter.STATUS_OTA_PROGRESS:
+                OtaDeviceInfo otaDeviceInfo = (OtaDeviceInfo) event.getArgs();
+                WritableMap map = Arguments.createMap();
+                map.putInt("otaMasterProgress", otaDeviceInfo.progress);
+                sendEvent(DEVICE_STATUS_OTA_MASTER_PROGRESS, map);
+                break;
+            case LightAdapter.STATUS_OTA_COMPLETED:
+                TelinkLog.i("ota master complete");
+                sendEvent(DEVICE_STATUS_OTA_MASTER_COMPLETE);
+                break;
+            case LightAdapter.STATUS_OTA_FAILURE:
+                TelinkLog.i("ota master fail");
+                sendEvent(DEVICE_STATUS_OTA_MASTER_FAIL);
+                break;
             default:
                 break;
         }
@@ -632,19 +659,60 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
         sendEvent(MESH_OFFLINE);
     }
 
-    private void onNotificationEvent(NotificationEvent event) {
-        // if (!foreground) return;
-        // // 解析版本信息
-        // byte[] data = event.getArgs().params;
-        // if (data[0] == NotificationEvent.DATA_GET_MESH_OTA_PROGRESS) {
-        //     TelinkLog.w("mesh ota progress: " + data[1]);
-        //     int progress = (int) data[1];
-        //     if (progress != 100) {
-        //         startActivity(new Intent(this, OTAUpdateActivity.class)
-        //                 .putExtra(OTAUpdateActivity.INTENT_KEY_CONTINUE_MESH_OTA, OTAUpdateActivity.CONTINUE_BY_REPORT)
-        //                 .putExtra("progress", progress));
-        //     }
-        // }
+    private synchronized void onGetDeviceState(NotificationEvent event) {
+        byte[] data = event.getArgs().params;
+        WritableMap params = Arguments.createMap();
+        params.putInt("meshAddress", event.getArgs().src);
+        switch (data[0]) {
+            case NotificationEvent.DATA_GET_VERSION:
+                params.putString("version", Strings.bytesToString(Arrays.copyOfRange(data, 1, 5)));
+                sendEvent(NOTIFICATION_DATA_GET_VERSION, params);
+                break;
+            case NotificationEvent.DATA_GET_MESH_OTA_PROGRESS:
+                params.putInt("OtaSlaveProgress", (int) data[1]);
+                sendEvent(NOTIFICATION_DATA_GET_MESH_OTA_PROGRESS, params);
+                break;
+            case NotificationEvent.DATA_GET_OTA_STATE:
+                int otaState = data[1];
+                switch (otaState) {
+                    case NotificationEvent.OTA_STATE_IDLE:
+                        TelinkLog.i("otaState: idle");
+                        params.putString("otaState", "idle");
+                        break;
+                    case NotificationEvent.OTA_STATE_SLAVE:
+                        TelinkLog.i("otaState: slave");
+                        params.putString("otaState", "slave");
+                        break;
+                    case NotificationEvent.OTA_STATE_MASTER:
+                        TelinkLog.i("otaState: master");
+                        params.putString("otaState", "master");
+                        break;
+                    case NotificationEvent.OTA_STATE_ONLY_RELAY:
+                        TelinkLog.i("otaState: onlyRelay");
+                        params.putString("otaState", "onlyRelay");
+                        break;
+                    case NotificationEvent.OTA_STATE_COMPLETE:
+                        TelinkLog.i("otaState: complete");
+                        params.putString("otaState", "complete");
+                        break;
+                    default:
+                        break;
+                }
+                sendEvent(NOTIFICATION_DATA_GET_OTA_STATE, params);
+                break;
+            case NotificationEvent.DATA_SET_OTA_MODE_NOTIFY:
+                if (data[1] == 0) {
+                    TelinkLog.i("setOtaModeRes: ok");
+                    params.putString("setOtaModeRes", "ok");
+                } else {
+                    TelinkLog.i("setOtaModeRes: err");
+                    params.putString("setOtaModeRes", "err");
+                }
+                sendEvent(NOTIFICATION_DATA_SET_OTA_MODE_RES, params);
+                break;
+            default:
+                break;
+        }
     }
 
     @ReactMethod
@@ -787,7 +855,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
                 this.onServiceDisconnected((ServiceEvent) event);
                 break;
             case NotificationEvent.GET_DEVICE_STATE:
-                onNotificationEvent((NotificationEvent) event);
+                onGetDeviceState((NotificationEvent) event);
                 break;
             case LeScanEvent.LE_SCAN:
                 onLeScan((LeScanEvent) event);

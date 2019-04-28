@@ -528,6 +528,60 @@ class TelinkBt {
             nodeBulbs,
         ], immediate);
     }
+
+    static getFirmwareVersion({
+        meshAddress = 0xFFFF,
+        relayTimes = 7,
+        immediate = false,
+    }) {
+        NativeModule.sendCommand(0xC7, meshAddress, [
+            relayTimes,
+            0,  // 0xC7 的子命令，0 为获取版本信息
+        ], immediate);
+    }
+
+    static getOtaState({
+        meshAddress = 0x0000,
+        relayTimes = 7,
+        immediate = false,
+    }) {
+        NativeModule.sendCommand(0xC7, meshAddress, [
+            relayTimes,
+            5,  // 0xC7 的子命令，5 为获取 OTA 状态
+        ], immediate);
+    }
+
+    static setOtaMode({
+        meshAddress = 0x0000,
+        relayTimes = 7,     // 转发次数
+        otaMode = 'gatt',   // OTA 模式， gatt 为单灯升级， mesh 为单灯升级后有单灯自动通过 mesh 网络发送新固件给其它灯
+        type = 0xDC78,      // 设备类型（gatt OTA 模式请忽略此字段）
+        immediate = false,
+    }) {
+        NativeModule.sendCommand(0xC7, meshAddress, [
+            relayTimes,
+            6,  // 0xC7 的子命令，6 为设置 OTA 模式(OTA mode)与设备类型(Device type)
+            otaMode === 'mesh' ? 1 : 0,
+            type & 0xFF,
+            type >>> 8 & 0xFF,
+        ], immediate);
+    }
+
+    static stopMeshOta({
+        meshAddress = 0xFFFF,
+        immediate = false,
+    }) {
+        NativeModule.sendCommand(0xC6, meshAddress, [
+            0xFE,
+            0xFF,
+        ], immediate);
+    }
+
+    static startOta({
+        firmware,
+    }) {
+        NativeModule.startOta(firmware);
+    }
 }
 
 module.exports = TelinkBt;
