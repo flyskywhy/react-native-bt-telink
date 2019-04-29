@@ -582,6 +582,12 @@ class TelinkBt {
     }) {
         NativeModule.startOta(firmware);
     }
+
+    static isValidFirmware(firmware) {
+        return firmware[0] === 0x0E &&
+            firmware[1] === -128 &&
+            firmware.length > 6;
+    }
 }
 
 module.exports = TelinkBt;
