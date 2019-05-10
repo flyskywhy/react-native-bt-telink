@@ -521,11 +521,13 @@ class TelinkBt {
         meshAddress,
         timeSequence = 1, // 灯串时序，1 为短时序，0 为长时序
         nodeBulbs = 96, // 灯串上激活灯的个数,最大值为255
+        collideCenter = 40, // 碰撞特效的碰撞位置，因为灯串摆成树形时，碰撞位置如果为总灯数的 1/2 的话不好看
         immediate = false,
     }) {
         NativeModule.sendCommand(0xF5, meshAddress, [
             timeSequence,
             nodeBulbs,
+            collideCenter,
         ], immediate);
     }
 
