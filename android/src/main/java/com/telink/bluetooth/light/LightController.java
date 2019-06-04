@@ -1757,7 +1757,10 @@ public final class LightController extends EventBus<Integer> implements LightPer
             this.fillIndex(packet, index);
             int crc = this.crc16(packet);
             this.fillCrc(packet, crc);
-            TelinkLog.d("ota packet ---> index : " + index + " total : " + this.total + " crc : " + crc + " content : " + Arrays.bytesToHexString(packet, ":"));
+
+            // avoid print ota packet bytes to protect our firmware technology
+            // TelinkLog.d("ota packet ---> index : " + index + " total : " + this.total + " crc : " + crc + " content : " + Arrays.bytesToHexString(packet, ":"));
+
             return packet;
         }
 

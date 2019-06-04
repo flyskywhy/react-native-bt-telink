@@ -350,7 +350,8 @@ public class Peripheral extends BluetoothGattCallback {
         Command command = commandContext.command;
         Command.CommandType commandType = command.type;
 
-        TelinkLog.d("processCommand : " + command.toString());
+        // avoid print ota packet bytes to protect our firmware technology
+        // TelinkLog.d("processCommand : " + command.toString());
 
         switch (commandType) {
             case READ:
