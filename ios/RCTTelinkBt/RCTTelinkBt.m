@@ -10,7 +10,18 @@
 #import "RCTLog.h"
 #import "BTCentralManager.h"
 
+
 #define kCentralManager ([BTCentralManager shareBTCentralManager])
+
+#define kEndTimer(timer) \
+if (timer) { \
+[timer invalidate]; \
+timer = nil; \
+}
+
+#define kOTAPartSize (16*8)
+#define kOTAWriteInterval (0.005)
+
 
 @interface RCTTelinkBt() <BTCentralManagerDelegate>
 
@@ -31,11 +42,11 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"bluetoothEnabled", @"bluetoothDisabled", @"serviceConnected", @"serviceDisconnected", @"notificationOnlineStatus", @"notificationGetDeviceState", @"deviceStatusConnecting", @"deviceStatusConnected", @"deviceStatusLogining", @"deviceStatusLogin",@"deviceStatusLogout",@"deviceStatusErrorAndroidN",@"deviceStatusUpdateMeshCompleted",@"deviceStatusUpdatingMesh",@"deviceStatusUpdateMeshFailure",@"deviceStatusUpdateAllMeshCompleted",@"deviceStatusGetLtkCompleted",@"deviceStatusGetLtkFailure",@"deviceStatusMeshOffline",@"deviceStatusMeshScanCompleted",@"deviceStatusMeshScanTimeout",@"deviceStatusOtaCompleted",@"deviceStatusOtaFailure",@"deviceStatusOtaProgress",@"deviceStatusGetFirmwareCompleted",@"deviceStatusGetFirmwareFailure",@"deviceStatusDeleteCompleted",@"deviceStatusDeleteFailure",@"leScan",@"leScanCompleted",@"leScanTimeout",@"meshOffline"];
+    return @[@"bluetoothEnabled", @"bluetoothDisabled",@"systemLocationEnabled",@"systemLocationDisabled", @"serviceConnected", @"serviceDisconnected", @"notificationOnlineStatus", @"notificationGetDeviceState", @"deviceStatusConnecting", @"deviceStatusConnected", @"deviceStatusLogining", @"deviceStatusLogin",@"deviceStatusLogout",@"deviceStatusErrorAndroidN",@"deviceStatusUpdateMeshCompleted",@"deviceStatusUpdatingMesh",@"deviceStatusUpdateMeshFailure",@"deviceStatusUpdateAllMeshCompleted",@"deviceStatusGetLtkCompleted",@"deviceStatusGetLtkFailure",@"deviceStatusMeshOffline",@"deviceStatusMeshScanCompleted",@"deviceStatusMeshScanTimeout",@"deviceStatusOtaCompleted",@"deviceStatusOtaFailure",@"deviceStatusOtaProgress",@"deviceStatusGetFirmwareCompleted",@"deviceStatusGetFirmwareFailure",@"deviceStatusDeleteCompleted",@"deviceStatusDeleteFailure",@"leScan",@"leScanCompleted",@"leScanTimeout",@"meshOffline",@"notificationDataGetVersion",@"notificationDataGetMeshOtaProgress",@"notificationDataGetOtaState",@"notificationDataSetOtaModeRes",@"deviceStatusOtaMasterProgress",@"deviceStatusOtaMasterComplete",@"deviceStatusOtaMasterFail"];
 }
 
 RCT_EXPORT_METHOD(doInit) {
-//    [[BTCentralManager shareBTCentralManager] stopScan];
+    //    [[BTCentralManager shareBTCentralManager] stopScan];
     //扫描我的在线灯
     [BTCentralManager shareBTCentralManager].delegate = self;
     self.devArray = [[NSMutableArray alloc] init];
@@ -71,7 +82,8 @@ RCT_EXPORT_METHOD(doInit) {
 
 - (void)OnDevChange:(id)sender Item:(BTDevItem *)item Flag:(DevChangeFlag)flag {
     //if (!self.isStartOTA) return;
-//    kCentralManager.isAutoLogin = NO;
+    //    kCentralManager.isAutoLogin = NO;
+        
     NSLog(@"flag==========%u", flag);
     switch (flag) {
         case DevChangeFlag_Add:                 [self dosomethingWhenDiscoverDevice:item]; break;
@@ -87,7 +99,7 @@ RCT_EXPORT_METHOD(doInit) {
 - (void)dosomethingWhenDiscoverDevice:(BTDevItem *)item {
     
     NSLog(@"dosomethingWhenDiscoverDevice item = %d",item.u_DevAdress);
-
+    
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
     
     [event setObject:[NSString stringWithFormat:@"%x", item.u_Mac] forKey:@"macAddress"];
@@ -108,10 +120,10 @@ RCT_EXPORT_METHOD(doInit) {
         [self.BTDevArray addObject:item];
     }
     
-//    //sdk中连接设备会停止扫描，加延时确保所有灯都能扫描到
-//    if (self.BTDevArray.count==1) {
-//        [kCentralManager connectWithItem:item];
-//    }
+    //    //sdk中连接设备会停止扫描，加延时确保所有灯都能扫描到
+    //    if (self.BTDevArray.count==1) {
+    //        [kCentralManager connectWithItem:item];
+    //    }
 }
 
 
@@ -202,7 +214,7 @@ RCT_EXPORT_METHOD(doDestroy) {
 
 RCT_EXPORT_METHOD(doResume) {
     NSLog(@"doResume");
-    self.manager = [[CBCentralManager alloc] initWithDelegate:self queue:nil]; 
+    self.manager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
 }
 
 RCT_EXPORT_METHOD(enableBluetooth) {
@@ -228,32 +240,13 @@ RCT_EXPORT_METHOD(autoConnect:(NSString *)userMeshName userMeshPwd:(NSString *)u
     self.HomePage = YES;
     self.userMeshName = userMeshName;
     self.userMeshPwd = userMeshPwd;
+    
+    
     [kCentralManager startScanWithName:userMeshName Pwd:userMeshPwd AutoLogin:YES];
 }
 
 RCT_EXPORT_METHOD(autoRefreshNotify:(NSInteger) repeatCount Interval:(NSInteger) NSInteger) {
-    UILocalNotification *localNotification = [[UILocalNotification alloc] init];
-    
-        // 可以用该语句查看当前线程
-        NSLog(@"当前线程--%@", [NSThread currentThread]);
-    
-        // 此处需要写一个异步任务，是因为需要开辟一个新的线程去反复执行你的代码块，否则会阻塞主线程
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-    
-            while (TRUE) {
-    
-                // 每隔5秒执行一次（当前线程阻塞5秒）
-                [NSThread sleepForTimeInterval:2];
-    
-                [[UIApplication sharedApplication] cancelAllLocalNotifications];
-    
-                // 这里写你要反复处理的代码，如网络请求
-                NSLog(@"***每5秒输出一次这段文字***");
-                [kCentralManager setNotifyOpenPro];
-                [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
-            };
-        });
-    
+    [kCentralManager setNotifyOpenPro];
 }
 
 RCT_EXPORT_METHOD(idleMode:(BOOL)disconnect) {
@@ -274,7 +267,8 @@ RCT_EXPORT_METHOD(startScan:(NSString *)meshName outOfMeshName:(NSString *)outOf
     self.pwd = @"123";
     self.userMeshName = meshName;
     self.userMeshPwd = @"123";
-//    [kCentralManager startScanWithName:meshName Pwd:@"123" AutoLogin:YES];
+    self.location = 0;
+    //    [kCentralManager startScanWithName:meshName Pwd:@"123" AutoLogin:YES];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1000 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
         [kCentralManager startScanWithName:meshName Pwd:@"123" AutoLogin:NO];
     });
@@ -287,6 +281,68 @@ RCT_EXPORT_METHOD(sendCommand:(NSInteger)opcode meshAddress:(NSInteger)meshAddre
     }
     [[BTCentralManager shareBTCentralManager] sendCommand:opcode meshAddress:meshAddress value:value];
 }
+
+RCT_EXPORT_METHOD(startOta:(NSArray *) value) {
+    self.otaData = [NSKeyedArchiver archivedDataWithRootObject:value];
+    NSLog(@"value = %@",value);
+    self.location = 0;
+    [self distributeAndSendPackNumber];
+    //
+    //    [[BTCentralManager shareBTCentralManager] sendPack:data];
+}
+
+- (NSInteger)number {
+    NSUInteger len = self.otaData.length;
+    BOOL ret = (NSInteger)(len %16);
+    return !ret?((NSInteger)(len/16)+1):((NSInteger)(len/16)+2);
+}
+
+#pragma mark 发送OTA数据包
+-(void)distributeAndSendPackNumber {
+    kEndTimer(self.otaTimer);
+    if (self.location < self.number) {
+        float progress = self.location*100.f/self.number;
+        NSLog(@"progress = %.f%%",progress);
+    }
+    if(self.location < 0) return;
+    if (self.location >= self.number) {
+        return;
+    }
+    //isStartSend = YES;
+    NSUInteger packLoction;
+    NSUInteger packLength;
+    if (self.location+1 == self.number) {
+        packLength = 0;//OTA结束，发送一个长度为0的结束包。
+    }else if(self.location+1 == self.number-1){
+        packLength = [self.otaData length]-self.location*16;
+    }else{
+        packLength = 16;
+    }
+    packLoction = self.location*16;
+    NSRange range = NSMakeRange(packLoction, packLength);
+    NSData *sendData = [self.otaData subdataWithRange:range];
+    [[BTCentralManager shareBTCentralManager] sendPack:sendData];
+    if (self.location+1==self.number) {
+        NSLog(@"Send_Single_Finished");
+    }
+    self.location++;
+    if (((self.location * 16) % kOTAPartSize == 0 && packLoction!= 0)||self.location+1==self.number) {
+        [kCentralManager readFeatureOfselConnectedItem];
+        //        self.onePieceSent = YES;
+        if ((self.location * 16)%(1024 * 5) == 0 && self.location!= 0) {
+            NSLog(@"5KB_Send");
+        }
+        return;
+    }
+    //注意：index=0与index=1之间的时间间隔修改为300ms，让固件有充足的时间进行ota配置。
+    NSTimeInterval timeInterval = kOTAWriteInterval;
+    if (self.location == 1) {
+        timeInterval = 0.3;
+    }
+    self.otaTimer = [NSTimer scheduledTimerWithTimeInterval:timeInterval target:self selector:@selector(distributeAndSendPackNumber) userInfo:nil repeats:YES];
+}
+
+
 
 RCT_EXPORT_METHOD(changePower:(NSInteger)meshAddress value:(NSInteger)value) {
     NSArray *arr = [kCentralManager devArrs];
@@ -366,7 +422,7 @@ RCT_EXPORT_METHOD(setNodeGroupAddr) {
 RCT_EXPORT_METHOD(getTime:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     NSLog(@"getTime");
     NSArray *value = [NSArray arrayWithObject:[NSNumber numberWithInteger:relayTimes]];
-     [[BTCentralManager shareBTCentralManager] sendCommand:0xE8 meshAddress:meshAddress value:value];
+    [[BTCentralManager shareBTCentralManager] sendCommand:0xE8 meshAddress:meshAddress value:value];
     _resolvedateBlock = resolve;
 }
 
@@ -384,9 +440,9 @@ RCT_EXPORT_METHOD(getTime:(NSInteger)meshAddress relayTimes:(NSInteger)relayTime
 
 RCT_EXPORT_METHOD(getAlarm:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes alarmId:(NSInteger)alarmId resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     NSLog(@"getAlarm");
-//    NSArray *value = [NSArray arrayWithObjects:[NSNumber numberWithInteger:relayTimes],[NSNumber numberWithInteger:alarmId],nil];
-//    [[BTCentralManager shareBTCentralManager] sendCommand:0xE6 meshAddress:meshAddress value:value];
-//    _resolvesegetAlarm = resolve;
+    //    NSArray *value = [NSArray arrayWithObjects:[NSNumber numberWithInteger:relayTimes],[NSNumber numberWithInteger:alarmId],nil];
+    //    [[BTCentralManager shareBTCentralManager] sendCommand:0xE6 meshAddress:meshAddress value:value];
+    //    _resolvesegetAlarm = resolve;
 }
 
 
@@ -416,6 +472,59 @@ RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddres
         _rejectsetNodeGroupAddr(0,@"GetGroup return null",nil);
     }
     
+}
+
+/**
+ *OTA回掉
+ */
+-(void)onGetOTANotify:(uint8_t *)bytes
+{
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    int meshAddress = bytes[3];
+    [dict setObject:[NSNumber numberWithInt:meshAddress] forKey:@"meshAddress"];
+    switch (bytes[10]) {
+        case 0x00://version
+            [dict setObject:[[NSString alloc]initWithData:[[NSData dataWithBytes:bytes length:20] subdataWithRange:NSMakeRange(11, 4)] encoding:NSUTF8StringEncoding] forKey:@"version"];
+            [self sendEventWithName:@"notificationDataGetVersion" body:dict];
+            break;
+        case 0x04://OtaSlaveProgress
+            [dict setObject:[NSNumber numberWithInt:(int) bytes[11]] forKey:@"OtaSlaveProgress"];
+            [self sendEventWithName:@"notificationDataGetMeshOtaProgress" body:dict];
+            break;
+        case 0x05://GET_DEVICE_STATE
+            switch (bytes[11]) {
+                case 0:
+                    [dict setObject:@"idle" forKey:@"otaState"];
+                    break;
+                case 1:
+                    [dict setObject:@"slave" forKey:@"otaState"];
+                    break;
+                case 2:
+                    [dict setObject:@"master" forKey:@"otaState"];
+                    break;
+                case 3:
+                    [dict setObject:@"onlyRelay" forKey:@"otaState"];
+                    break;
+                case 4:
+                    [dict setObject:@"complete" forKey:@"otaState"];
+                    break;
+                    
+                default:
+                    break;
+            }
+            [self sendEventWithName:@"notificationDataGetOtaState" body:dict];
+            break;
+        case 0x06://OtaSlaveProgress
+            if (bytes[11] == 0) {
+                [dict setObject:@"ok" forKey:@"setOtaModeRes"];
+            }else{
+                [dict setObject:@"err" forKey:@"setOtaModeRes"];
+            }
+            [self sendEventWithName:@"notificationDataSetOtaModeRes" body:dict];
+            break;
+        default:
+            break;
+    }
 }
 
 -(void)OnDevOperaStatusChange:(id)sender Status:(OperaStatus)status{

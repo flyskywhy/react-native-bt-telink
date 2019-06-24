@@ -27,4 +27,13 @@
 @property(nonatomic,assign) BOOL HomePage;
 @property(nonatomic,strong) NSString *userMeshName;
 @property(nonatomic,strong) NSString *userMeshPwd;
+
+@property (nonatomic, strong) NSData *otaData;
+@property (nonatomic, assign) NSInteger number; //数据包的包个数；
+@property (nonatomic, assign) NSInteger location;  //当前所发送的包的Index；
+@property (nonatomic, strong) NSTimer *otaTimer;
+@property (nonatomic, assign) BOOL isSingleSendFinsh;
+@property (nonatomic, assign) BOOL Sending;
+@property (nonatomic, assign) BOOL isStartOTA;
+
 @end
