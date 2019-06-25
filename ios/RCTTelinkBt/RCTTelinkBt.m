@@ -477,7 +477,7 @@ RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddres
 /**
  *OTA回掉
  */
--(void)onGetOTANotify:(uint8_t *)bytes
+- (void)OnDevNotify:(id)sender Byte:(uint8_t *)bytes 
 {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     int meshAddress = bytes[3];
