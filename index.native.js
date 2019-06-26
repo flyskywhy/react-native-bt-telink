@@ -587,7 +587,7 @@ class TelinkBt {
 
     static isValidFirmware(firmware) {
         return firmware[0] === 0x0E &&
-            firmware[1] === -128 &&
+            (firmware[1] & 0xFF) === 0x80 &&
             firmware.length > 6;
     }
 }
