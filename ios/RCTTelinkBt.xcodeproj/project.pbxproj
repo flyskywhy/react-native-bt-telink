@@ -14,6 +14,15 @@
 		0C39B30722322A0F0051048D /* BTDevItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C39B2FD22322A0E0051048D /* BTDevItem.m */; };
 		0C39B30822322A0F0051048D /* BTCentralManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C39B2FF22322A0F0051048D /* BTCentralManager.m */; };
 		0C39B30922322A0F0051048D /* DeviceModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C39B30022322A0F0051048D /* DeviceModel.m */; };
+		0CBCFAE122C354480044DA9B /* zipAndUnzip.m in Sources */ = {isa = PBXBuildFile; fileRef = 0CBCFACE22C354480044DA9B /* zipAndUnzip.m */; };
+		0CBCFAE222C354480044DA9B /* MeshOTAItemModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0CBCFAD122C354480044DA9B /* MeshOTAItemModel.m */; };
+		0CBCFAE322C354480044DA9B /* SysSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = 0CBCFAD822C354480044DA9B /* SysSetting.m */; };
+		0CBCFAE422C354480044DA9B /* MeshOTAItemCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0CBCFAD922C354480044DA9B /* MeshOTAItemCell.m */; };
+		0CBCFAE522C354480044DA9B /* MeshOTAManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0CBCFADA22C354480044DA9B /* MeshOTAManager.m */; };
+		0CBCFAE622C354480044DA9B /* MeshOTAVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0CBCFADD22C354480044DA9B /* MeshOTAVC.m */; };
+		0CBCFAE722C354480044DA9B /* zipAndUnzip+zipString.m in Sources */ = {isa = PBXBuildFile; fileRef = 0CBCFADE22C354480044DA9B /* zipAndUnzip+zipString.m */; };
+		0CBCFAE822C354480044DA9B /* UIAlertView+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 0CBCFADF22C354480044DA9B /* UIAlertView+Extension.m */; };
+		0CBCFAE922C354480044DA9B /* UIButton+extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 0CBCFAE022C354480044DA9B /* UIButton+extension.m */; };
 		6C34A800208DD7CD00F9C6FE /* RCTTelinkBt.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C34A7FF208DD7CD00F9C6FE /* RCTTelinkBt.m */; };
 /* End PBXBuildFile section */
 
@@ -45,6 +54,27 @@
 		0C39B30022322A0F0051048D /* DeviceModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeviceModel.m; sourceTree = "<group>"; };
 		0C39B30122322A0F0051048D /* DeviceModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeviceModel.h; sourceTree = "<group>"; };
 		0C39B30222322A0F0051048D /* BTConst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTConst.h; sourceTree = "<group>"; };
+		0CBCFACC22C354480044DA9B /* MeshOTAItemCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshOTAItemCell.h; sourceTree = "<group>"; };
+		0CBCFACD22C354480044DA9B /* SysSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SysSetting.h; sourceTree = "<group>"; };
+		0CBCFACE22C354480044DA9B /* zipAndUnzip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = zipAndUnzip.m; sourceTree = "<group>"; };
+		0CBCFACF22C354480044DA9B /* MeshOTAVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MeshOTAVC.xib; sourceTree = "<group>"; };
+		0CBCFAD022C354480044DA9B /* MeshOTAItemCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MeshOTAItemCell.xib; sourceTree = "<group>"; };
+		0CBCFAD122C354480044DA9B /* MeshOTAItemModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeshOTAItemModel.m; sourceTree = "<group>"; };
+		0CBCFAD222C354480044DA9B /* MeshOTAManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshOTAManager.h; sourceTree = "<group>"; };
+		0CBCFAD322C354480044DA9B /* UIButton+extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIButton+extension.h"; sourceTree = "<group>"; };
+		0CBCFAD422C354480044DA9B /* UIAlertView+Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+Extension.h"; sourceTree = "<group>"; };
+		0CBCFAD522C354480044DA9B /* zipAndUnzip+zipString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "zipAndUnzip+zipString.h"; sourceTree = "<group>"; };
+		0CBCFAD622C354480044DA9B /* MeshOTAVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshOTAVC.h; sourceTree = "<group>"; };
+		0CBCFAD722C354480044DA9B /* zipAndUnzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zipAndUnzip.h; sourceTree = "<group>"; };
+		0CBCFAD822C354480044DA9B /* SysSetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SysSetting.m; sourceTree = "<group>"; };
+		0CBCFAD922C354480044DA9B /* MeshOTAItemCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeshOTAItemCell.m; sourceTree = "<group>"; };
+		0CBCFADA22C354480044DA9B /* MeshOTAManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeshOTAManager.m; sourceTree = "<group>"; };
+		0CBCFADB22C354480044DA9B /* MeshOTAItemModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshOTAItemModel.h; sourceTree = "<group>"; };
+		0CBCFADC22C354480044DA9B /* DemoDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoDefine.h; sourceTree = "<group>"; };
+		0CBCFADD22C354480044DA9B /* MeshOTAVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeshOTAVC.m; sourceTree = "<group>"; };
+		0CBCFADE22C354480044DA9B /* zipAndUnzip+zipString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "zipAndUnzip+zipString.m"; sourceTree = "<group>"; };
+		0CBCFADF22C354480044DA9B /* UIAlertView+Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIAlertView+Extension.m"; sourceTree = "<group>"; };
+		0CBCFAE022C354480044DA9B /* UIButton+extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIButton+extension.m"; sourceTree = "<group>"; };
 		6C006F09208DBE5100A995E9 /* libRCTTelinkBt.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTTelinkBt.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C34A7FE208DD7B300F9C6FE /* RCTTelinkBt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTTelinkBt.h; sourceTree = "<group>"; };
 		6C34A7FF208DD7CD00F9C6FE /* RCTTelinkBt.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTTelinkBt.m; sourceTree = "<group>"; };
@@ -76,6 +106,34 @@
 			path = Tools;
 			sourceTree = "<group>";
 		};
+		0CBCFACB22C354480044DA9B /* Mesh OTA */ = {
+			isa = PBXGroup;
+			children = (
+				0CBCFACC22C354480044DA9B /* MeshOTAItemCell.h */,
+				0CBCFACD22C354480044DA9B /* SysSetting.h */,
+				0CBCFACE22C354480044DA9B /* zipAndUnzip.m */,
+				0CBCFACF22C354480044DA9B /* MeshOTAVC.xib */,
+				0CBCFAD022C354480044DA9B /* MeshOTAItemCell.xib */,
+				0CBCFAD122C354480044DA9B /* MeshOTAItemModel.m */,
+				0CBCFAD222C354480044DA9B /* MeshOTAManager.h */,
+				0CBCFAD322C354480044DA9B /* UIButton+extension.h */,
+				0CBCFAD422C354480044DA9B /* UIAlertView+Extension.h */,
+				0CBCFAD522C354480044DA9B /* zipAndUnzip+zipString.h */,
+				0CBCFAD622C354480044DA9B /* MeshOTAVC.h */,
+				0CBCFAD722C354480044DA9B /* zipAndUnzip.h */,
+				0CBCFAD822C354480044DA9B /* SysSetting.m */,
+				0CBCFAD922C354480044DA9B /* MeshOTAItemCell.m */,
+				0CBCFADA22C354480044DA9B /* MeshOTAManager.m */,
+				0CBCFADB22C354480044DA9B /* MeshOTAItemModel.h */,
+				0CBCFADC22C354480044DA9B /* DemoDefine.h */,
+				0CBCFADD22C354480044DA9B /* MeshOTAVC.m */,
+				0CBCFADE22C354480044DA9B /* zipAndUnzip+zipString.m */,
+				0CBCFADF22C354480044DA9B /* UIAlertView+Extension.m */,
+				0CBCFAE022C354480044DA9B /* UIButton+extension.m */,
+			);
+			path = "Mesh OTA";
+			sourceTree = "<group>";
+		};
 		6C006F00208DBE5000A995E9 = {
 			isa = PBXGroup;
 			children = (
@@ -96,6 +154,7 @@
 		6C006F0B208DBE5100A995E9 /* TelinkBtSDK */ = {
 			isa = PBXGroup;
 			children = (
+				0CBCFACB22C354480044DA9B /* Mesh OTA */,
 				0C39B2FC22322A0E0051048D /* BTCentralManager.h */,
 				0C39B2FF22322A0F0051048D /* BTCentralManager.m */,
 				0C39B30222322A0F0051048D /* BTConst.h */,
@@ -173,6 +232,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0CBCFAE222C354480044DA9B /* MeshOTAItemModel.m in Sources */,
 				0C39B30722322A0F0051048D /* BTDevItem.m in Sources */,
 				0C39B30922322A0F0051048D /* DeviceModel.m in Sources */,
 				0C39B30822322A0F0051048D /* BTCentralManager.m in Sources */,
@@ -180,7 +240,15 @@
 				0C39B30322322A0F0051048D /* CryptoUtil.c in Sources */,
 				6C34A800208DD7CD00F9C6FE /* RCTTelinkBt.m in Sources */,
 				0C39B30622322A0F0051048D /* TranslateTool.m in Sources */,
+				0CBCFAE622C354480044DA9B /* MeshOTAVC.m in Sources */,
+				0CBCFAE522C354480044DA9B /* MeshOTAManager.m in Sources */,
+				0CBCFAE422C354480044DA9B /* MeshOTAItemCell.m in Sources */,
+				0CBCFAE822C354480044DA9B /* UIAlertView+Extension.m in Sources */,
+				0CBCFAE922C354480044DA9B /* UIButton+extension.m in Sources */,
+				0CBCFAE122C354480044DA9B /* zipAndUnzip.m in Sources */,
 				0C39B30422322A0F0051048D /* BTDevItem+Custom.m in Sources */,
+				0CBCFAE722C354480044DA9B /* zipAndUnzip+zipString.m in Sources */,
+				0CBCFAE322C354480044DA9B /* SysSetting.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,6 +9,9 @@
 #import "RCTTelinkBt.h"
 #import "RCTLog.h"
 #import "BTCentralManager.h"
+#import "MeshOTAManager.h"
+#import "MeshOTAItemModel.h"
+#import "SysSetting.h"
 
 
 #define kCentralManager ([BTCentralManager shareBTCentralManager])
@@ -56,6 +59,7 @@ RCT_EXPORT_METHOD(doInit) {
     self.isNeedRescan = YES;
     self.configNode = NO;
     self.HomePage = YES;
+    self.isStartOTA = NO;
     
     [self sendEventWithName:@"serviceConnected" body:nil];
     [self sendEventWithName:@"bluetoothEnabled" body:nil];
@@ -83,7 +87,7 @@ RCT_EXPORT_METHOD(doInit) {
 - (void)OnDevChange:(id)sender Item:(BTDevItem *)item Flag:(DevChangeFlag)flag {
     //if (!self.isStartOTA) return;
     //    kCentralManager.isAutoLogin = NO;
-        
+    
     NSLog(@"flag==========%u", flag);
     switch (flag) {
         case DevChangeFlag_Add:                 [self dosomethingWhenDiscoverDevice:item]; break;
@@ -92,6 +96,10 @@ RCT_EXPORT_METHOD(doInit) {
         case DevChangeFlag_DisConnected:        [self dosomethingWhenDisConnectedDevice:item]; break;
         default:    break;
     }
+}
+
+- (void)resetStatusOfAllLight{
+    NSLog(@"resetStatusOfAllLight");
 }
 
 #pragma mark- Delegate
@@ -206,6 +214,7 @@ RCT_EXPORT_METHOD(doInit) {
     
     NSMutableArray *array = [NSMutableArray arrayWithObject:event];
     [self sendEventWithName:@"notificationOnlineStatus" body:array];
+    [[MeshOTAManager share] setCurrentDevices:self.devArray];
 }
 
 RCT_EXPORT_METHOD(doDestroy) {
@@ -283,65 +292,66 @@ RCT_EXPORT_METHOD(sendCommand:(NSInteger)opcode meshAddress:(NSInteger)meshAddre
 }
 
 RCT_EXPORT_METHOD(startOta:(NSArray *) value) {
-    self.otaData = [NSKeyedArchiver archivedDataWithRootObject:value];
-    NSLog(@"value = %@",value);
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"HeylightDCC8V2.6" ofType:@"bin"];
+    self.otaData = [NSData dataWithContentsOfFile:path];
+//    self.otaData = [NSKeyedArchiver archivedDataWithRootObject:value];
     self.location = 0;
-    [self distributeAndSendPackNumber];
-    //
-    //    [[BTCentralManager shareBTCentralManager] sendPack:data];
+    self.isStartOTA = YES;
+    if (![[MeshOTAManager share] isMeshOTAing]) {
+        [self configMeshOTAList];
+    } else {
+        [[MeshOTAManager share] continueMeshOTAWithDeviceType:1 progressHandle:^(MeshOTAState meshState, NSInteger progress) {
+            if (meshState == MeshOTAState_normal) {
+                //点对点OTA阶段
+                NSString *t = [NSString stringWithFormat:@"ota firmware push... progress:%ld%%", (long)progress];
+                NSLog(@"ota = %@",t);
+                NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+                [dict setObject:[NSNumber numberWithInteger:progress] forKey:@"otaMasterProgress"];
+                [self sendEventWithName:@"deviceStatusOtaMasterProgress" body:dict];
+            }else if (meshState == MeshOTAState_continue){
+                //meshOTA阶段
+                NSString *t = [NSString stringWithFormat:@"package meshing... progress:%ld%%", (long)progress];
+                NSLog(@"ota = %@",t);
+            }
+        } finishHandle:^(NSInteger successNumber, NSInteger failNumber) {
+            NSString *tip = [NSString stringWithFormat:@"success:%ld,fail:%ld", (long)successNumber, (long)failNumber];
+            NSLog(@"ota = %@",tip);
+            NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+            [self sendEventWithName:@"deviceStatusOtaMasterComplete" body:dict];
+        } errorHandle:^(NSError *error) {
+            NSLog(@"ota = %@",error.domain);
+            NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+            [self sendEventWithName:@"deviceStatusOtaMasterFail" body:dict];
+        }];
+    }
 }
 
-- (NSInteger)number {
-    NSUInteger len = self.otaData.length;
-    BOOL ret = (NSInteger)(len %16);
-    return !ret?((NSInteger)(len/16)+1):((NSInteger)(len/16)+2);
-}
-
-#pragma mark 发送OTA数据包
--(void)distributeAndSendPackNumber {
-    kEndTimer(self.otaTimer);
-    if (self.location < self.number) {
-        float progress = self.location*100.f/self.number;
-        NSLog(@"progress = %.f%%",progress);
-    }
-    if(self.location < 0) return;
-    if (self.location >= self.number) {
-        return;
-    }
-    //isStartSend = YES;
-    NSUInteger packLoction;
-    NSUInteger packLength;
-    if (self.location+1 == self.number) {
-        packLength = 0;//OTA结束，发送一个长度为0的结束包。
-    }else if(self.location+1 == self.number-1){
-        packLength = [self.otaData length]-self.location*16;
-    }else{
-        packLength = 16;
-    }
-    packLoction = self.location*16;
-    NSRange range = NSMakeRange(packLoction, packLength);
-    NSData *sendData = [self.otaData subdataWithRange:range];
-    [[BTCentralManager shareBTCentralManager] sendPack:sendData];
-    if (self.location+1==self.number) {
-        NSLog(@"Send_Single_Finished");
-    }
-    self.location++;
-    if (((self.location * 16) % kOTAPartSize == 0 && packLoction!= 0)||self.location+1==self.number) {
-        [kCentralManager readFeatureOfselConnectedItem];
-        //        self.onePieceSent = YES;
-        if ((self.location * 16)%(1024 * 5) == 0 && self.location!= 0) {
-            NSLog(@"5KB_Send");
+- (void)configMeshOTAList{
+    [[MeshOTAManager share] startMeshOTAWithDeviceType:1 otaData:self.otaData progressHandle:^(MeshOTAState meshState, NSInteger progress) {
+        if (meshState == MeshOTAState_normal) {
+            //点对点OTA阶段
+            NSString *t = [NSString stringWithFormat:@"ota firmware push... progress:%ld%%", (long)progress];
+            NSLog(@"ota = %@",t);
+            NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+            [dict setObject:[NSNumber numberWithInteger:progress] forKey:@"otaMasterProgress"];
+            [self sendEventWithName:@"deviceStatusOtaMasterProgress" body:dict];
+        }else if (meshState == MeshOTAState_continue){
+            //meshOTA阶段
+            NSString *t = [NSString stringWithFormat:@"package meshing... progress:%ld%%", (long)progress];
+            NSLog(@"ota = %@",t);
         }
-        return;
-    }
-    //注意：index=0与index=1之间的时间间隔修改为300ms，让固件有充足的时间进行ota配置。
-    NSTimeInterval timeInterval = kOTAWriteInterval;
-    if (self.location == 1) {
-        timeInterval = 0.3;
-    }
-    self.otaTimer = [NSTimer scheduledTimerWithTimeInterval:timeInterval target:self selector:@selector(distributeAndSendPackNumber) userInfo:nil repeats:YES];
+    } finishHandle:^(NSInteger successNumber, NSInteger failNumber) {
+        NSString *tip = [NSString stringWithFormat:@"success:%ld,fail:%ld", (long)successNumber, (long)failNumber];
+        NSLog(@"ota = %@",tip);
+        NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+        [self sendEventWithName:@"deviceStatusOtaMasterComplete" body:dict];
+    } errorHandle:^(NSError *error) {
+        NSLog(@"ota = %@",error.domain);
+        NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+        [self sendEventWithName:@"deviceStatusOtaMasterFail" body:dict];
+    }];
+    
 }
-
 
 
 RCT_EXPORT_METHOD(changePower:(NSInteger)meshAddress value:(NSInteger)value) {
@@ -542,7 +552,9 @@ RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddres
     
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     [dict setObject:firm forKey:@"firmwareRevision"];
-    _resolveBlock(dict);
+    if (_resolveBlock) {
+        _resolveBlock(dict);
+    }
 }
 
 - (void)exceptionReport:(int)stateCode errorCode:(int)errorCode deviceID:(int)deviceID

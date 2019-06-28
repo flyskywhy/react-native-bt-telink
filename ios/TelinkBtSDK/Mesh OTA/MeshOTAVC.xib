@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MeshOTAVC">
+            <connections>
+                <outlet property="firmwareButton" destination="i8l-ws-3NH" id="3Qu-Ob-3tz"/>
+                <outlet property="startButton" destination="78h-DF-vyg" id="iBn-wh-cwS"/>
+                <outlet property="tableView" destination="6Kk-Am-xxz" id="KNG-tN-ijY"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="6Kk-Am-xxz">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="577"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="MSN-6R-43d"/>
+                        <outlet property="delegate" destination="-1" id="gVs-aO-9Sh"/>
+                    </connections>
+                </tableView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="i8l-ws-3NH">
+                    <rect key="frame" x="0.0" y="617" width="130" height="50"/>
+                    <color key="backgroundColor" red="0.2588235438" green="0.75686275960000005" blue="0.96862745289999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="130" id="dlu-ku-TbJ"/>
+                        <constraint firstAttribute="height" constant="50" id="eRS-MT-Bbl"/>
+                    </constraints>
+                    <state key="normal" title="get all firmware"/>
+                    <connections>
+                        <action selector="clickGetAllFirmware:" destination="-1" eventType="touchUpInside" id="mXF-fN-Gpc"/>
+                    </connections>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="78h-DF-vyg">
+                    <rect key="frame" x="131" y="617" width="244" height="50"/>
+                    <color key="backgroundColor" red="0.2588235438" green="0.75686275960000005" blue="0.96862745289999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="50" id="gcR-Ik-gAd"/>
+                    </constraints>
+                    <state key="normal" title="start"/>
+                    <connections>
+                        <action selector="clickStartMeshOTA:" destination="-1" eventType="touchUpInside" id="SeO-zT-O1W"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="6Kk-Am-xxz" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="H7U-4N-2d4"/>
+                <constraint firstAttribute="trailing" secondItem="6Kk-Am-xxz" secondAttribute="trailing" id="I2D-BR-Y8c"/>
+                <constraint firstItem="6Kk-Am-xxz" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="dG7-2x-NDI"/>
+                <constraint firstAttribute="bottom" secondItem="i8l-ws-3NH" secondAttribute="bottom" id="k3D-1o-Uie"/>
+                <constraint firstAttribute="bottom" secondItem="78h-DF-vyg" secondAttribute="bottom" id="kYM-SU-zzZ"/>
+                <constraint firstItem="78h-DF-vyg" firstAttribute="top" secondItem="6Kk-Am-xxz" secondAttribute="bottom" constant="40" id="ops-2J-uJ1"/>
+                <constraint firstAttribute="trailing" secondItem="78h-DF-vyg" secondAttribute="trailing" id="xJf-ju-DX4"/>
+                <constraint firstItem="i8l-ws-3NH" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="xPM-qP-R0J"/>
+                <constraint firstItem="78h-DF-vyg" firstAttribute="leading" secondItem="i8l-ws-3NH" secondAttribute="trailing" constant="1" id="ybe-m1-4qM"/>
+            </constraints>
+            <point key="canvasLocation" x="35.5" y="89.5"/>
+        </view>
+    </objects>
+</document>

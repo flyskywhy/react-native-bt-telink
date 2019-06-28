@@ -35,5 +35,5 @@
 @property (nonatomic, assign) BOOL isSingleSendFinsh;
 @property (nonatomic, assign) BOOL Sending;
 @property (nonatomic, assign) BOOL isStartOTA;
-
+@property (nonatomic, strong) NSMutableArray *array;
 @end
