@@ -49,7 +49,9 @@ class TelinkBt {
     static enableSystemLocation() {}
 
     static notModeAutoConnectMesh() {
-        return true;
+        return new Promise((resolve, reject) => {
+            reject();
+        });
     }
 
     // 自动重连
