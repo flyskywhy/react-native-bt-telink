@@ -8,9 +8,9 @@ class TelinkBt {
     static SATURATION_MIN = 0;
     static SATURATION_MAX = 100;
     static BRIGHTNESS_MIN = 1;
-    static BRIGHTNESS_MAX = 127;
+    static BRIGHTNESS_MAX = 100;
     static COLOR_TEMP_MIN = 1;
-    static COLOR_TEMP_MAX = 127;
+    static COLOR_TEMP_MAX = 100;
     static NODE_STATUS_OFF = 0;
     static NODE_STATUS_ON = 1;
     static NODE_STATUS_OFFLINE = 2;
