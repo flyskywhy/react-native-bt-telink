@@ -12,6 +12,7 @@ class TelinkBt {
     static MESH_ADDRESS_MAX = 0x00FF;
     static GROUP_ADDRESS_MIN = 0x8001;
     static GROUP_ADDRESS_MAX = 0x80FF;
+    static GROUP_ADDRESS_MASK = 0x00FF;
     static HUE_MIN = 0;
     static HUE_MAX = 360;
     static SATURATION_MIN = 0;
@@ -135,7 +136,7 @@ class TelinkBt {
         return NativeModule.startScan(meshName, outOfMeshName, timeoutSeconds, isSingleNode);
     }
 
-    static testMeshOpcode({
+    static sendCommand({
         opcode,
         meshAddress,
         valueArray,
