@@ -558,7 +558,7 @@ class TelinkBt {
         meshAddress = 0x0000,
         relayTimes = 7,     // 转发次数
         otaMode = 'gatt',   // OTA 模式， gatt 为单灯升级， mesh 为单灯升级后有单灯自动通过 mesh 网络发送新固件给其它灯
-        type = 0xDC78,      // 设备类型（gatt OTA 模式请忽略此字段）
+        type = 0xFB00,      // 设备类型（gatt OTA 模式请忽略此字段）
         immediate = false,
     }) {
         NativeModule.sendCommand(0xC7, meshAddress, [
