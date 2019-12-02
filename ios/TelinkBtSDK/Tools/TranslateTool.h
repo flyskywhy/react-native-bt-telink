@@ -38,4 +38,6 @@
 // 十六进制转换为普通字符串的。
 + (NSString *)stringFromHexString:(NSString *)hexString;
 
++ (NSString *)convertDataToHexStr:(NSData *)data;
+
 @end

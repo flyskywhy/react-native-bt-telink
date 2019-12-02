@@ -225,6 +225,13 @@ static NSTimeInterval commentTime;
     return tempValue;
 }
 
+-(uint64_t)getIntValue64ByHex:(NSString *)getStr{
+    NSScanner *tempScaner=[[NSScanner alloc] initWithString:getStr];
+    uint64_t tempValue;
+    [tempScaner scanHexLongLong:&tempValue];
+    return tempValue;
+}
+
 - (BTDevItem *)getItemWithTag:(NSString *)getStr withAddress:(uint32_t)add {
     BTDevItem *result=nil;
     for (BTDevItem *tempItem in srcDevArrs)
@@ -684,7 +691,7 @@ static NSTimeInterval commentTime;
     [self cancelHandleDiscoverPeripheral];
     
     [self.centralManager connectPeripheral:peripheral
-                                   options:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:CBConnectPeripheralOptionNotifyOnDisconnectionKey]];
+                                   options:nil];
 }
 
 - (void)stopConnected {
@@ -830,6 +837,19 @@ static NSTimeInterval commentTime;
 //    [self printContentWithString:logString];
 }
 
+- (NSString *)getDescriptionStringWithData:(NSData *)data {
+    NSString *tem = [TranslateTool convertDataToHexStr:data];
+    NSString *returnStr = @"<";
+    NSInteger count = ceil(tem.length / 8.0);//向上取整
+    for (int i=0; i<count-1; i++) {
+        returnStr = [returnStr stringByAppendingString:[tem substringWithRange:NSMakeRange(i*8, 8)]];
+        returnStr = [returnStr stringByAppendingString:@" "];
+    }
+    returnStr = [returnStr stringByAppendingString:[tem substringWithRange:NSMakeRange((count-1)*8, tem.length-(count-1)*8)]];
+    returnStr = [returnStr stringByAppendingString:@">"];
+    return returnStr;
+}
+
 - (void)userHandleCentralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI{
     self.isCanReceiveAdv = YES;
     
@@ -848,13 +868,15 @@ static NSTimeInterval commentTime;
     }
     if (!options) return; //不符合扫描过滤条件
     NSString *tempName=[peripheral name];
-    NSString *tempParStr=[[advertisementData objectForKey:@"kCBAdvDataManufacturerData"] description];
+    NSString *tempParStr= [self getDescriptionStringWithData:[advertisementData objectForKey:@"kCBAdvDataManufacturerData"]];
+    
+//    [[advertisementData objectForKey:@"kCBAdvDataManufacturerData"] description];
     
     [self printContentWithString:[NSString stringWithFormat:@"kCBAdvDataManufacturerData :  %@\nRSSI=%@",advertisementData[@"kCBAdvDataManufacturerData"],RSSI]];
     NSLog(@"handle advertisementData -> %@ \nRSSI=%@", advertisementData,RSSI);
     if (tempParStr.length>=30){
         //Uid
-        
+        NSLog(@"tempParStr = %@",tempParStr);
         kEndTimer(self.loginTimer)
         
         NSRange tempRange=NSMakeRange(1, 4);
@@ -889,6 +911,24 @@ static NSTimeInterval commentTime;
             tempStr=[tempParStr substringWithRange:tempRange];
             tempItem.u_Mac=[self getIntValueByHex:tempStr];
             NSLog(@"device.u_Mac:%08X -> %@",tempItem.u_Mac, tempStr);
+            
+            tempRange=NSMakeRange(23, 13);
+            tempStr=[tempParStr substringWithRange:tempRange];
+            
+            NSString *macAddress = [self replaceStr:tempStr TagStr:@" " WithStr:@""];
+            NSMutableString *macString = [[NSMutableString alloc] init];
+            if (macAddress.length<8) {
+                [macString appendString:@"0"];
+            }else{
+                for (int i = 5; i>=0; i--) {
+                    [macString appendString:[macAddress substringWithRange:NSMakeRange(i*2, 2)]];
+                    if (i) {
+                        [macString appendString:@":"];
+                    }
+                }
+            }
+            tempItem.macSring = macString;
+            NSLog(@"macString = %@",macString);
 
             //PId
             if (tempParStr.length>=23) {
