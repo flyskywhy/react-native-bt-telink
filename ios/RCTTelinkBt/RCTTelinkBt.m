@@ -119,10 +119,10 @@ RCT_EXPORT_METHOD(doInit) {
     
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
     
-    [event setObject:item.macSring forKey:@"macAddress"];
     [event setObject:item.name forKey:@"deviceName"];
     [event setObject:[NSString stringWithFormat:@"%@", item.u_Name] forKey:@"meshName"];
     [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"meshAddress"];
+    [event setObject:[NSString stringWithFormat:@"%x", item.u_Mac] forKey:@"macAddress"];
     [event setObject:[NSNumber numberWithInt:item.u_meshUuid] forKey:@"meshUUID"];
     [event setObject:[NSNumber numberWithInt:item.productID] forKey:@"productUUID"];
     [event setObject:[NSNumber numberWithInt:item.u_Status] forKey:@"status"];
@@ -150,7 +150,7 @@ RCT_EXPORT_METHOD(doInit) {
 
 - (void)dosomethingWhenLoginDevice:(BTDevItem *)item {
     if (self.configNode) {
-        if ([[NSString stringWithFormat:@"%x", item.u_Mac] isEqualToString:[self.node objectForKey:@"macAddress"]] || [item.macSring isEqualToString:[self.node objectForKey:@"macAddress"]]) {
+        if ([[NSString stringWithFormat:@"%x", item.u_Mac] isEqualToString:[self.node objectForKey:@"macAddress"]]) {
             [self.dict setObject:item forKey:[NSString stringWithFormat:@"%d",[[self.node objectForKey:@"meshAddress"] intValue]]];
             if(item.u_DevAdress == [[self.node objectForKey:@"meshAddress"] intValue]){
                 [self resultOfReplaceAddress:item.u_DevAdress];
@@ -411,7 +411,7 @@ RCT_EXPORT_METHOD(configNode:(NSDictionary *)node cfg:(NSDictionary *)cfg resolv
     self.configNode = YES;
     NSLog(@"configNode node = %@",[node objectForKey:@"macAddress"]);
     for (BTDevItem *bt in self.BTDevArray) {
-        if ([[NSString stringWithFormat:@"%x", bt.u_Mac] isEqualToString:[node objectForKey:@"macAddress"]] || [bt.macSring isEqualToString:[node objectForKey:@"macAddress"]]) {
+        if ([[NSString stringWithFormat:@"%x", bt.u_Mac] isEqualToString:[node objectForKey:@"macAddress"]]) {
             [kCentralManager connectWithItem:bt];
         }
     }
@@ -424,7 +424,7 @@ RCT_EXPORT_METHOD(configNode:(NSDictionary *)node cfg:(NSDictionary *)cfg resolv
 -(void)resultOfReplaceAddress:(uint32_t )resultAddress
 {
     for (BTDevItem *bt in self.BTDevArray) {
-        if ([[NSString stringWithFormat:@"%x", bt.u_Mac] isEqualToString:[self.node objectForKey:@"macAddress"]] || [bt.macSring isEqualToString:[self.node objectForKey:@"macAddress"]]) {
+        if ([[NSString stringWithFormat:@"%x", bt.u_Mac] isEqualToString:[self.node objectForKey:@"macAddress"]]) {
             bt.u_DevAdress = resultAddress;
             NSLog(@"configNode b1 = %@",bt.description);
             GetLTKBuffer;

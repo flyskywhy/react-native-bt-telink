@@ -53,8 +53,6 @@
     
     uint32_t productID;//设备类型标识
     
-    NSString *macSring;
-    
 }
 @property (nonatomic, strong) NSString *devIdentifier;
 @property (nonatomic, strong) NSString *name;
@@ -73,7 +71,6 @@
 @property (nonatomic, assign, getter=isSetedSuff) BOOL isSetedSuff;
 
 @property(nonatomic,assign)uint32_t productID;
-@property(nonatomic,strong)NSString * macSring;
 
 - (instancetype)initWithDevice:(BTDevItem *)item;
 - (NSString *)uuidString;

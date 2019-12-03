@@ -911,24 +911,6 @@ static NSTimeInterval commentTime;
             tempStr=[tempParStr substringWithRange:tempRange];
             tempItem.u_Mac=[self getIntValueByHex:tempStr];
             NSLog(@"device.u_Mac:%08X -> %@",tempItem.u_Mac, tempStr);
-            
-            tempRange=NSMakeRange(23, 13);
-            tempStr=[tempParStr substringWithRange:tempRange];
-            
-            NSString *macAddress = [self replaceStr:tempStr TagStr:@" " WithStr:@""];
-            NSMutableString *macString = [[NSMutableString alloc] init];
-            if (macAddress.length<8) {
-                [macString appendString:@"0"];
-            }else{
-                for (int i = 5; i>=0; i--) {
-                    [macString appendString:[macAddress substringWithRange:NSMakeRange(i*2, 2)]];
-                    if (i) {
-                        [macString appendString:@":"];
-                    }
-                }
-            }
-            tempItem.macSring = macString;
-            NSLog(@"macString = %@",macString);
 
             //PId
             if (tempParStr.length>=23) {
@@ -1267,6 +1249,22 @@ static NSTimeInterval commentTime;
     if (error) {
         BTLog(@"收到数据错误: %@", [error localizedDescription]);
         return;
+    }
+     NSString *orStr = characteristic.value.description;
+    if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"2A23"]]) {
+            NSMutableString *macString = [[NSMutableString alloc] init];
+            [macString appendString:[[orStr substringWithRange:NSMakeRange(16, 2)] uppercaseString]];
+            [macString appendString:@":"];
+            [macString appendString:[[orStr substringWithRange:NSMakeRange(14, 2)] uppercaseString]];
+            [macString appendString:@":"];
+            [macString appendString:[[orStr substringWithRange:NSMakeRange(12, 2)] uppercaseString]];
+            [macString appendString:@":"];
+            [macString appendString:[[orStr substringWithRange:NSMakeRange(5, 2)] uppercaseString]];
+            [macString appendString:@":"];
+            [macString appendString:[[orStr substringWithRange:NSMakeRange(3, 2)] uppercaseString]];
+            [macString appendString:@":"];
+            [macString appendString:[[orStr substringWithRange:NSMakeRange(1, 2)] uppercaseString]];
+        NSLog(@"macString = %@",macString);
     }
     if ([characteristic isEqual:self.pairFeature]) {
         
