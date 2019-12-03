@@ -64,6 +64,15 @@ RCT_EXPORT_METHOD(doInit) {
     [self sendEventWithName:@"serviceConnected" body:nil];
     [self sendEventWithName:@"bluetoothEnabled" body:nil];
     [self sendEventWithName:@"deviceStatusLogout" body:nil];
+    
+    //注册通知，当app由后台切换到前台，在appdelegate中通知获取灯的状态，避免在后台时，灯的状态发生改变，而app上数据没有更新
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive) name:@"applicationDidBecomeActive" object:nil];
+    
+}
+
+-(void)applicationDidBecomeActive
+{
+    [kCentralManager setNotifyOpenPro];
 }
 
 -(void)centralManagerDidUpdateState:(CBCentralManager *)central
