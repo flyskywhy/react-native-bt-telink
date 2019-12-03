@@ -37,6 +37,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.telink.util.Arrays;
+import com.telink.util.Strings;
 
 import java.util.List;
 import java.util.Map;
@@ -101,7 +102,7 @@ public class Peripheral extends BluetoothGattCallback {
         this.rssi = rssi;
 
         this.name = device.getName();
-        this.mac = device.getAddress();
+        this.mac = Strings.telinkMacAndroidToIos(device.getAddress());
         this.type = device.getType();
     }
 
@@ -128,15 +129,19 @@ public class Peripheral extends BluetoothGattCallback {
     public byte[] getMacBytes() {
 
         if (this.macBytes == null) {
-            String[] strArray = this.getMacAddress().split(":");
-            int length = strArray.length;
-            this.macBytes = new byte[length];
+            this.macBytes = Arrays.hexToBytes(this.getMacAddress());
 
-            for (int i = 0; i < length; i++) {
-                this.macBytes[i] = (byte) (Integer.parseInt(strArray[i], 16) & 0xFF);
-            }
+            // 配合 Strings.telinkMacAndroidToIos() 后，只需要上面代码，不需要下面代码
 
-            Arrays.reverse(this.macBytes, 0, length - 1);
+            // String[] strArray = this.getMacAddress().split(":");
+            // int length = strArray.length;
+            // this.macBytes = new byte[length];
+
+            // for (int i = 0; i < length; i++) {
+            //     this.macBytes[i] = (byte) (Integer.parseInt(strArray[i], 16) & 0xFF);
+            // }
+
+            // Arrays.reverse(this.macBytes, 0, length - 1);
         }
 
         return this.macBytes;

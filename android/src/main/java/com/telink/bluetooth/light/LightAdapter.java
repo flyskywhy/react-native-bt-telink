@@ -994,7 +994,7 @@ public class LightAdapter {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
 
-//            TelinkLog.d("Scan : " + device.getName() + "-" + device.getAddress());
+//            TelinkLog.d("Scan : " + device.getName() + "-" + Strings.telinkMacAndroidToIos(device.getAddress()));
 
             if (scanEmpty.get()) {
                 scanEmpty.set(false);
@@ -1005,7 +1005,7 @@ public class LightAdapter {
                 return;
 
 //            synchronized (LightAdapter.this) {
-            if (mScannedLights.contains(device.getAddress()))
+            if (mScannedLights.contains(Strings.telinkMacAndroidToIos(device.getAddress())))
                 return;
 //            }
 
@@ -1025,8 +1025,8 @@ public class LightAdapter {
             if (scanNoTarget.get()) {
                 scanNoTarget.set(false);
             }
-            TelinkLog.d("add scan result : " + device.getAddress());
-//            saveLog("add scan result : " + device.getAddress());
+            TelinkLog.d("add scan result : " + Strings.telinkMacAndroidToIos(device.getAddress()));
+//            saveLog("add scan result : " + Strings.telinkMacAndroidToIos(device.getAddress()));
 
             int mode = getMode();
 

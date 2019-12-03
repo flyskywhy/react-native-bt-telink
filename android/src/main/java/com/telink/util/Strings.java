@@ -61,6 +61,26 @@ public final class Strings {
         return data == null || data.length <= 0 ? null : new String(data, Charset.defaultCharset()).trim();
     }
 
+    // 使 Android 获取的蓝牙设备的 mac 猥琐地从标准的 6 字节降级为 iOS 的 4 字节以便统一，
+    // 只因为恶心的 iOS 在系统级的限制
+    public static String telinkMacAndroidToIos(String mac6String) {
+        byte[] mac6Byte = stringToBytes(mac6String.replaceAll(":", ""));
+        if (mac6Byte.length < 6) {
+            return mac6String;
+        }
+
+        byte[] mac4Byte = new byte[8];
+        mac4Byte[0] = mac6Byte[10];
+        mac4Byte[1] = mac6Byte[11];
+        mac4Byte[2] = mac6Byte[8];
+        mac4Byte[3] = mac6Byte[9];
+        mac4Byte[4] = mac6Byte[6];
+        mac4Byte[5] = mac6Byte[7];
+        mac4Byte[6] = mac6Byte[4];
+        mac4Byte[7] = mac6Byte[5];
+        return bytesToString(mac4Byte);
+    }
+
     public static boolean isEmpty(String str) {
         return str == null || str.trim().isEmpty();
     }
