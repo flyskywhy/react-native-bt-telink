@@ -64,7 +64,7 @@ public final class Strings {
     // 使 Android 获取的蓝牙设备的 mac 猥琐地从标准的 6 字节降级为 iOS 的 4 字节以便统一，
     // 只因为恶心的 iOS 在系统级的限制
     public static String telinkMacAndroidToIos(String mac6String) {
-        byte[] mac6Byte = stringToBytes(mac6String.replaceAll(":", ""));
+        byte[] mac6Byte = stringToBytes(mac6String.replaceAll(":", "").toLowerCase());
         if (mac6Byte.length < 6) {
             return mac6String;
         }
