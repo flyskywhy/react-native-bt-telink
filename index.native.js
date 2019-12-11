@@ -152,6 +152,14 @@ class TelinkBt {
         NativeModule.sendCommand(0xF2, meshAddress, [], immediate);
     }
 
+    static isOnline(status) {
+        return (status & 0x03) !== this.NODE_STATUS_OFFLINE;
+    }
+
+    static isOn(status) {
+        return (status & 0x03) === this.NODE_STATUS_ON;
+    }
+
     static changePower({
         meshAddress,
         value,
