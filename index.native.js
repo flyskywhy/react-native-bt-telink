@@ -404,17 +404,6 @@ class TelinkBt {
         if (!changed) {
             NativeModule.sendCommand(0xEF, meshAddress, [scene], immediate);
         }
-
-        this.selectNodeToResponseSceneId({
-            meshAddress,
-        });
-    }
-
-    static selectNodeToResponseSceneId({
-        meshAddress,
-        immediate = false,
-    }) {
-        // NativeModule.sendCommand(0xF7, this.defaultAllGroupAddress, [meshAddress], immediate);
     }
 
     static getTypeFromUuid = uuid => uuid;
