@@ -295,7 +295,7 @@ class TelinkBt {
                     if (mode === 'silan') {
                         switch (scene) {
                             case 0:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, 3, color3.r, color3.g, color3.b], immediate);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, 1, color3.r, color3.g, color3.b], immediate);
                                 changed = true;
                                 break;
                             case 1:
