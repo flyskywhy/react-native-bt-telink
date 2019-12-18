@@ -192,6 +192,7 @@ class TelinkBt {
 
     static changeBrightness({
         meshAddress,
+        sceneSyncMeshAddress,
         hue = 0,
         saturation = 0,
         value,
@@ -220,6 +221,10 @@ class TelinkBt {
         if (!changed) {
             NativeModule.changeBrightness(meshAddress, value);
         }
+
+        this.selectNodeToResponseSceneId({
+            sceneSyncMeshAddress,
+        });
     }
 
     static changeColorTemp({
@@ -263,6 +268,7 @@ class TelinkBt {
 
     static changeScene({
         meshAddress,
+        sceneSyncMeshAddress,
         scene,
         hue = 0,
         saturation = 0,
@@ -403,6 +409,19 @@ class TelinkBt {
 
         if (!changed) {
             NativeModule.sendCommand(0xEF, meshAddress, [scene], immediate);
+        }
+
+        this.selectNodeToResponseSceneId({
+            sceneSyncMeshAddress,
+        });
+    }
+
+    static selectNodeToResponseSceneId({
+        sceneSyncMeshAddress,
+        immediate = false,
+    }) {
+        if (sceneSyncMeshAddress !== undefined && sceneSyncMeshAddress !== null) {
+            // NativeModule.sendCommand(0xF7, this.defaultAllGroupAddress, [sceneSyncMeshAddress], immediate);
         }
     }
 
