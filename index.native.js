@@ -421,7 +421,7 @@ class TelinkBt {
         immediate = false,
     }) {
         if (sceneSyncMeshAddress !== undefined && sceneSyncMeshAddress !== null) {
-            // NativeModule.sendCommand(0xF7, this.defaultAllGroupAddress, [sceneSyncMeshAddress], immediate);
+            NativeModule.sendCommand(0xF7, this.defaultAllGroupAddress, [sceneSyncMeshAddress], immediate);
         }
     }
 
