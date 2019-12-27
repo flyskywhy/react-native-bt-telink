@@ -34,7 +34,8 @@ class TelinkBt {
     static canConfigEvenDisconnected = true;
     static needClaimedBeforeConnect = true;
     static del4GroupStillSendOriginGroupAddress = true;
-    static notDefaultAllGroupByGROUP_ADDRESS_MIN = true;
+    // static notDefaultAllGroupByGROUP_ADDRESS_MIN = true;
+    static defaultAllGroupAddress = 0xFFFF;
     static isSetNodeGroupAddrReturnAddresses = true;
 
     static doInit() {}

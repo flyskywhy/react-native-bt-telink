@@ -38,7 +38,7 @@ class TelinkBt {
     static ALARM_TYPE_DAY = 0;
     static ALARM_TYPE_WEEK = 1;
 
-    static passthroughMode = undefined; // 通过串口或者说自定义发送数据来控制蓝牙 节点
+    static passthroughMode = undefined; // 通过串口或者说自定义发送数据来控制蓝牙节点
 
     // 由于 telink 提供了踢出为出厂状态的 0xE3 命令，因此在 hasOnlineStatusNotify 确保
     // 在线能运行 0xE3 的情况下，就不需要 needRefreshMeshNodesClaimed 来在移除前进行扫描了，
