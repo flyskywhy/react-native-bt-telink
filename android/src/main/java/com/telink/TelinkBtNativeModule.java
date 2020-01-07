@@ -424,7 +424,7 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
 
     @ReactMethod
     public void sendCommand(int opcode, int meshAddress, ReadableArray value, boolean immediate) {
-        TelinkLightService.Instance().sendCommandNoResponse((byte) opcode, meshAddress, readableArray2ByteArray(value), immediate);
+        TelinkLightService.Instance().sendCommandNoResponse((byte) opcode, meshAddress, readableArray2ByteArray(value), 200, immediate);
     }
 
     @ReactMethod
