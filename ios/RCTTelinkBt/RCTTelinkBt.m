@@ -301,9 +301,17 @@ RCT_EXPORT_METHOD(sendCommand:(NSInteger)opcode meshAddress:(NSInteger)meshAddre
 }
 
 RCT_EXPORT_METHOD(startOta:(NSArray *) value) {
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"HeylightDCC8V2.6" ofType:@"bin"];
-    self.otaData = [NSData dataWithContentsOfFile:path];
-//    self.otaData = [NSKeyedArchiver archivedDataWithRootObject:value];
+    //数组转化成bytes
+    unsigned c = (int)value.count;
+    uint8_t *bytes = (uint8_t*)malloc(sizeof(*bytes) * c);
+    unsigned i;
+    for (i = 0; i < c; i++){
+        NSString *str = [value objectAtIndex:i];
+        int byte = [str intValue];
+        bytes[i] = (uint8_t)byte;
+    }
+    self.otaData = [NSData dataWithBytesNoCopy:bytes length:c freeWhenDone:YES];
+
     self.location = 0;
     self.isStartOTA = YES;
     if (![[MeshOTAManager share] isMeshOTAing]) {
