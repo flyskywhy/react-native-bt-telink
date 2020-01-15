@@ -277,6 +277,7 @@ class TelinkBt {
         colorBg,
         colorsLength = 1,
         colorSequence = 1,
+        colorSequenceAndEnd = 0, // 只有（调色板更改出来的）新颜色才需要发命令（并在这里设为 1），否则物理灯串会显得卡顿
         colorIds = [1, 2, 3, 4, 5],
         colorBgId = 2,
         colorId = 1,
@@ -329,15 +330,15 @@ class TelinkBt {
                                 changed = true;
                                 break;
                             case 7:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength], immediate);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength, colorSequenceAndEnd], immediate);
                                 changed = true;
                                 break;
                             case 8:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength], immediate);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength, colorSequenceAndEnd], immediate);
                                 changed = true;
                                 break;
                             case 9:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength], immediate);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength, colorSequenceAndEnd], immediate);
                                 changed = true;
                                 break;
                             case 10:
@@ -345,11 +346,11 @@ class TelinkBt {
                                 changed = true;
                                 break;
                             case 11:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength], immediate);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength, colorSequenceAndEnd], immediate);
                                 changed = true;
                                 break;
                             case 12:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength], immediate);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength, colorSequenceAndEnd], immediate);
                                 changed = true;
                                 break;
                             case 13:
@@ -377,11 +378,11 @@ class TelinkBt {
                                 changed = true;
                                 break;
                             case 19:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength], immediate);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength, colorSequenceAndEnd], immediate);
                                 changed = true;
                                 break;
                             case 20:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength], immediate);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength, colorSequenceAndEnd], immediate);
                                 changed = true;
                                 break;
                             case 21:
@@ -389,11 +390,11 @@ class TelinkBt {
                                 changed = true;
                                 break;
                             case 22:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength], immediate);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength, colorSequenceAndEnd], immediate);
                                 changed = true;
                                 break;
                             case 23:
-                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength], immediate);
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength, colorSequenceAndEnd], immediate);
                                 changed = true;
                                 break;
                             default:
