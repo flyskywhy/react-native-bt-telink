@@ -809,6 +809,15 @@ public class TelinkBtNativeModule extends ReactContextBaseJavaModule implements 
     private void onLeScan(LeScanEvent event) {
         DeviceInfo deviceInfo = event.getArgs();
         WritableMap params = Arguments.createMap();
+
+        // TelinkLog.i("macAddress: " + deviceInfo.macAddress);    // "919eda8d"
+        // TelinkLog.i("deviceName: " + deviceInfo.deviceName);    // "sysin_mesh"
+        // TelinkLog.i("meshName: " + deviceInfo.meshName);        // "sysin_mesh"
+        // TelinkLog.i("meshAddress: " + deviceInfo.meshAddress);  // 145
+        // TelinkLog.i("meshUUID: " + deviceInfo.meshUUID);        // 0x0211
+        // TelinkLog.i("productUUID: " + deviceInfo.productUUID);  // 0xFB50
+        // TelinkLog.i("status: " + deviceInfo.status);            // 1
+
         params.putString("macAddress", deviceInfo.macAddress);
         params.putString("deviceName", deviceInfo.deviceName);
         params.putString("meshName", deviceInfo.meshName);
