@@ -12,21 +12,21 @@
 #import "DeviceModel.h"
 #import <CoreBluetooth/CoreBluetooth.h>
 
-@interface RCTTelinkBt : RCTEventEmitter <RCTBridgeModule,CBCentralManagerDelegate>
+@interface RCTTelinkBt : RCTEventEmitter <RCTBridgeModule, CBCentralManagerDelegate>
 
 @property (nonatomic, assign) BOOL isNeedRescan;
 @property(nonatomic, strong) CBCentralManager *manager;
 @property(nonatomic, strong) NSMutableArray <DeviceModel *> *devArray;
 @property(nonatomic, strong) NSMutableArray <BTDevItem *> *BTDevArray;
-@property(nonatomic,strong) NSMutableDictionary *cfg;
-@property(nonatomic,strong) NSMutableDictionary *dict;
+@property(nonatomic, strong) NSMutableDictionary *cfg;
+@property(nonatomic, strong) NSMutableDictionary *dict;
 @property(nonatomic, strong) NSMutableArray <BTDevItem *> *DisConnectDevArray;
-@property(nonatomic,strong) NSMutableDictionary *node;
-@property(nonatomic,assign) BOOL configNode;
-@property(nonatomic,strong) NSString *pwd;
-@property(nonatomic,assign) BOOL HomePage;
-@property(nonatomic,strong) NSString *userMeshName;
-@property(nonatomic,strong) NSString *userMeshPwd;
+@property(nonatomic, strong) NSMutableDictionary *node;
+@property(nonatomic, assign) BOOL configNode;
+@property(nonatomic, strong) NSString *pwd;
+@property(nonatomic, assign) BOOL HomePage;
+@property(nonatomic, strong) NSString *userMeshName;
+@property(nonatomic, strong) NSString *userMeshPwd;
 
 @property (nonatomic, strong) NSData *otaData;
 @property (nonatomic, assign) NSInteger number; //数据包的包个数；

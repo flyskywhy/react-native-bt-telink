@@ -36,7 +36,7 @@ timer = nil; \
     RCTPromiseResolveBlock _resolveMesheBlock;
     RCTPromiseResolveBlock _resolvesetNodeGroupAddr;
     RCTPromiseResolveBlock _resolvesegetAlarm;
-    
+
     RCTPromiseRejectBlock _rejectsetNodeGroupAddr;
     RCTPromiseRejectBlock _rejectBlock;
 }
@@ -45,7 +45,49 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"bluetoothEnabled", @"bluetoothDisabled",@"systemLocationEnabled",@"systemLocationDisabled", @"serviceConnected", @"serviceDisconnected", @"notificationOnlineStatus", @"notificationGetDeviceState", @"deviceStatusConnecting", @"deviceStatusConnected", @"deviceStatusLogining", @"deviceStatusLogin",@"deviceStatusLogout",@"deviceStatusErrorAndroidN",@"deviceStatusUpdateMeshCompleted",@"deviceStatusUpdatingMesh",@"deviceStatusUpdateMeshFailure",@"deviceStatusUpdateAllMeshCompleted",@"deviceStatusGetLtkCompleted",@"deviceStatusGetLtkFailure",@"deviceStatusMeshOffline",@"deviceStatusMeshScanCompleted",@"deviceStatusMeshScanTimeout",@"deviceStatusOtaCompleted",@"deviceStatusOtaFailure",@"deviceStatusOtaProgress",@"deviceStatusGetFirmwareCompleted",@"deviceStatusGetFirmwareFailure",@"deviceStatusDeleteCompleted",@"deviceStatusDeleteFailure",@"leScan",@"leScanCompleted",@"leScanTimeout",@"meshOffline",@"notificationDataGetVersion",@"notificationDataGetMeshOtaProgress",@"notificationDataGetOtaState",@"notificationDataSetOtaModeRes",@"deviceStatusOtaMasterProgress",@"deviceStatusOtaMasterComplete",@"deviceStatusOtaMasterFail"];
+    return @[
+               @"bluetoothEnabled",
+               @"bluetoothDisabled",
+               @"systemLocationEnabled",
+               @"systemLocationDisabled",
+               @"serviceConnected",
+               @"serviceDisconnected",
+               @"notificationOnlineStatus",
+               @"notificationGetDeviceState",
+               @"deviceStatusConnecting",
+               @"deviceStatusConnected",
+               @"deviceStatusLogining",
+               @"deviceStatusLogin",
+               @"deviceStatusLogout",
+               @"deviceStatusErrorAndroidN",
+               @"deviceStatusUpdateMeshCompleted",
+               @"deviceStatusUpdatingMesh",
+               @"deviceStatusUpdateMeshFailure",
+               @"deviceStatusUpdateAllMeshCompleted",
+               @"deviceStatusGetLtkCompleted",
+               @"deviceStatusGetLtkFailure",
+               @"deviceStatusMeshOffline",
+               @"deviceStatusMeshScanCompleted",
+               @"deviceStatusMeshScanTimeout",
+               @"deviceStatusOtaCompleted",
+               @"deviceStatusOtaFailure",
+               @"deviceStatusOtaProgress",
+               @"deviceStatusGetFirmwareCompleted",
+               @"deviceStatusGetFirmwareFailure",
+               @"deviceStatusDeleteCompleted",
+               @"deviceStatusDeleteFailure",
+               @"leScan",
+               @"leScanCompleted",
+               @"leScanTimeout",
+               @"meshOffline",
+               @"notificationDataGetVersion",
+               @"notificationDataGetMeshOtaProgress",
+               @"notificationDataGetOtaState",
+               @"notificationDataSetOtaModeRes",
+               @"deviceStatusOtaMasterProgress",
+               @"deviceStatusOtaMasterComplete",
+               @"deviceStatusOtaMasterFail",
+           ];
 }
 
 RCT_EXPORT_METHOD(doInit) {
@@ -60,43 +102,37 @@ RCT_EXPORT_METHOD(doInit) {
     self.configNode = NO;
     self.HomePage = YES;
     self.isStartOTA = NO;
-    
+
     [self sendEventWithName:@"serviceConnected" body:nil];
     [self sendEventWithName:@"bluetoothEnabled" body:nil];
     [self sendEventWithName:@"deviceStatusLogout" body:nil];
-    
+
     //注册通知，当app由后台切换到前台，在appdelegate中通知获取灯的状态，避免在后台时，灯的状态发生改变，而app上数据没有更新
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive) name:@"applicationDidBecomeActive" object:nil];
-    
 }
 
--(void)applicationDidBecomeActive
+- (void)applicationDidBecomeActive
 {
     [kCentralManager setNotifyOpenPro];
 }
 
--(void)centralManagerDidUpdateState:(CBCentralManager *)central
+- (void)centralManagerDidUpdateState:(CBCentralManager *)central
 {
     //第一次打开或者每次蓝牙状态改变都会调用这个函数
-    if(central.state==CBCentralManagerStatePoweredOn)
-    {
+    if (central.state == CBCentralManagerStatePoweredOn) {
         NSLog(@"蓝牙设备开着");
-    }
-    else
-    {
+    } else {
         NSLog(@"蓝牙设备关着");
-        
-        UIAlertView *alterView=[[UIAlertView alloc]initWithTitle:@"提示" message:@"请打开蓝牙！" delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+
+        UIAlertView *alterView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"请打开蓝牙！" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil];
         [alterView show];
     }
-    
-    
 }
 
 - (void)OnDevChange:(id)sender Item:(BTDevItem *)item Flag:(DevChangeFlag)flag {
     //if (!self.isStartOTA) return;
     //    kCentralManager.isAutoLogin = NO;
-    
+
     NSLog(@"flag==========%u", flag);
     switch (flag) {
         case DevChangeFlag_Add:                 [self dosomethingWhenDiscoverDevice:item]; break;
@@ -107,18 +143,17 @@ RCT_EXPORT_METHOD(doInit) {
     }
 }
 
-- (void)resetStatusOfAllLight{
+- (void)resetStatusOfAllLight {
     NSLog(@"resetStatusOfAllLight");
 }
 
 #pragma mark- Delegate
 
 - (void)dosomethingWhenDiscoverDevice:(BTDevItem *)item {
-    
-    NSLog(@"dosomethingWhenDiscoverDevice item = %d",item.u_DevAdress);
-    
+    NSLog(@"dosomethingWhenDiscoverDevice item = %d", item.u_DevAdress);
+
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
-    
+
     [event setObject:item.name forKey:@"deviceName"];
     [event setObject:[NSString stringWithFormat:@"%@", item.u_Name] forKey:@"meshName"];
     [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"meshAddress"];
@@ -126,17 +161,17 @@ RCT_EXPORT_METHOD(doInit) {
     [event setObject:[NSNumber numberWithInt:item.u_meshUuid] forKey:@"meshUUID"];
     [event setObject:[NSNumber numberWithInt:item.productID] forKey:@"productUUID"];
     [event setObject:[NSNumber numberWithInt:item.u_Status] forKey:@"status"];
-    
+
     [self sendEventWithName:@"leScan" body:event];
-    
+
     NSMutableArray *macs = [[NSMutableArray alloc] init];
-    for (int i=0; i<self.BTDevArray.count; i++) {
+    for (int i = 0; i < self.BTDevArray.count; i++) {
         [macs addObject:@(self.BTDevArray[i].u_DevAdress)];
     }
     if (![macs containsObject:@(item.u_DevAdress)]) {
         [self.BTDevArray addObject:item];
     }
-    
+
     //    //sdk中连接设备会停止扫描，加延时确保所有灯都能扫描到
     //    if (self.BTDevArray.count==1) {
     //        [kCentralManager connectWithItem:item];
@@ -151,29 +186,26 @@ RCT_EXPORT_METHOD(doInit) {
 - (void)dosomethingWhenLoginDevice:(BTDevItem *)item {
     if (self.configNode) {
         if ([[NSString stringWithFormat:@"%x", item.u_Mac] isEqualToString:[self.node objectForKey:@"macAddress"]]) {
-            [self.dict setObject:item forKey:[NSString stringWithFormat:@"%d",[[self.node objectForKey:@"meshAddress"] intValue]]];
-            if(item.u_DevAdress == [[self.node objectForKey:@"meshAddress"] intValue]){
+            [self.dict setObject:item forKey:[NSString stringWithFormat:@"%d", [[self.node objectForKey:@"meshAddress"] intValue]]];
+            if (item.u_DevAdress == [[self.node objectForKey:@"meshAddress"] intValue]) {
                 [self resultOfReplaceAddress:item.u_DevAdress];
-            }else{
+            } else {
                 [kCentralManager replaceDeviceAddress:item.u_DevAdress WithNewDevAddress:[[self.node objectForKey:@"meshAddress"] intValue]];
             }
-            
+
             self.configNode = !self.configNode;
         }
-        
-    }else{
+    } else {
         NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
         [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"meshAddress"];
         [event setObject:[NSNumber numberWithInt:item.u_DevAdress] forKey:@"connectMeshAddress"];
         [self sendEventWithName:@"deviceStatusLogin" body:event];
     }
-    
-    
 }
 
 - (void)dosomethingWhenDisConnectedDevice:(BTDevItem *)item {
     NSLog(@"dosomethingWhenDisConnectedDevice");
-    if(_HomePage){
+    if (_HomePage) {
         NSMutableArray *array = [[NSMutableArray alloc] init];
         for (DeviceModel *omodel in self.devArray) {
             if (item.u_DevAdress == omodel.u_DevAdress) {
@@ -196,31 +228,29 @@ RCT_EXPORT_METHOD(doInit) {
 - (void)notifyBackWithDevice:(DeviceModel *)model {
     if (!model) return;
     NSMutableArray *macs = [[NSMutableArray alloc] init];
-    for (int i=0; i<self.devArray.count; i++) {
+    for (int i = 0; i < self.devArray.count; i++) {
         [macs addObject:@(self.devArray[i].u_DevAdress)];
     }
     //AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     //更新既有设备状态
     if ([macs containsObject:@(model.u_DevAdress)]) {
         NSUInteger index = [macs indexOfObject:@(model.u_DevAdress)];
-        DeviceModel *tempModel =[self.devArray objectAtIndex:index];
+        DeviceModel *tempModel = [self.devArray objectAtIndex:index];
         [tempModel updataLightStata:model];
     }
     //添加新设备
-    else{
+    else {
         DeviceModel *omodel = [[DeviceModel alloc] initWithModel:model];
         [self.devArray addObject:omodel];
-        
-        
     }
-    NSLog(@"model = %@",model.versionString);
+    NSLog(@"model = %@", model.versionString);
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
-    
+
     [event setObject:[NSNumber numberWithInt:model.reserve] forKey:@"reserve"];
     [event setObject:[NSNumber numberWithInt:model.stata] forKey:@"status"];
     [event setObject:[NSNumber numberWithInt:model.brightness] forKey:@"brightness"];
     [event setObject:[NSNumber numberWithInt:model.u_DevAdress] forKey:@"meshAddress"];
-    
+
     NSMutableArray *array = [NSMutableArray arrayWithObject:event];
     [self sendEventWithName:@"notificationOnlineStatus" body:array];
     [[MeshOTAManager share] setCurrentDevices:self.devArray];
@@ -245,10 +275,9 @@ RCT_EXPORT_METHOD(notModeAutoConnectMesh:(RCTPromiseResolveBlock)resolve
     NSLog(@"notModeAutoConnectMesh");
 }
 
-
 RCT_EXPORT_METHOD(autoConnect:(NSString *)userMeshName userMeshPwd:(NSString *)userMeshPwd otaMac:(NSString *)otaMac)
 {
-    NSLog(@"meshName==========%@",userMeshName);
+    NSLog(@"meshName==========%@", userMeshName);
     [[BTCentralManager shareBTCentralManager] stopScan];
     [self.devArray removeAllObjects];
     [self.BTDevArray removeAllObjects];
@@ -258,8 +287,7 @@ RCT_EXPORT_METHOD(autoConnect:(NSString *)userMeshName userMeshPwd:(NSString *)u
     self.HomePage = YES;
     self.userMeshName = userMeshName;
     self.userMeshPwd = userMeshPwd;
-    
-    
+
     [kCentralManager startScanWithName:userMeshName Pwd:userMeshPwd AutoLogin:YES];
 }
 
@@ -272,7 +300,7 @@ RCT_EXPORT_METHOD(idleMode:(BOOL)disconnect) {
 }
 
 RCT_EXPORT_METHOD(startScan:(NSString *)meshName outOfMeshName:(NSString *)outOfMeshName timeoutSeconds:(NSInteger)timeoutSeconds isSingleNode:(BOOL)isSingleNode) {
-    NSLog(@"meshName==========%@",meshName);
+    NSLog(@"meshName==========%@", meshName);
     [self sendEventWithName:@"deviceStatusLogout" body:nil];
     [[BTCentralManager shareBTCentralManager] stopScan];
     [self.devArray removeAllObjects];
@@ -295,7 +323,7 @@ RCT_EXPORT_METHOD(startScan:(NSString *)meshName outOfMeshName:(NSString *)outOf
 RCT_EXPORT_METHOD(sendCommand:(NSInteger)opcode meshAddress:(NSInteger)meshAddress value:(NSArray *) value immediate :(BOOL)immediate) {
     NSArray *arr = [kCentralManager devArrs];
     for (BTDevItem *item in arr) {
-        NSLog(@"sendCommand meshAddress = %d",item.u_DevAdress);
+        NSLog(@"sendCommand meshAddress = %d", item.u_DevAdress);
     }
     [[BTCentralManager shareBTCentralManager] sendCommand:opcode meshAddress:meshAddress value:value];
 }
@@ -305,7 +333,7 @@ RCT_EXPORT_METHOD(startOta:(NSArray *) value) {
     unsigned c = (int)value.count;
     uint8_t *bytes = (uint8_t*)malloc(sizeof(*bytes) * c);
     unsigned i;
-    for (i = 0; i < c; i++){
+    for (i = 0; i < c; i++) {
         NSString *str = [value objectAtIndex:i];
         int byte = [str intValue];
         bytes[i] = (uint8_t)byte;
@@ -321,53 +349,52 @@ RCT_EXPORT_METHOD(startOta:(NSArray *) value) {
             if (meshState == MeshOTAState_normal) {
                 //点对点OTA阶段
                 NSString *t = [NSString stringWithFormat:@"ota firmware push... progress:%ld%%", (long)progress];
-                NSLog(@"ota = %@",t);
+                NSLog(@"ota = %@", t);
                 NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
                 [dict setObject:[NSNumber numberWithInteger:progress] forKey:@"otaMasterProgress"];
                 [self sendEventWithName:@"deviceStatusOtaMasterProgress" body:dict];
-            }else if (meshState == MeshOTAState_continue){
+            } else if (meshState == MeshOTAState_continue) {
                 //meshOTA阶段
                 NSString *t = [NSString stringWithFormat:@"package meshing... progress:%ld%%", (long)progress];
-                NSLog(@"ota = %@",t);
+                NSLog(@"ota = %@", t);
             }
         } finishHandle:^(NSInteger successNumber, NSInteger failNumber) {
             NSString *tip = [NSString stringWithFormat:@"success:%ld,fail:%ld", (long)successNumber, (long)failNumber];
-            NSLog(@"ota = %@",tip);
+            NSLog(@"ota = %@", tip);
             NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
             [self sendEventWithName:@"deviceStatusOtaMasterComplete" body:dict];
         } errorHandle:^(NSError *error) {
-            NSLog(@"ota = %@",error.domain);
+            NSLog(@"ota = %@", error.domain);
             NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
             [self sendEventWithName:@"deviceStatusOtaMasterFail" body:dict];
         }];
     }
 }
 
-- (void)configMeshOTAList{
+- (void)configMeshOTAList {
     [[MeshOTAManager share] startMeshOTAWithDeviceType:1 otaData:self.otaData progressHandle:^(MeshOTAState meshState, NSInteger progress) {
         if (meshState == MeshOTAState_normal) {
             //点对点OTA阶段
             NSString *t = [NSString stringWithFormat:@"ota firmware push... progress:%ld%%", (long)progress];
-            NSLog(@"ota = %@",t);
+            NSLog(@"ota = %@", t);
             NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
             [dict setObject:[NSNumber numberWithInteger:progress] forKey:@"otaMasterProgress"];
             [self sendEventWithName:@"deviceStatusOtaMasterProgress" body:dict];
-        }else if (meshState == MeshOTAState_continue){
+        } else if (meshState == MeshOTAState_continue) {
             //meshOTA阶段
             NSString *t = [NSString stringWithFormat:@"package meshing... progress:%ld%%", (long)progress];
-            NSLog(@"ota = %@",t);
+            NSLog(@"ota = %@", t);
         }
     } finishHandle:^(NSInteger successNumber, NSInteger failNumber) {
         NSString *tip = [NSString stringWithFormat:@"success:%ld,fail:%ld", (long)successNumber, (long)failNumber];
-        NSLog(@"ota = %@",tip);
+        NSLog(@"ota = %@", tip);
         NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
         [self sendEventWithName:@"deviceStatusOtaMasterComplete" body:dict];
     } errorHandle:^(NSError *error) {
-        NSLog(@"ota = %@",error.domain);
+        NSLog(@"ota = %@", error.domain);
         NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
         [self sendEventWithName:@"deviceStatusOtaMasterFail" body:dict];
     }];
-    
 }
 
 
@@ -389,9 +416,9 @@ RCT_EXPORT_METHOD(changeBrightness:(NSString *)meshAddress value:(NSInteger)valu
     for (DeviceModel *dev in self.devArray) {
         if ([[NSString stringWithFormat:@"%x", dev.u_DevAdress] isEqual:meshAddress]) {
             NSLog(@"brightness====%ld", dev.brightness);
-            if (dev.stata==LightStataTypeOff && value>0) {
+            if (dev.stata == LightStataTypeOff && value > 0) {
                 [kCentralManager turnOnCertainLightWithAddress:dev.u_DevAdress];
-            }else if (dev.stata==LightStataTypeOn && value==0) {
+            } else if (dev.stata == LightStataTypeOn && value == 0) {
                 [kCentralManager turnOffCertainLightWithAddress:dev.u_DevAdress];
                 return;
             }
@@ -417,95 +444,91 @@ RCT_EXPORT_METHOD(configNode:(NSDictionary *)node cfg:(NSDictionary *)cfg resolv
     self.cfg = [[NSMutableDictionary alloc] initWithDictionary:cfg];
     self.node = [[NSMutableDictionary alloc] initWithDictionary:node];
     self.configNode = YES;
-    NSLog(@"configNode node = %@",[node objectForKey:@"macAddress"]);
+    NSLog(@"configNode node = %@", [node objectForKey:@"macAddress"]);
     for (BTDevItem *bt in self.BTDevArray) {
         if ([[NSString stringWithFormat:@"%x", bt.u_Mac] isEqualToString:[node objectForKey:@"macAddress"]]) {
             [kCentralManager connectWithItem:bt];
         }
     }
-    NSLog(@"configNode node = %d",[[node objectForKey:@"meshAddress"] intValue]);
-    
-    _resolveBlock=resolve;
-    _rejectBlock=reject;
+    NSLog(@"configNode node = %d", [[node objectForKey:@"meshAddress"] intValue]);
+
+    _resolveBlock = resolve;
+    _rejectBlock = reject;
 }
 
--(void)resultOfReplaceAddress:(uint32_t )resultAddress
+- (void)resultOfReplaceAddress:(uint32_t )resultAddress
 {
     for (BTDevItem *bt in self.BTDevArray) {
         if ([[NSString stringWithFormat:@"%x", bt.u_Mac] isEqualToString:[self.node objectForKey:@"macAddress"]]) {
             bt.u_DevAdress = resultAddress;
-            NSLog(@"configNode b1 = %@",bt.description);
+            NSLog(@"configNode b1 = %@", bt.description);
             GetLTKBuffer;
             [kCentralManager setOut_Of_MeshWithName:[self.cfg objectForKey:@"oldName"] PassWord:[self.cfg objectForKey:@"oldPwd"] NewNetWorkName:[self.cfg objectForKey:@"newName"] Pwd:[self.cfg objectForKey:@"newPwd"] ltkBuffer:ltkBuffer ForCertainItem:bt];
         }
     }
 }
 
-
-
 RCT_EXPORT_METHOD(setNodeGroupAddr) {
     NSLog(@"setNodeGroupAddr");
 }
 
-RCT_EXPORT_METHOD(getTime:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(getTime:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     NSLog(@"getTime");
     NSArray *value = [NSArray arrayWithObject:[NSNumber numberWithInteger:relayTimes]];
     [[BTCentralManager shareBTCentralManager] sendCommand:0xE8 meshAddress:meshAddress value:value];
     _resolvedateBlock = resolve;
 }
 
--(void)getDevDate:(NSDate *)date
+- (void)getDevDate:(NSDate *)date
 {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ss"];
     NSString *dateString = [dateFormatter stringFromDate:date];
-    NSLog(@"time strDate = %@",dateString);
+    NSLog(@"time strDate = %@", dateString);
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
     [event setObject:dateString forKey:@"time"];
-    
+
     _resolvedateBlock(event);
 }
 
-RCT_EXPORT_METHOD(getAlarm:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes alarmId:(NSInteger)alarmId resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(getAlarm:(NSInteger)meshAddress relayTimes:(NSInteger)relayTimes alarmId:(NSInteger)alarmId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     NSLog(@"getAlarm");
     //    NSArray *value = [NSArray arrayWithObjects:[NSNumber numberWithInteger:relayTimes],[NSNumber numberWithInteger:alarmId],nil];
     //    [[BTCentralManager shareBTCentralManager] sendCommand:0xE6 meshAddress:meshAddress value:value];
     //    _resolvesegetAlarm = resolve;
 }
 
-
-
 RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddress groupAddress:(NSInteger)groupAddress resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     NSMutableArray *array = [[NSMutableArray alloc] init];
     if (toDel) {
         [array addObject:[NSNumber numberWithInt:0]];
-    }else{
+    } else {
         [array addObject:[NSNumber numberWithInt:1]];
     }
     [[BTCentralManager shareBTCentralManager] setNodeGroupAddr:meshAddress groupAddress:groupAddress toDel:toDel];
-    
+
     _resolvesetNodeGroupAddr = resolve;
     _rejectsetNodeGroupAddr = reject;
 }
 
--(void)onGetGroupNotify:(NSArray *)array
+- (void)onGetGroupNotify:(NSArray *)array
 {
     for (NSNumber *num in array) {
-        NSLog(@"array = %@",[NSNumber numberWithInt:num]);
+        NSLog(@"array = %@", [NSNumber numberWithInt:num]);
     }
     if (array.count) {
         _resolvesetNodeGroupAddr(array);
-    }else{
-        _rejectsetNodeGroupAddr(0,@"GetGroup return null",nil);
+    } else {
+        _rejectsetNodeGroupAddr(0, @"GetGroup return null", nil);
     }
-    
+
 }
 
 /**
- *OTA回掉
+ *OTA回调
  */
-- (void)OnDevNotify:(id)sender Byte:(uint8_t *)bytes 
+- (void)OnDevNotify:(id)sender Byte:(uint8_t *)bytes
 {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     int meshAddress = bytes[3];
@@ -536,7 +559,7 @@ RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddres
                 case 4:
                     [dict setObject:@"complete" forKey:@"otaState"];
                     break;
-                    
+
                 default:
                     break;
             }
@@ -545,7 +568,7 @@ RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddres
         case 0x06://OtaSlaveProgress
             if (bytes[11] == 0) {
                 [dict setObject:@"ok" forKey:@"setOtaModeRes"];
-            }else{
+            } else {
                 [dict setObject:@"err" forKey:@"setOtaModeRes"];
             }
             [self sendEventWithName:@"notificationDataSetOtaModeRes" body:dict];
@@ -555,7 +578,7 @@ RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddres
     }
 }
 
--(void)OnDevOperaStatusChange:(id)sender Status:(OperaStatus)status{
+- (void)OnDevOperaStatusChange:(id)sender Status:(OperaStatus)status {
     if (status == DevOperaStatus_SetNetwork_Finish) {
         [self sendEventWithName:@"deviceStatusLogout" body:nil];
         //查询版本号
@@ -564,10 +587,10 @@ RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddres
 }
 
 /*data:<56312e48 00000000 00000000>*/
--(void)OnConnectionDevFirmWare:(NSData *)data{
+- (void)OnConnectionDevFirmWare:(NSData *)data {
     NSString *firm = [[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(0, 4)] encoding:NSUTF8StringEncoding];
-    NSLog(@"OnConnectionDevFirmWare:%@",firm);
-    
+    NSLog(@"OnConnectionDevFirmWare:%@", firm);
+
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     [dict setObject:firm forKey:@"firmwareRevision"];
     if (_resolveBlock) {
@@ -577,12 +600,12 @@ RCT_EXPORT_METHOD(setNodeGroupAddr:(BOOL)toDel meshAddress:(NSInteger)meshAddres
 
 - (void)exceptionReport:(int)stateCode errorCode:(int)errorCode deviceID:(int)deviceID
 {
-    NSLog(@"exceptionReport = %d",errorCode);
+    NSLog(@"exceptionReport = %d", errorCode);
 }
 
 - (void)loginTimeout:(TimeoutType)type
 {
-    NSLog(@"loginTimeout = %d",type);
+    NSLog(@"loginTimeout = %d", type);
 }
 
 @end
