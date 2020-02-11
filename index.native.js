@@ -405,6 +405,10 @@ class TelinkBt {
                                 NativeModule.sendCommand(0xF1, meshAddress, [scene, speed, color3.r, color3.g, color3.b, colorSequence, colorsLength, colorSequenceAndEnd], immediate);
                                 changed = true;
                                 break;
+                            case 26:
+                                NativeModule.sendCommand(0xF1, meshAddress, [scene, speed], immediate);
+                                changed = true;
+                                break;
                             default:
                                 break;
                         }
