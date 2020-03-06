@@ -505,6 +505,7 @@ class TelinkBt {
         second = 0,
         immediate = false,
     }) {
+        // telink 固件中时间月份是 1~12 而非 Java 或 JS 中标准的 0~11 ，所以这里 month + 1
         NativeModule.sendCommand(0xE4, meshAddress, [year >> 8 & 0xFF, year & 0xFF, month + 1, day, hour, minute, second], immediate);
     }
 
@@ -528,7 +529,7 @@ class TelinkBt {
         status,
         action,
         type,
-        month = 1, // telink 固件中时间月份是 1~12 而非 Java 或 JS 中标准的 0~11
+        month = 0,
         dayOrweek,
         hour,
         minute,
@@ -536,7 +537,8 @@ class TelinkBt {
         sceneId = 0,
         immediate = false,
     }) {
-        NativeModule.sendCommand(0xE5, meshAddress, [crud, alarmId, status << 7 | type << 4 | action, month, dayOrweek, hour, minute, second, sceneId], immediate);
+        // telink 固件中时间月份是 1~12 而非 Java 或 JS 中标准的 0~11 ，所以这里 month + 1
+        NativeModule.sendCommand(0xE5, meshAddress, [crud, alarmId, status << 7 | type << 4 | action, month + 1, dayOrweek, hour, minute, second, sceneId], immediate);
     }
 
     static getAlarm({

@@ -169,7 +169,7 @@ class TelinkBt {
         status,
         action,
         type,
-        month = 1,
+        month = 0,
         dayOrweek,
         hour,
         minute,
