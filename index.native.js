@@ -616,6 +616,14 @@ class TelinkBt {
         ], immediate);
     }
 
+    // 是否是两个发布版本之间的测试版本
+    static isTestFw({
+        fwVer,
+    }) {
+        // 一般发布版本号都是 'V1.6' 之类的，类似 'Vg.7' 或 'Vh.7' 或 'Vi.7' 之类的代表正在开发中的下一个版本的测试版本
+        return 'a' <= fwVer[1] && fwVer[1] <= 'z';
+    }
+
     static getOtaState({
         meshAddress = 0x0000,
         relayTimes = 7,

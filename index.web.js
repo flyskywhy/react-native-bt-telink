@@ -207,6 +207,10 @@ class TelinkBt {
         immediate = false,
     }) {}
 
+    static isTestFw({
+        fwVer,
+    }) {}
+
     static getOtaState({
         meshAddress = 0x0000,
         relayTimes = 7,
