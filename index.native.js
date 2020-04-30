@@ -17,7 +17,7 @@ class TelinkBt {
     static HUE_MAX = 360;
     static SATURATION_MIN = 0;
     static SATURATION_MAX = 100;
-    static BRIGHTNESS_MIN = 5;
+    static BRIGHTNESS_MIN = 39; // 实测灯串不会随着亮度变化而改变颜色的最低亮度
     static BRIGHTNESS_MAX = 100;
     static COLOR_TEMP_MIN = 5;
     static COLOR_TEMP_MAX = 100;
