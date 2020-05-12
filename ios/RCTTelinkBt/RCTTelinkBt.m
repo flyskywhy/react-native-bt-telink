@@ -412,7 +412,7 @@ RCT_EXPORT_METHOD(changePower:(NSInteger)meshAddress value:(NSInteger)value) {
     }
 }
 
-RCT_EXPORT_METHOD(changeBrightness:(NSString *)meshAddress value:(NSInteger)value) {
+RCT_EXPORT_METHOD(changeBrightness:(NSInteger)meshAddress value:(NSInteger)value) {
     for (DeviceModel *dev in self.devArray) {
         if ([[NSString stringWithFormat:@"%x", dev.u_DevAdress] isEqual:meshAddress]) {
             NSLog(@"brightness====%ld", dev.brightness);
@@ -427,7 +427,7 @@ RCT_EXPORT_METHOD(changeBrightness:(NSString *)meshAddress value:(NSInteger)valu
     }
 }
 
-RCT_EXPORT_METHOD(changeTemperatur:(NSString *)meshAddress value:(float)value) {
+RCT_EXPORT_METHOD(changeTemperatur:(NSInteger)meshAddress value:(float)value) {
     for (DeviceModel *dev in self.devArray) {
         if ([[NSString stringWithFormat:@"%x", dev.u_DevAdress] isEqual:meshAddress]) {
             [kCentralManager setCTOfLightWithDestinationAddress:dev.u_DevAdress AndCT:value];
@@ -435,7 +435,7 @@ RCT_EXPORT_METHOD(changeTemperatur:(NSString *)meshAddress value:(float)value) {
     }
 }
 
-RCT_EXPORT_METHOD(changeColor:(NSString *)meshAddress value:(NSInteger)value) {
+RCT_EXPORT_METHOD(changeColor:(NSInteger)meshAddress value:(NSInteger)value) {
     //NSLog(@"value4=====%ld", value);
     //[[BTCentralManager shareBTCentralManager] setLightOrGroupRGBWithDestinateAddress:self.selData.u_DevAdress WithColorR:red WithColorG:green WithB:blue];
 }
