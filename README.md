@@ -14,6 +14,7 @@ npm i --save react-native-bt-telink
 ```
 
 ### Android
+For RN < 0.60, need files edited below:
 In `android/app/build.gradle`
 ```
 dependencies {
@@ -35,10 +36,12 @@ project(':react-native-bt-telink').projectDir = new File(rootProject.projectDir,
 ```
 
 ### iOS
-In `ios/Podfile`
+For RN < 0.60, in `ios/Podfile`
 ```
   pod 'RNBtTelink', :path => '../node_modules/react-native-bt-telink'
 ```
+
+For RN < 0.60 and RN >= 0.60
 
     cd ios
     pod install
