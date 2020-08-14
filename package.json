@@ -1,23 +1,37 @@
 {
   "name": "react-native-bt-telink",
   "version": "1.0.0",
-  "description": "Component implementation for Bluetooth SDK of Telink",
-  "main": "index.native.js",
+  "description": "Component implementation for Bluetooth Mesh SDK of Telink",
+  "main": "index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/flyskywhy/react-native-bt-telink.git"
   },
   "keywords": [
-    "ble",
+    "android",
     "bluetooth",
+    "bt",
+    "ios",
     "mesh",
     "react-native",
     "telink"
   ],
   "author": "Li Zheng",
+  "funding": [
+    {
+      "type": "individual",
+      "url": "https://Alipay/flyskywhy@gmail.com"
+    },
+    {
+      "type": "individual",
+      "url": "https://EthAddress/0xd02fa2738dcbba988904b5a9ef123f7a957dbb3e"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/flyskywhy/react-native-bt-telink/issues"
