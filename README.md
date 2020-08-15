@@ -15,10 +15,11 @@ npm i --save react-native-bt-telink
 
 ### Android
 For RN < 0.60, need files edited below:
+
 In `android/app/build.gradle`
 ```
 dependencies {
-    compile project(':react-native-bt-telink')
+    implementation project(':react-native-bt-telink')
 }
 ```
 
@@ -80,6 +81,7 @@ export default class MeshModuleExample extends React.Component {
         );
     }
 }
+```
 
 ## Sponsor
 
