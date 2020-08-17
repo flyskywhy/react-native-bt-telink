@@ -8,9 +8,14 @@
 Component implementation for Bluetooth Mesh SDK of Telink.
 
 ## Install
-
+For RN >= 0.60
 ```shell
 npm i --save react-native-bt-telink
+```
+
+For RN < 0.60
+```shell
+npm i --save react-native-bt-telink@1.0.x
 ```
 
 ### Android
