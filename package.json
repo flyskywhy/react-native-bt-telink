@@ -1,6 +1,6 @@
 {
   "name": "react-native-bt-telink",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Component implementation for Bluetooth Mesh SDK of Telink",
   "main": "index",
   "scripts": {
